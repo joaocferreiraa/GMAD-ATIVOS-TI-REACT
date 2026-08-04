@@ -1,0 +1,69 @@
+/* Design tokens portados de site-ativos-ti-gmad-madville.html (paleta Madville / GMAD). */
+
+:root {
+  --verde-900: #0f3823;
+  --verde-800: #154c2e;
+  --verde-700: #1b5e3a;
+  --verde-600: #227449;
+  --verde-100: #e4eee6;
+  --laranja: #f2611d;
+  --laranja-forte: #d8500f;
+  --madeira: #a9713f;
+  --madeira-claro: #e9dac4;
+
+  --bg: #ffffff;
+  --bg-elevated: #f6f6f4;
+  --surface: #ffffff;
+  --surface-hover: #f2f2f0;
+  --border: #e4e4e1;
+  --border-strong: #d6d6d2;
+  --login-bg: #fceee6;
+  --text: #20261f;
+  --text-muted: #5c6459;
+  --text-faint: #8d9385;
+  --accent: var(--laranja);
+  --accent-strong: var(--laranja-forte);
+  --accent-ink: #ffffff;
+  --brand: var(--verde-700);
+  --brand-strong: var(--verde-800);
+  --ok: #1b7a43;
+  --ok-bg: rgba(27, 122, 67, 0.1);
+  --warn: #b96a12;
+  --warn-bg: rgba(217, 133, 15, 0.14);
+  --danger: #c23b1f;
+  --danger-bg: rgba(194, 59, 31, 0.12);
+  --radius: 6px;
+  --shadow-soft: none;
+
+  --font-display: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+:root[data-theme='dark'] {
+  --verde-900: #1b5e20;
+  --verde-800: #4ade80;
+  --verde-700: #36c45a;
+  --verde-600: #2fa84f;
+  --verde-100: rgba(54, 196, 90, 0.18);
+  --laranja: #ff8c2a;
+  --laranja-forte: #ffab5c;
+
+  --bg: #1a1a1d;
+  --bg-elevated: #202023;
+  --surface: #2a2a2e;
+  --surface-hover: #2a2a2f;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  --text: #f5f5f5;
+  --text-muted: #a1a1aa;
+  --text-faint: #71717a;
+
+  --ok: #4ade80;
+  --ok-bg: rgba(54, 196, 90, 0.18);
+  --warn: #f59e0b;
+  --warn-bg: rgba(245, 158, 11, 0.16);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.16);
+}
