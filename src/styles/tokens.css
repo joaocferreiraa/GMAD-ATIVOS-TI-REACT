@@ -38,6 +38,11 @@
   --font-display: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+
+  /* -- layout do app shell (sidebar + topbar fixos) -- */
+  --header-h: 60px;
+  --sidebar-w: 216px;
+  --app-max-w: 1320px;
 }
 
 :root[data-theme='dark'] {

@@ -1,7 +1,32 @@
 import { Outlet } from 'react-router-dom'
+import { SidebarProvider } from '../../contexts/SidebarProvider'
+import { useSidebarState } from '../../hooks/layout/useSidebarState'
+import Sidebar from './Sidebar/Sidebar'
+import Topbar from './Topbar/Topbar'
+import Footer from './Footer/Footer'
+import styles from './AppLayout.module.css'
 
-// Casca da aplicação autenticada (sidebar + topbar + conteúdo). Sidebar/Topbar
-// serão preenchidos quando essas telas forem migradas — por ora só o Outlet.
+function AppShell() {
+  const { collapsed } = useSidebarState()
+
+  return (
+    <div className={`${styles.shell} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+      <Topbar />
+      <Sidebar />
+      <div className={styles.content}>
+        <Outlet />
+        <Footer />
+      </div>
+    </div>
+  )
+}
+
+// Casca da aplicação autenticada: sidebar + topbar fixos, conteúdo da página
+// (via Outlet) e rodapé institucional, reproduzindo o #app/.app originais.
 export default function AppLayout() {
-  return <Outlet />
+  return (
+    <SidebarProvider>
+      <AppShell />
+    </SidebarProvider>
+  )
 }

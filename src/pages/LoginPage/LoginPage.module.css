@@ -1,0 +1,299 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (#loginScreen e classes .login-*). */
+
+.loginScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: stretch;
+  font-family: var(--font-body);
+}
+
+.loginVisual {
+  flex: 1.15;
+  position: relative;
+  overflow: hidden;
+  display: none;
+  background: linear-gradient(
+    160deg,
+    var(--verde-900) 0%,
+    var(--verde-700) 60%,
+    var(--laranja-forte) 160%
+  );
+}
+
+.loginVisual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loginVisual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 56, 35, 0.15) 0%,
+    rgba(15, 56, 35, 0.3) 45%,
+    rgba(15, 56, 35, 0.93) 100%
+  );
+}
+
+.loginVisualContent {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 68px 64px;
+  color: #fff;
+}
+
+.loginVisualContent h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.3;
+  max-width: 420px;
+  margin: 0 0 12px;
+}
+
+.loginVisualContent p {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13.5px;
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0;
+}
+
+.loginFormSide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 32px;
+  position: relative;
+}
+
+.loginBox {
+  width: 100%;
+  max-width: 388px;
+  animation: loginIn 0.5s ease both;
+}
+
+@keyframes loginIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loginBrand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.lbText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lbSub {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--brand-strong);
+}
+
+.loginBox h1 {
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+.loginField {
+  margin-bottom: 20px;
+}
+
+.loginField label {
+  display: block;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.loginField input {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  padding: 13px 14px;
+  border-radius: var(--radius);
+  font-size: 14.5px;
+  font-family: var(--font-body);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.loginField input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--verde-100);
+}
+
+.loginTogglePw {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.loginRemember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 4px 0 26px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.loginRemember input {
+  accent-color: var(--brand);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.loginError {
+  display: none;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(194, 59, 31, 0.3);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.loginError.show {
+  display: block;
+}
+
+.btnLogin {
+  width: 100%;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: var(--radius);
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.18s ease;
+  box-shadow: none;
+}
+
+.btnLogin:hover {
+  background: var(--brand-strong);
+}
+
+.btnLogin:active {
+  transform: translateY(1px);
+}
+
+.btnLogin[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loginFoot {
+  margin-top: 24px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 11.5px;
+}
+
+.loginFoot b {
+  color: var(--text-muted);
+}
+
+@media (min-width: 900px) {
+  .loginVisual {
+    display: block;
+  }
+}
+
+@media (max-width: 760px) {
+  .loginFormSide {
+    padding: 20px;
+  }
+}
+
+/* Tela de login sempre no tema claro, mesmo com o tema escuro ativo no resto do sistema */
+:global(:root[data-theme='dark']) .loginScreen {
+  --verde-900: #0f3823;
+  --verde-800: #154c2e;
+  --verde-700: #1b5e3a;
+  --verde-600: #227449;
+  --verde-100: #e4eee6;
+  --laranja: #f2611d;
+  --laranja-forte: #d8500f;
+  --bg: #ffffff;
+  --bg-elevated: #f6f6f4;
+  --surface: #ffffff;
+  --surface-hover: #f2f2f0;
+  --border: #e4e4e1;
+  --border-strong: #d6d6d2;
+  --text: #20261f;
+  --text-muted: #5c6459;
+  --text-faint: #8d9385;
+  --ok: #1b7a43;
+  --ok-bg: rgba(27, 122, 67, 0.1);
+  --warn: #b96a12;
+  --warn-bg: rgba(217, 133, 15, 0.14);
+  --danger: #c23b1f;
+  --danger-bg: rgba(194, 59, 31, 0.12);
+  --brand: var(--verde-700);
+  --brand-strong: var(--verde-800);
+  --accent: var(--laranja);
+  --accent-strong: var(--laranja-forte);
+}
