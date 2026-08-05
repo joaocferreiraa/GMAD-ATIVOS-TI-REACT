@@ -11,11 +11,12 @@ export default function Modal({
   subtitle,
   footer,
   showCloseButton = true,
+  maxWidth,
   children,
 }) {
   return (
     <Overlay open={open} onClose={onClose}>
-      <div className={styles.modal}>
+      <div className={styles.modal} style={maxWidth ? { maxWidth } : undefined}>
         {showCloseButton && (
           <button
             type="button"
