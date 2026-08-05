@@ -1,0 +1,25 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.tag-chip). */
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  background: var(--verde-100);
+  border: 1px dashed var(--verde-600);
+  padding: 3px 8px 3px 6px;
+  border-radius: 5px;
+  color: var(--verde-800);
+  white-space: nowrap;
+}
+
+.tagChip::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--verde-600);
+  flex-shrink: 0;
+}

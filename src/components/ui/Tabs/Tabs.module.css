@@ -1,0 +1,67 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.tabgroup, .tab). */
+
+.tabgroup {
+  display: flex;
+  column-gap: 4px;
+  row-gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.groupLabel {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  margin: 16px 0 4px;
+  border-bottom: none;
+}
+
+.groupLabel:first-child {
+  margin-top: 0;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 9px 14px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1px;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  border-radius: 4px 4px 0 0;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.tab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.tab.active {
+  color: var(--brand-strong);
+  border-bottom-color: var(--brand);
+}
+
+.count {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tab.active .count {
+  color: var(--brand-strong);
+}

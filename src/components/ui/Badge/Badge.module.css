@@ -1,0 +1,36 @@
+/* Portado de site-ativos-ti-gmad-madville.html — .badge e .warranty eram duas
+   classes com a MESMA regra base duplicada (status ativo/manutenção/inativo e
+   garantia ok/vence/vencida usam exatamente o mesmo visual). Aqui viram uma
+   única variante de Badge, sem duplicar CSS. */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  line-height: 1.4;
+}
+
+.ok {
+  color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+
+.danger {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.muted {
+  color: var(--text-faint);
+  font-weight: 500;
+  background: none;
+  padding: 3px 0;
+}

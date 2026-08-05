@@ -1,0 +1,31 @@
+/* Generalizado a partir de .login-error (único banner de alerta do sistema
+   original). As variantes warning/success/info reaproveitam tokens de cor já
+   existentes (--warn/--ok/--brand), nenhuma cor nova foi introduzida. */
+
+.alert {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(194, 59, 31, 0.3);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.warning {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border-color: rgba(217, 133, 15, 0.3);
+}
+
+.success {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: rgba(27, 122, 67, 0.3);
+}
+
+.info {
+  background: var(--verde-100);
+  color: var(--brand-strong);
+  border-color: var(--verde-600);
+}

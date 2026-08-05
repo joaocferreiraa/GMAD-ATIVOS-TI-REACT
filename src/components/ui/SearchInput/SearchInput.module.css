@@ -1,0 +1,5 @@
+/* Contexto de uso em .toolbar no original: flex:1, largura mínima. */
+.search {
+  flex: 1;
+  min-width: 180px;
+}

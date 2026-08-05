@@ -1,0 +1,13 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.toolbar). */
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+}

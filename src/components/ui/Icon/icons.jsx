@@ -189,3 +189,36 @@ export function MailIcon(props) {
     </IconBase>
   )
 }
+
+export function CloseIcon(props) {
+  return (
+    <IconBase {...props}>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </IconBase>
+  )
+}
+
+export function ChevronDownIcon(props) {
+  return (
+    <IconBase {...props}>
+      <polyline points="6 9 12 15 18 9" />
+    </IconBase>
+  )
+}
+
+export function CheckIcon(props) {
+  return (
+    <IconBase strokeWidth="2" {...props}>
+      <polyline points="20 6 9 17 4 12" />
+    </IconBase>
+  )
+}
+
+export function SpinnerIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </IconBase>
+  )
+}

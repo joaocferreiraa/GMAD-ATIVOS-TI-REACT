@@ -1,0 +1,39 @@
+/* Não existe equivalente no sistema original — spinner novo usando a cor de
+   marca (--brand) e o mesmo estilo de traço fino dos ícones existentes. */
+
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.spinner {
+  color: var(--brand);
+  animation: spin 0.8s linear infinite;
+}
+
+.sm {
+  width: 16px;
+  height: 16px;
+}
+
+.md {
+  width: 22px;
+  height: 22px;
+}
+
+.lg {
+  width: 32px;
+  height: 32px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

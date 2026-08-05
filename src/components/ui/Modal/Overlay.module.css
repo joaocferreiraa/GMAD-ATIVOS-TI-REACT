@@ -1,0 +1,21 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.overlay). Compartilhado
+   por Modal, Drawer e ConfirmDialog — evita repetir a mesma regra 3x. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 13, 0.72);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 30px 16px;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.drawer {
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 0;
+}
