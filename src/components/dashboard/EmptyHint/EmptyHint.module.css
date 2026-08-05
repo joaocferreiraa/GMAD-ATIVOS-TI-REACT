@@ -1,0 +1,10 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.attn-empty) — usado em
+   4 pontos do Dashboard original (gráficos sem dados, lista de atenção vazia,
+   distribuição por setor sem unidades); centralizado aqui para não repetir. */
+
+.hint {
+  color: var(--text-faint);
+  font-size: 12.5px;
+  padding: 14px 0;
+  text-align: center;
+}

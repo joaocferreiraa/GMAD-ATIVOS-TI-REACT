@@ -1,3 +1,1 @@
-export default function DashboardPage() {
-  return <p>Dashboard — página ainda não migrada.</p>
-}
+export { default } from './DashboardPage'

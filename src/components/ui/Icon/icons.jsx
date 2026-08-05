@@ -222,3 +222,81 @@ export function SpinnerIcon(props) {
     </IconBase>
   )
 }
+
+// Ícones de categoria de equipamento e KPIs do Dashboard (ICON_PATHS do sistema original).
+export function MonitorIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </IconBase>
+  )
+}
+
+export function DisplayIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="3" y="5" width="18" height="12" rx="1.5" />
+      <line x1="3" y1="15" x2="21" y2="15" />
+    </IconBase>
+  )
+}
+
+export function LaptopIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="4" y="4" width="16" height="10" rx="1" />
+      <path d="M2 18h20l-1.5-3h-17L2 18z" />
+    </IconBase>
+  )
+}
+
+export function SmartphoneIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="6" y="2" width="12" height="20" rx="2" ry="2" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+    </IconBase>
+  )
+}
+
+export function PrinterIcon(props) {
+  return (
+    <IconBase {...props}>
+      <polyline points="6 9 6 2 18 2 18 9" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" />
+    </IconBase>
+  )
+}
+
+export function TvIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+      <polyline points="17 2 12 7 7 2" />
+    </IconBase>
+  )
+}
+
+export function BuildingIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="4" y="3" width="16" height="18" rx="1" />
+      <rect x="7" y="6.5" width="3" height="3" />
+      <rect x="14" y="6.5" width="3" height="3" />
+      <rect x="7" y="12.5" width="3" height="3" />
+      <rect x="14" y="12.5" width="3" height="3" />
+    </IconBase>
+  )
+}
+
+export function DollarIcon(props) {
+  return (
+    <IconBase {...props}>
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </IconBase>
+  )
+}

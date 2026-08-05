@@ -1,0 +1,33 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.attn-list, .attn-item). */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.main b {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.main span {
+  color: var(--text-faint);
+  font-size: 11.5px;
+}
