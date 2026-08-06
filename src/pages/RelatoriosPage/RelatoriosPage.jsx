@@ -7,7 +7,11 @@ import { useScripts } from '../../hooks/data/useScripts'
 import { useAtividade } from '../../hooks/data/useAtividade'
 import { useRelatoriosData } from './useRelatoriosData'
 import { useToast } from '../../hooks/useToast'
-import { exportReportCsv, exportReportExcel, exportReportPdf } from '../../services/relatorios/reportExport'
+import {
+  exportReportCsv,
+  exportReportExcel,
+  exportReportPdf,
+} from '../../services/relatorios/reportExport'
 import Button from '../../components/ui/Button/Button'
 import Loading from '../../components/ui/Loading/Loading'
 import Alert from '../../components/ui/Alert/Alert'
@@ -45,7 +49,12 @@ export default function RelatoriosPage() {
     scriptsQ.isLoading ||
     atividadeQ.isLoading
   const isError =
-    assetsQ.isError || stockQ.isError || contatosQ.isError || installersQ.isError || scriptsQ.isError || atividadeQ.isError
+    assetsQ.isError ||
+    stockQ.isError ||
+    contatosQ.isError ||
+    installersQ.isError ||
+    scriptsQ.isError ||
+    atividadeQ.isError
 
   const [uiState, setUiState] = useState({
     activeKey: null,

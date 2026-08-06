@@ -1,0 +1,135 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.view-header-row,
+   .view-head-title, .view-head-sub, .view-section, .view-rows...) — usado
+   pelo ScriptDrawer. Mesmo padrão de coluna única sem cartões usado em
+   ContatoPanel.module.css/StockPanel.module.css/InstallerPanel.module.css. */
+
+.viewHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.viewHeadTitle {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.viewHeadSub {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.viewSection {
+  margin-top: 20px;
+}
+
+.viewSection:first-of-type {
+  margin-top: 0;
+}
+
+.viewSectionTitle {
+  font-size: 13px;
+  color: var(--laranja-forte);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.viewRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.viewRow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.viewRow:last-child {
+  border-bottom: none;
+}
+
+.vrLabel {
+  flex: 0 0 170px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.vrValue {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.footerActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.codeActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.favBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.favBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.favBtn.active {
+  color: var(--laranja);
+}
+
+.favBtn.active svg {
+  fill: var(--laranja);
+}
+
+@media (max-width: 560px) {
+  .viewHeaderRow {
+    flex-direction: column;
+  }
+
+  .viewRow {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vrLabel {
+    flex: none;
+    font-size: 12px;
+  }
+}

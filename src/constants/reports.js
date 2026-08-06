@@ -74,7 +74,12 @@ export const REPORT_DEFS = [
         options: (data) => getUnidades(data.assets),
         optionLabel: unitDisplayName,
       },
-      { key: 'categoria', label: 'Categoria', allLabel: 'Todas as categorias', options: () => CATEGORIES },
+      {
+        key: 'categoria',
+        label: 'Categoria',
+        allLabel: 'Todas as categorias',
+        options: () => CATEGORIES,
+      },
       {
         key: 'status',
         label: 'Status',
@@ -220,7 +225,11 @@ export const REPORT_DEFS = [
     desc: 'Histórico de cadastros, edições e exclusões.',
     icon: ClockIcon,
     columns: [
-      { key: 'ts', label: 'Data/hora', format: (v) => (v ? new Date(v).toLocaleString('pt-BR') : '—') },
+      {
+        key: 'ts',
+        label: 'Data/hora',
+        format: (v) => (v ? new Date(v).toLocaleString('pt-BR') : '—'),
+      },
       { key: 'texto', label: 'Ação' },
       { key: 'por', label: 'Responsável' },
     ],

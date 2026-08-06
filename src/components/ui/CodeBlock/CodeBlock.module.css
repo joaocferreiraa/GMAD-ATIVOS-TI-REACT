@@ -1,0 +1,32 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.code-block, .tok-comment,
+   .tok-string, .tok-keyword). */
+
+.codeBlock {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.codeBlock :global(.tok-comment) {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.codeBlock :global(.tok-string) {
+  color: var(--laranja-forte);
+}
+
+.codeBlock :global(.tok-keyword) {
+  color: var(--brand-strong);
+  font-weight: 600;
+}

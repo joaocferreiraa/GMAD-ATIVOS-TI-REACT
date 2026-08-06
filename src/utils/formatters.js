@@ -44,6 +44,22 @@ export function unitDisplayName(unit) {
   return unit === 'Gmad Curitiba' ? 'GMAD Curitiba' : unit
 }
 
+// Tempo relativo a partir de um timestamp ISO (ex.: "5min atrás"). Calculado
+// no momento da chamada, sem atualização automática — mesmo comportamento
+// (e mesma limitação) do fmtRelTime() original: se a tela ficar aberta sem
+// nenhum outro re-render, o texto fica desatualizado até a próxima renderização.
+export function fmtRelTime(iso) {
+  if (!iso) return ''
+  const diff = Date.now() - new Date(iso).getTime()
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return 'agora'
+  if (min < 60) return `${min}min atrás`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `${h}h atrás`
+  const d = Math.floor(h / 24)
+  return `${d}d atrás`
+}
+
 // Situação da garantia de um ativo a partir da data de vencimento (ISO).
 // cls: 'ok' | 'warn' (vence em até 60 dias) | 'expired' | 'none' (sem data).
 export function warrantyInfo(iso) {

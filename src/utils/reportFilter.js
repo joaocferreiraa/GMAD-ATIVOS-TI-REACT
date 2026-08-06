@@ -15,7 +15,12 @@ export function computeReportRows(report, filters, sortKey) {
       const vb = b[sortKey]
       const na = parseFloat(va)
       const nb = parseFloat(vb)
-      if (!Number.isNaN(na) && !Number.isNaN(nb) && String(va).trim() !== '' && String(vb).trim() !== '') {
+      if (
+        !Number.isNaN(na) &&
+        !Number.isNaN(nb) &&
+        String(va).trim() !== '' &&
+        String(vb).trim() !== ''
+      ) {
         return na - nb
       }
       return String(va || '').localeCompare(String(vb || ''), 'pt-BR')

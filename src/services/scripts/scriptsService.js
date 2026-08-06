@@ -1,10 +1,15 @@
-import { kvGet } from '../supabase/kvStore'
+import { kvGet, kvSet } from '../supabase/kvStore'
 
 const DATA_KEY = 'gmad_scripts_data'
 
-// Leitura da lista de scripts do kv_store — a tela de Scripts em si ainda
-// não foi migrada (Etapa futura); este service existe apenas para
-// alimentar o relatório "Scripts" da Central de Relatórios.
+// Lê a lista de scripts do kv_store.
 export async function getScripts() {
   return kvGet(DATA_KEY)
+}
+
+// Grava a lista completa de scripts — o kv_store guarda o array inteiro
+// sob uma única chave, então toda escrita reescreve a lista completa
+// (mesmo padrão do saveScriptData() original).
+export async function saveScripts(scripts) {
+  await kvSet(DATA_KEY, scripts)
 }

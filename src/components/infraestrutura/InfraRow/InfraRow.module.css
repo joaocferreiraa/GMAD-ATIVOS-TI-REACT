@@ -1,0 +1,70 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (#viewInfra .view-row,
+   .infra-row, .infra-row-actions, .infra-copy-btn). */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  flex: 0 0 150px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.value {
+  flex: 1;
+  word-break: break-word;
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.copyBtn {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.copyBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.copyBtn:hover {
+  background: var(--surface-hover);
+  color: var(--brand-strong);
+}
+
+.copied {
+  color: var(--ok);
+}
+
+@media (max-width: 560px) {
+  .label {
+    flex: 0 0 108px;
+    font-size: 12px;
+  }
+}
