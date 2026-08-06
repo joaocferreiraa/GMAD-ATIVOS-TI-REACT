@@ -23,3 +23,10 @@ export async function pushLog(texto, autor) {
     // Falha ao gravar o log não deve interromper a operação principal (mesmo comportamento do pushLog original).
   }
 }
+
+// Leitura do log de atividade — usada pelo relatório "Atividade recente" da
+// Central de Relatórios (a tela de Atividade recente em si ainda não foi
+// migrada).
+export async function getLogEntries() {
+  return kvGet(LOG_KEY)
+}

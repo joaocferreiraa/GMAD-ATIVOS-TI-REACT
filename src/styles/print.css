@@ -1,1 +1,54 @@
-/* Regras @media print para a página de Relatórios. Portadas quando a tela de Relatórios for migrada. */
+/* Regras @media print para a página de Relatórios.
+
+   O original escondia a UI por uma lista de seletores globais (.sidebar,
+   .toolbar, .row-actions, .actions-row, .site-footer, .toast-wrap...). Isso
+   não é replicável 1:1 aqui: com CSS Modules cada componente tem sua classe
+   com hash único, então não existe mais um ".sidebar" global para
+   selecionar de fora do componente.
+
+   Efeito idêntico obtido por outro caminho, padrão para "imprimir só uma
+   parte da página": esconde tudo por padrão e só reexibe a subárvore
+   marcada com o id (não sujeito a escopo de módulo) #report-printable —
+   que a RelatoriosPage usa para envolver exatamente o cabeçalho de
+   impressão + a tabela do relatório ativo. Como além disso o app é
+   roteado (cada rota só existe no DOM quando ativa), isso já basta: não há
+   mais um <div class="view"> de cada módulo coexistindo escondido no DOM
+   como no HTML original. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #report-printable,
+  #report-printable * {
+    visibility: visible;
+  }
+
+  #report-printable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border: 1px solid #ccc;
+  }
+
+  body {
+    background: #fff;
+  }
+}
+
+/* Força o tema claro na impressão mesmo com o tema escuro ativo (portado
+   1:1 do original — apenas variáveis CSS, não sujeitas a escopo de módulo). */
+@media print {
+  :root[data-theme='dark'] {
+    --bg: #ffffff;
+    --bg-elevated: #f6f6f4;
+    --surface: #ffffff;
+    --surface-hover: #f2f2f0;
+    --border: #e4e4e1;
+    --border-strong: #d6d6d2;
+    --text: #20261f;
+    --text-muted: #5c6459;
+    --text-faint: #8d9385;
+  }
+}

@@ -1,0 +1,68 @@
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.report-config-row,
+   .report-config-label, .report-columns, .report-format-options,
+   .modal-footer). */
+
+.card {
+  margin-bottom: 18px;
+}
+
+.filtersRow {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 14px;
+}
+
+.configRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.configLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.columns label,
+.formatOptions label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.columns input,
+.formatOptions input {
+  width: auto;
+}
+
+.formatOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 4px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  gap: 10px;
+}
+
+.footerActions {
+  display: flex;
+  gap: 10px;
+}
