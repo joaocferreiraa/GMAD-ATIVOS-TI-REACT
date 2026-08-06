@@ -13,3 +13,11 @@ export function warrantyVariant(cls) {
   if (cls === 'none') return 'muted'
   return cls
 }
+
+// Mapeia o status de um item de estoque para a variante visual do Badge
+// (equivalente ao stockStatusBadgeClass do sistema original).
+export function stockStatusVariant(status) {
+  if (status === 'Baixo estoque') return 'warn'
+  if (status === 'Em falta') return 'danger'
+  return 'ok'
+}
