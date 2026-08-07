@@ -9,15 +9,6 @@ export function FormGrid({ className = '', children, ...props }) {
   )
 }
 
-// Título de seção dentro de um FormGrid (.section-label).
-export function SectionLabel({ className = '', children, ...props }) {
-  return (
-    <div className={`${styles.sectionLabel} ${className}`} {...props}>
-      {children}
-    </div>
-  )
-}
-
 // Par label + campo (.form-field). `required` acrescenta o asterisco laranja;
 // `full` faz o campo ocupar a linha inteira da grade (.form-field.full).
 export default function FormField({

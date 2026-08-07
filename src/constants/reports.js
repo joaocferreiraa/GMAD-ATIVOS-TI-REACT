@@ -237,7 +237,3 @@ export const REPORT_DEFS = [
     buildRows: (data) => data.logEntries,
   },
 ]
-
-export function getReportDef(key) {
-  return REPORT_DEFS.find((r) => r.key === key)
-}

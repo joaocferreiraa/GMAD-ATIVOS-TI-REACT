@@ -6,7 +6,7 @@ import { createSearchMatcher } from './textFilter'
 // findCelularAtivo() original, incluindo a fragilidade: renomear o
 // colaborador ou digitar o "Usuário" do ativo de forma diferente quebra o
 // vínculo silenciosamente.
-export function findCelularAtivo(assets, nome) {
+function findCelularAtivo(assets, nome) {
   if (!nome) return null
   const n = nome.trim().toLowerCase()
   return (

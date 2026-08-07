@@ -4,7 +4,7 @@ import { supabase } from './client'
 // O login aceita "nome.sobrenome" (sem @) e completa com este domínio.
 const LOGIN_DOMAIN = 'madville.com.br'
 
-export function buildLoginEmail(rawUser) {
+function buildLoginEmail(rawUser) {
   const value = rawUser.trim()
   return value.includes('@') ? value : `${value}@${LOGIN_DOMAIN}`
 }

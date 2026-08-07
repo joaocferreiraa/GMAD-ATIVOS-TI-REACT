@@ -2,8 +2,8 @@ import { downloadCsv } from '../export/csvExport'
 
 // Aplica o format() de cada coluna (ou converte para string) e usa o label
 // da coluna como chave — mesmo formato de saída do reportFormattedRows()
-// original, consumido pelos três exportadores e pela pré-visualização.
-export function reportFormattedRows(rows, columns) {
+// original, consumido pelos três exportadores abaixo.
+function reportFormattedRows(rows, columns) {
   return rows.map((r) => {
     const out = {}
     columns.forEach((c) => {
@@ -16,7 +16,7 @@ export function reportFormattedRows(rows, columns) {
 
 // Nome de arquivo slugificado a partir do título do relatório + data de hoje
 // (equivalente a reportFileBaseName() original).
-export function reportFileBaseName(title) {
+function reportFileBaseName(title) {
   const slug = title
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
