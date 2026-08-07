@@ -1,75 +1,44 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.view-header-row,
    .view-head-title, .view-head-sub, .view-section, .view-rows...) — usado
    pelo ScriptDrawer. Mesmo padrão de coluna única sem cartões usado em
-   ContatoPanel.module.css/StockPanel.module.css/InstallerPanel.module.css. */
+   ContatoPanel.module.css/StockPanel.module.css/InstallerPanel.module.css.
+   Núcleo comum às fichas de visualização vem de
+   src/styles/viewPanel.module.css. */
 
 .viewHeaderRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
+  composes: viewHeaderRowBase from '../../styles/viewPanel.module.css';
 }
 
 .viewHeadTitle {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
+  composes: viewHeadTitle from '../../styles/viewPanel.module.css';
 }
 
 .viewHeadSub {
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  composes: viewHeadSub from '../../styles/viewPanel.module.css';
 }
 
 .viewSection {
-  margin-top: 20px;
-}
-
-.viewSection:first-of-type {
-  margin-top: 0;
+  composes: viewSection from '../../styles/viewPanel.module.css';
 }
 
 .viewSectionTitle {
-  font-size: 13px;
-  color: var(--laranja-forte);
-  font-weight: 600;
-  margin: 0 0 4px;
+  composes: viewSectionTitle from '../../styles/viewPanel.module.css';
 }
 
 .viewRows {
-  display: flex;
-  flex-direction: column;
+  composes: viewRows from '../../styles/viewPanel.module.css';
 }
 
 .viewRow {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.viewRow:last-child {
-  border-bottom: none;
+  composes: viewRow from '../../styles/viewPanel.module.css';
 }
 
 .vrLabel {
-  flex: 0 0 170px;
-  color: var(--text-muted);
-  font-size: 13px;
+  composes: vrLabel from '../../styles/viewPanel.module.css';
 }
 
 .vrValue {
-  color: var(--text);
-  font-size: 13.5px;
-  font-weight: 500;
+  composes: vrValue from '../../styles/viewPanel.module.css';
 }
 
 .footer {
@@ -116,20 +85,4 @@
 
 .favBtn.active svg {
   fill: var(--laranja);
-}
-
-@media (max-width: 560px) {
-  .viewHeaderRow {
-    flex-direction: column;
-  }
-
-  .viewRow {
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .vrLabel {
-    flex: none;
-    font-size: 12px;
-  }
 }

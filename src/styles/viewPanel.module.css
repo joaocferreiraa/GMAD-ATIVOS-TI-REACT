@@ -1,0 +1,94 @@
+/* Núcleo de CSS compartilhado pelas fichas somente-leitura (View) dos
+   módulos ativos/contatos/estoque/instaladores/scripts — extraído porque
+   estas regras (portadas 1:1 do HTML original) se repetiam idênticas em
+   cada Panel.module.css. Consumido via `composes` a partir dos arquivos
+   locais, que mantêm as classes específicas de cada módulo. */
+
+.viewHeadTitle {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.viewHeadSub {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.viewHeadBadge {
+  margin-top: 10px;
+}
+
+.viewSection {
+  margin-top: 20px;
+}
+
+.viewSection:first-of-type {
+  margin-top: 0;
+}
+
+.viewSectionTitle {
+  font-size: 13px;
+  color: var(--laranja-forte);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.viewHeaderRowBase {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.viewRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.viewRow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.viewRow:last-child {
+  border-bottom: none;
+}
+
+.vrLabel {
+  flex: 0 0 170px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.vrValue {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .viewHeaderRowBase {
+    flex-direction: column;
+  }
+
+  .viewRow {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vrLabel {
+    flex: none;
+    font-size: 12px;
+  }
+}

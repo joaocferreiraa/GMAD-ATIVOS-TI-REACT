@@ -1,4 +1,5 @@
 import { unitDisplayName } from './formatters'
+import { createSearchMatcher } from './textFilter'
 
 // Consulta (só leitura) o ativo Celular vinculado ao colaborador pelo nome do
 // responsável em Ativos Cadastrados — mesmo casamento por nome (sem FK) do
@@ -58,17 +59,17 @@ export function filterContatos(colaboradores, assets, filters) {
   if (filters.possuiTelefone === 'sim') list = list.filter((c) => !!c.telefone)
   if (filters.possuiTelefone === 'nao') list = list.filter((c) => !c.telefone)
   if (filters.search) {
-    const q = filters.search.toLowerCase()
+    const matches = createSearchMatcher(filters.search)
     list = list.filter((c) => {
       const celInfo = contatoCelularInfo(assets, c)
-      return [
+      return matches([
         c.nome,
         c.departamento,
         unitDisplayName(c.unidade),
         c.telefone,
         c.email,
         celInfo && celInfo.texto,
-      ].some((v) => v && String(v).toLowerCase().includes(q))
+      ])
     })
   }
 

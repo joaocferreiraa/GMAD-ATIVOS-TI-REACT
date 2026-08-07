@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getStock } from '../../services/estoque/stockService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useStock() {
-  return useQuery({
-    queryKey: queryKeys.estoque,
-    queryFn: getStock,
-  })
-}
+export const useStock = createQueryHook(queryKeys.estoque, getStock)

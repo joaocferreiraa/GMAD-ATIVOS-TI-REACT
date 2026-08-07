@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getContatos } from '../../services/contatos/contatosService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useContatos() {
-  return useQuery({
-    queryKey: queryKeys.contatos,
-    queryFn: getContatos,
-  })
-}
+export const useContatos = createQueryHook(queryKeys.contatos, getContatos)

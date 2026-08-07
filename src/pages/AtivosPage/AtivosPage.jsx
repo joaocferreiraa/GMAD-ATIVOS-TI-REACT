@@ -3,6 +3,7 @@ import { useAssets } from '../../hooks/data/useAssets'
 import { useAssetMutations } from '../../hooks/data/useAssetMutations'
 import { useAtivosData } from './useAtivosData'
 import { useToast } from '../../hooks/useToast'
+import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import { exportAssetsCsv } from '../../services/ativos/assetsService'
 import { MADVILLE_GROUP, getDepartamentos, matchesUnitValue } from '../../utils/units'
 import { getUsuarios } from '../../utils/assetsFilter'
@@ -50,17 +51,22 @@ function clampDeptUsuario(assets, unidade, categoria, dept, usuario) {
 
 export default function AtivosPage() {
   const { data: assets, isLoading, isError, refetch } = useAssets()
-  const { createAsset, updateAsset, deleteAsset } = useAssetMutations()
+  const assetMutations = useAssetMutations()
   const { showToast } = useToast()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [viewingUid, setViewingUid] = useState(null)
-  const [formAsset, setFormAsset] = useState(undefined) // undefined = fechado, null = novo, objeto = editando
-  const [returnToViewUid, setReturnToViewUid] = useState(null)
-  const [pendingDelete, setPendingDelete] = useState(null)
 
   const list = assets ?? []
   const data = useAtivosData(list, filters)
+  const panel = useCrudPanelState({
+    list,
+    uidParam: 'assetUid',
+    mutations: {
+      create: assetMutations.createAsset,
+      update: assetMutations.updateAsset,
+      remove: assetMutations.deleteAsset,
+    },
+  })
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -91,45 +97,6 @@ export default function AtivosPage() {
     updateFilters({ search: '', status: '', dept: '', etiqueta: '', garantia: '', usuario: '' })
   }
 
-  function closeForm() {
-    const ret = returnToViewUid
-    setReturnToViewUid(null)
-    setFormAsset(undefined)
-    if (ret) setViewingUid(ret)
-  }
-
-  function handleSaveForm(record, isEdit) {
-    const ret = isEdit ? returnToViewUid : null
-    if (isEdit) {
-      updateAsset.mutate(
-        { assetUid: formAsset.uid, record },
-        {
-          onSuccess: () => {
-            setReturnToViewUid(null)
-            setFormAsset(undefined)
-            if (ret) setViewingUid(ret)
-          },
-        },
-      )
-    } else {
-      createAsset.mutate(record, {
-        onSuccess: () => {
-          setFormAsset(undefined)
-        },
-      })
-    }
-  }
-
-  function handleDeleteFromForm(asset) {
-    setReturnToViewUid(null)
-    setFormAsset(undefined)
-    setPendingDelete(asset)
-  }
-
-  function handleConfirmDelete() {
-    deleteAsset.mutate(pendingDelete, { onSuccess: () => setPendingDelete(null) })
-  }
-
   async function handleRefresh() {
     await refetch()
     showToast('Dados atualizados.')
@@ -143,8 +110,6 @@ export default function AtivosPage() {
     exportAssetsCsv(data.rows)
     showToast(`CSV exportado (${data.rows.length} ativos).`)
   }
-
-  const viewingAsset = viewingUid ? list.find((a) => a.uid === viewingUid) : null
 
   return (
     <div>
@@ -160,7 +125,7 @@ export default function AtivosPage() {
           <Button size="sm" onClick={handleExport}>
             <DownloadIcon /> Exportar CSV
           </Button>
-          <Button variant="primary" onClick={() => setFormAsset(null)}>
+          <Button variant="primary" onClick={panel.openNew}>
             + Novo ativo
           </Button>
         </div>
@@ -240,49 +205,42 @@ export default function AtivosPage() {
           sortKey={filters.sortKey}
           sortDir={filters.sortDir}
           onSort={handleSort}
-          onView={(a) => setViewingUid(a.uid)}
-          onEdit={(a) => {
-            setReturnToViewUid(null)
-            setFormAsset(a)
-          }}
-          onDelete={(a) => setPendingDelete(a)}
+          onView={(a) => panel.openView(a.uid)}
+          onEdit={panel.openEdit}
+          onDelete={panel.requestDelete}
         />
       )}
 
       <AssetViewModal
-        open={!!viewingAsset}
-        asset={viewingAsset}
-        onClose={() => setViewingUid(null)}
-        onEdit={() => {
-          setReturnToViewUid(viewingUid)
-          setViewingUid(null)
-          setFormAsset(viewingAsset)
-        }}
+        open={!!panel.viewingItem}
+        asset={panel.viewingItem}
+        onClose={panel.closeView}
+        onEdit={panel.openEditFromView}
       />
 
       <AssetFormModal
-        open={formAsset !== undefined}
-        asset={formAsset}
+        open={panel.formItem !== undefined}
+        asset={panel.formItem}
         assets={list}
         defaultUnidade={
           filters.unidade !== 'Todas' && filters.unidade !== MADVILLE_GROUP ? filters.unidade : ''
         }
-        onClose={closeForm}
-        onSave={handleSaveForm}
-        onDelete={handleDeleteFromForm}
+        onClose={panel.closeForm}
+        onSave={panel.handleSaveForm}
+        onDelete={panel.handleDeleteFromForm}
       />
 
       <ConfirmDialog
-        open={!!pendingDelete}
+        open={!!panel.pendingDelete}
         title="Excluir ativo?"
         message={
-          pendingDelete
-            ? `O ativo "${pendingDelete.id}" (${pendingDelete.categoria}) será removido permanentemente do controle.`
+          panel.pendingDelete
+            ? `O ativo "${panel.pendingDelete.id}" (${panel.pendingDelete.categoria}) será removido permanentemente do controle.`
             : ''
         }
         confirmLabel="Excluir"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onConfirm={panel.handleConfirmDelete}
+        onCancel={panel.cancelDelete}
       />
     </div>
   )

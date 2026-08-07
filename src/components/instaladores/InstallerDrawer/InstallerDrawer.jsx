@@ -1,6 +1,7 @@
 import Drawer from '../../ui/Drawer/Drawer'
 import Badge from '../../ui/Badge/Badge'
 import Button from '../../ui/Button/Button'
+import ViewRow from '../../ui/ViewRow/ViewRow'
 import buttonStyles from '../../ui/Button/Button.module.css'
 import { CopyIcon, DownloadIcon, EditIcon } from '../../ui/Icon/icons'
 import { useToast } from '../../../hooks/useToast'
@@ -8,15 +9,6 @@ import { fmtDate } from '../../../utils/formatters'
 import { installerRecent } from '../../../utils/installerFilter'
 import panelStyles from '../InstallerPanel.module.css'
 import InstallerAvatar from '../InstallerAvatar/InstallerAvatar'
-
-function ViewRow({ label, value, raw }) {
-  return (
-    <div className={panelStyles.viewRow}>
-      <div className={panelStyles.vrLabel}>{label}</div>
-      <div className={panelStyles.vrValue}>{raw ? value : value || 'Não informado'}</div>
-    </div>
-  )
-}
 
 // Painel de detalhes de um instalador (openInstallerDrawer() do sistema
 // original) — drawer lateral, somente leitura, com atalho para edição.

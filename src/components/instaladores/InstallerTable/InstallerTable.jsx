@@ -1,8 +1,8 @@
 import Table from '../../ui/Table/Table'
+import RowActions from '../../ui/Table/RowActions'
 import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
-import tableStyles from '../../ui/Table/Table.module.css'
-import { DownloadIcon, EditIcon, TrashIcon } from '../../ui/Icon/icons'
+import { DownloadIcon } from '../../ui/Icon/icons'
 import { COLUMNS } from './columns'
 
 // Tabela de Instaladores (#installerTable do sistema original): clique na
@@ -15,7 +15,7 @@ export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
       key: 'acoes',
       label: '',
       render: (i) => (
-        <div className={tableStyles.rowActions}>
+        <RowActions item={i} onEdit={onEdit} onDelete={onDelete}>
           {i.urlDownload ? (
             <a
               href={i.urlDownload}
@@ -39,31 +39,7 @@ export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
               <DownloadIcon />
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Editar"
-            aria-label="Editar"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit(i)
-            }}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            variant="dangerGhost"
-            size="sm"
-            title="Excluir"
-            aria-label="Excluir"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(i)
-            }}
-          >
-            <TrashIcon />
-          </Button>
-        </div>
+        </RowActions>
       ),
     },
   ]

@@ -1,3 +1,5 @@
+import { createSearchMatcher } from './textFilter'
+
 // Lista de itens de estoque filtrada e ordenada pela barra de filtros da
 // tela de Estoque (equivalente a filteredStock() no sistema original).
 // `filters`: { tipo, status, search }. Ao contrário de Ativos/Contatos, a
@@ -8,12 +10,8 @@ export function filterStock(stock, filters) {
   if (filters.tipo !== 'Todos') list = list.filter((i) => i.tipo === filters.tipo)
   if (filters.status) list = list.filter((i) => (i.status || 'Disponível') === filters.status)
   if (filters.search) {
-    const q = filters.search.toLowerCase()
-    list = list.filter((i) =>
-      [i.item, i.marcaModelo, i.observacoes, i.unidade].some(
-        (v) => v && String(v).toLowerCase().includes(q),
-      ),
-    )
+    const matches = createSearchMatcher(filters.search)
+    list = list.filter((i) => matches([i.item, i.marcaModelo, i.observacoes, i.unidade]))
   }
   return list.sort((a, b) => (a.item || '').localeCompare(b.item || '', 'pt-BR'))
 }

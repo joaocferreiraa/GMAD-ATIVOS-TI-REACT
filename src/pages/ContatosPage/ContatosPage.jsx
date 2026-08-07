@@ -3,6 +3,7 @@ import { useContatos } from '../../hooks/data/useContatos'
 import { useContatoMutations } from '../../hooks/data/useContatoMutations'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useContatosData } from './useContatosData'
+import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import Button from '../../components/ui/Button/Button'
 import Loading from '../../components/ui/Loading/Loading'
 import Alert from '../../components/ui/Alert/Alert'
@@ -27,17 +28,22 @@ const DEFAULT_FILTERS = {
 export default function ContatosPage() {
   const { data: contatos, isLoading, isError } = useContatos()
   const { data: assets } = useAssets()
-  const { createContato, updateContato, deleteContato } = useContatoMutations()
+  const contatoMutations = useContatoMutations()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [viewingUid, setViewingUid] = useState(null)
-  const [formContato, setFormContato] = useState(undefined) // undefined = fechado, null = novo, objeto = editando
-  const [returnToViewUid, setReturnToViewUid] = useState(null)
-  const [pendingDelete, setPendingDelete] = useState(null)
 
   const list = contatos ?? []
   const assetList = assets ?? []
   const data = useContatosData(list, assetList, filters)
+  const panel = useCrudPanelState({
+    list,
+    uidParam: 'contatoUid',
+    mutations: {
+      create: contatoMutations.createContato,
+      update: contatoMutations.updateContato,
+      remove: contatoMutations.deleteContato,
+    },
+  })
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -58,47 +64,6 @@ export default function ContatosPage() {
     })
   }
 
-  function closeForm() {
-    const ret = returnToViewUid
-    setReturnToViewUid(null)
-    setFormContato(undefined)
-    if (ret) setViewingUid(ret)
-  }
-
-  function handleSaveForm(record, isEdit) {
-    const ret = isEdit ? returnToViewUid : null
-    if (isEdit) {
-      updateContato.mutate(
-        { contatoUid: formContato.uid, record },
-        {
-          onSuccess: () => {
-            setReturnToViewUid(null)
-            setFormContato(undefined)
-            if (ret) setViewingUid(ret)
-          },
-        },
-      )
-    } else {
-      createContato.mutate(record, {
-        onSuccess: () => {
-          setFormContato(undefined)
-        },
-      })
-    }
-  }
-
-  function handleDeleteFromForm(contato) {
-    setReturnToViewUid(null)
-    setFormContato(undefined)
-    setPendingDelete(contato)
-  }
-
-  function handleConfirmDelete() {
-    deleteContato.mutate(pendingDelete, { onSuccess: () => setPendingDelete(null) })
-  }
-
-  const viewingContato = viewingUid ? list.find((c) => c.uid === viewingUid) : null
-
   return (
     <div>
       <div className={styles.heading}>
@@ -107,7 +72,7 @@ export default function ContatosPage() {
           <p>Central de contatos corporativos da empresa.</p>
         </div>
         <div className={styles.actionsRow}>
-          <Button variant="primary" onClick={() => setFormContato(null)}>
+          <Button variant="primary" onClick={panel.openNew}>
             + Novo colaborador
           </Button>
         </div>
@@ -141,49 +106,42 @@ export default function ContatosPage() {
           sortKey={filters.sortKey}
           sortDir={filters.sortDir}
           onSort={handleSort}
-          onView={(c) => setViewingUid(c.uid)}
-          onEdit={(c) => {
-            setReturnToViewUid(null)
-            setFormContato(c)
-          }}
-          onDelete={(c) => setPendingDelete(c)}
+          onView={(c) => panel.openView(c.uid)}
+          onEdit={panel.openEdit}
+          onDelete={panel.requestDelete}
         />
       )}
 
       <ContatoViewModal
-        open={!!viewingContato}
-        contato={viewingContato}
+        open={!!panel.viewingItem}
+        contato={panel.viewingItem}
         contatos={list}
         assets={assetList}
-        onClose={() => setViewingUid(null)}
-        onEdit={() => {
-          setReturnToViewUid(viewingUid)
-          setViewingUid(null)
-          setFormContato(viewingContato)
-        }}
+        onClose={panel.closeView}
+        onEdit={panel.openEditFromView}
       />
 
       <ContatoFormModal
-        open={formContato !== undefined}
-        contato={formContato}
+        open={panel.formItem !== undefined}
+        contato={panel.formItem}
         contatos={list}
         assets={assetList}
-        onClose={closeForm}
-        onSave={handleSaveForm}
-        onDelete={handleDeleteFromForm}
+        onClose={panel.closeForm}
+        onSave={panel.handleSaveForm}
+        onDelete={panel.handleDeleteFromForm}
       />
 
       <ConfirmDialog
-        open={!!pendingDelete}
+        open={!!panel.pendingDelete}
         title="Excluir colaborador?"
         message={
-          pendingDelete
-            ? `O colaborador "${pendingDelete.nome}" será removido permanentemente.`
+          panel.pendingDelete
+            ? `O colaborador "${panel.pendingDelete.nome}" será removido permanentemente.`
             : ''
         }
         confirmLabel="Excluir"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onConfirm={panel.handleConfirmDelete}
+        onCancel={panel.cancelDelete}
       />
     </div>
   )

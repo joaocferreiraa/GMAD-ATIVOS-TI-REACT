@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getInfra } from '../../services/infraestrutura/infraService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useInfra() {
-  return useQuery({
-    queryKey: queryKeys.infraestrutura,
-    queryFn: getInfra,
-  })
-}
+export const useInfra = createQueryHook(queryKeys.infraestrutura, getInfra)

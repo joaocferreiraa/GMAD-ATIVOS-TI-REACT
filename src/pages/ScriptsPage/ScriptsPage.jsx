@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useScripts } from '../../hooks/data/useScripts'
 import { useScriptMutations } from '../../hooks/data/useScriptMutations'
 import { useScriptsData } from './useScriptsData'
+import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import Button from '../../components/ui/Button/Button'
 import Loading from '../../components/ui/Loading/Loading'
 import Alert from '../../components/ui/Alert/Alert'
@@ -26,13 +27,14 @@ export default function ScriptsPage() {
     useScriptMutations()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [viewingUid, setViewingUid] = useState(null)
-  const [formItem, setFormItem] = useState(undefined) // undefined = fechado, null = novo, objeto = editando
-  const [returnToViewUid, setReturnToViewUid] = useState(null)
-  const [pendingDelete, setPendingDelete] = useState(null)
 
   const list = scripts ?? []
   const data = useScriptsData(list, filters)
+  const panel = useCrudPanelState({
+    list,
+    uidParam: 'scriptUid',
+    mutations: { create: createScript, update: updateScript, remove: deleteScript },
+  })
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -46,51 +48,10 @@ export default function ScriptsPage() {
     updateFilters({ search: '', sort: 'nome', onlyFavorites: false })
   }
 
-  function closeForm() {
-    const ret = returnToViewUid
-    setReturnToViewUid(null)
-    setFormItem(undefined)
-    if (ret) setViewingUid(ret)
-  }
-
-  function handleSaveForm(record, isEdit) {
-    const ret = isEdit ? returnToViewUid : null
-    if (isEdit) {
-      updateScript.mutate(
-        { scriptUid: formItem.uid, record },
-        {
-          onSuccess: () => {
-            setReturnToViewUid(null)
-            setFormItem(undefined)
-            if (ret) setViewingUid(ret)
-          },
-        },
-      )
-    } else {
-      createScript.mutate(record, {
-        onSuccess: () => {
-          setFormItem(undefined)
-        },
-      })
-    }
-  }
-
-  function handleDeleteFromForm(item) {
-    setReturnToViewUid(null)
-    setFormItem(undefined)
-    setPendingDelete(item)
-  }
-
   function handleDeleteFromDrawer(item) {
-    setViewingUid(null)
-    setPendingDelete(item)
+    panel.closeView()
+    panel.requestDelete(item)
   }
-
-  function handleConfirmDelete() {
-    deleteScript.mutate(pendingDelete, { onSuccess: () => setPendingDelete(null) })
-  }
-
-  const viewingItem = viewingUid ? list.find((s) => s.uid === viewingUid) : null
 
   return (
     <div>
@@ -103,7 +64,7 @@ export default function ScriptsPage() {
           </p>
         </div>
         <div className={styles.actionsRow}>
-          <Button variant="primary" onClick={() => setFormItem(null)}>
+          <Button variant="primary" onClick={panel.openNew}>
             + Novo script
           </Button>
         </div>
@@ -126,50 +87,43 @@ export default function ScriptsPage() {
       {!isLoading && !isError && (
         <ScriptTable
           rows={data.rows}
-          onView={(s) => setViewingUid(s.uid)}
-          onEdit={(s) => {
-            setReturnToViewUid(null)
-            setFormItem(s)
-          }}
-          onDelete={(s) => setPendingDelete(s)}
+          onView={(s) => panel.openView(s.uid)}
+          onEdit={panel.openEdit}
+          onDelete={panel.requestDelete}
           onToggleFavorite={(uid) => toggleFavorite.mutate(uid)}
           onDownload={(uid) => registerDownload.mutate(uid)}
         />
       )}
 
       <ScriptDrawer
-        open={!!viewingItem}
-        item={viewingItem}
-        onClose={() => setViewingUid(null)}
-        onEdit={() => {
-          setReturnToViewUid(viewingUid)
-          setViewingUid(null)
-          setFormItem(viewingItem)
-        }}
-        onDelete={() => handleDeleteFromDrawer(viewingItem)}
+        open={!!panel.viewingItem}
+        item={panel.viewingItem}
+        onClose={panel.closeView}
+        onEdit={panel.openEditFromView}
+        onDelete={() => handleDeleteFromDrawer(panel.viewingItem)}
         onToggleFavorite={(uid) => toggleFavorite.mutate(uid)}
         onDownload={(uid) => registerDownload.mutate(uid)}
       />
 
       <ScriptFormModal
-        open={formItem !== undefined}
-        item={formItem}
-        onClose={closeForm}
-        onSave={handleSaveForm}
-        onDelete={handleDeleteFromForm}
+        open={panel.formItem !== undefined}
+        item={panel.formItem}
+        onClose={panel.closeForm}
+        onSave={panel.handleSaveForm}
+        onDelete={panel.handleDeleteFromForm}
       />
 
       <ConfirmDialog
-        open={!!pendingDelete}
+        open={!!panel.pendingDelete}
         title="Excluir script?"
         message={
-          pendingDelete
-            ? `O script "${pendingDelete.nome}" será removido permanentemente da central.`
+          panel.pendingDelete
+            ? `O script "${panel.pendingDelete.nome}" será removido permanentemente da central.`
             : ''
         }
         confirmLabel="Excluir"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onConfirm={panel.handleConfirmDelete}
+        onCancel={panel.cancelDelete}
       />
     </div>
   )

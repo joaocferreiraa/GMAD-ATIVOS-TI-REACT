@@ -1,7 +1,5 @@
 import Table from '../../ui/Table/Table'
-import Button from '../../ui/Button/Button'
-import tableStyles from '../../ui/Table/Table.module.css'
-import { EditIcon, TrashIcon } from '../../ui/Icon/icons'
+import RowActions from '../../ui/Table/RowActions'
 import { COLUMNS } from './columns'
 
 // Tabela de ativos (#assetTable do sistema original): colunas variam por
@@ -22,34 +20,7 @@ export default function AssetTable({
     {
       key: 'acoes',
       label: '',
-      render: (a) => (
-        <div className={tableStyles.rowActions}>
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Editar"
-            aria-label="Editar"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit(a)
-            }}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            variant="dangerGhost"
-            size="sm"
-            title="Excluir"
-            aria-label="Excluir"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(a)
-            }}
-          >
-            <TrashIcon />
-          </Button>
-        </div>
-      ),
+      render: (a) => <RowActions item={a} onEdit={onEdit} onDelete={onDelete} />,
     },
   ]
 

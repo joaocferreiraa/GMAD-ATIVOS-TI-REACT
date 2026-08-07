@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getLogEntries } from '../../services/activityLog/activityLogService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useAtividade() {
-  return useQuery({
-    queryKey: queryKeys.atividade,
-    queryFn: getLogEntries,
-  })
-}
+export const useAtividade = createQueryHook(queryKeys.atividade, getLogEntries)

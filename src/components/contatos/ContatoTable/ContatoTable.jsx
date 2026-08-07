@@ -1,7 +1,5 @@
 import Table from '../../ui/Table/Table'
-import Button from '../../ui/Button/Button'
-import tableStyles from '../../ui/Table/Table.module.css'
-import { EditIcon, TrashIcon } from '../../ui/Icon/icons'
+import RowActions from '../../ui/Table/RowActions'
 import { buildColumns } from './columns'
 
 // Tabela de Contatos (#contatoTable do sistema original): clique na linha
@@ -22,34 +20,7 @@ export default function ContatoTable({
     {
       key: 'acoes',
       label: '',
-      render: (c) => (
-        <div className={tableStyles.rowActions}>
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Editar"
-            aria-label="Editar"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit(c)
-            }}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            variant="dangerGhost"
-            size="sm"
-            title="Excluir"
-            aria-label="Excluir"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(c)
-            }}
-          >
-            <TrashIcon />
-          </Button>
-        </div>
-      ),
+      render: (c) => <RowActions item={c} onEdit={onEdit} onDelete={onDelete} />,
     },
   ]
 

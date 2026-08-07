@@ -1,8 +1,8 @@
 import Table from '../../ui/Table/Table'
+import RowActions from '../../ui/Table/RowActions'
 import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
-import tableStyles from '../../ui/Table/Table.module.css'
-import { StarIcon, DownloadIcon, EditIcon, TrashIcon } from '../../ui/Icon/icons'
+import { StarIcon, DownloadIcon } from '../../ui/Icon/icons'
 import panelStyles from '../ScriptPanel.module.css'
 import { COLUMNS } from './columns'
 
@@ -23,7 +23,7 @@ export default function ScriptTable({
       key: 'acoes',
       label: '',
       render: (s) => (
-        <div className={tableStyles.rowActions}>
+        <RowActions item={s} onEdit={onEdit} onDelete={onDelete}>
           <button
             type="button"
             className={`${panelStyles.favBtn} ${s.favorito ? panelStyles.active : ''}`}
@@ -61,31 +61,7 @@ export default function ScriptTable({
               <DownloadIcon />
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Editar"
-            aria-label="Editar"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit(s)
-            }}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            variant="dangerGhost"
-            size="sm"
-            title="Excluir"
-            aria-label="Excluir"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(s)
-            }}
-          >
-            <TrashIcon />
-          </Button>
-        </div>
+        </RowActions>
       ),
     },
   ]

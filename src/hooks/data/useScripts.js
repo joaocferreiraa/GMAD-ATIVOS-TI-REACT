@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getScripts } from '../../services/scripts/scriptsService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useScripts() {
-  return useQuery({
-    queryKey: queryKeys.scripts,
-    queryFn: getScripts,
-  })
-}
+export const useScripts = createQueryHook(queryKeys.scripts, getScripts)

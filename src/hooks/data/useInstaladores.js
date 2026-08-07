@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getInstaladores } from '../../services/instaladores/installersService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useInstaladores() {
-  return useQuery({
-    queryKey: queryKeys.instaladores,
-    queryFn: getInstaladores,
-  })
-}
+export const useInstaladores = createQueryHook(queryKeys.instaladores, getInstaladores)

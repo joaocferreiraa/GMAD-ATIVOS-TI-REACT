@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQueryHook } from './createQueryHook'
 import { getAssets } from '../../services/ativos/assetsService'
 import { queryKeys } from '../../constants/queryKeys'
 
-export function useAssets() {
-  return useQuery({
-    queryKey: queryKeys.ativos,
-    queryFn: getAssets,
-  })
-}
+export const useAssets = createQueryHook(queryKeys.ativos, getAssets)

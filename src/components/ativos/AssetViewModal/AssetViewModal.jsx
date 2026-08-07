@@ -1,21 +1,13 @@
 import Modal from '../../ui/Modal/Modal'
 import Badge from '../../ui/Badge/Badge'
 import Button from '../../ui/Button/Button'
+import ViewRow from '../../ui/ViewRow/ViewRow'
 import { FIELD_GROUPS } from '../../../constants/fieldGroups'
 import { CAT_ICON } from '../../../constants/categories'
 import { StockIcon } from '../../ui/Icon/icons'
 import { fmtDate, fmtMoney, unitDisplayName, warrantyInfo } from '../../../utils/formatters'
 import { assetStatusVariant, warrantyVariant } from '../../../utils/statusBadge'
 import panelStyles from '../AssetPanel.module.css'
-
-function ViewRow({ label, value, raw }) {
-  return (
-    <div className={panelStyles.viewRow}>
-      <div className={panelStyles.vrLabel}>{label}</div>
-      <div className={panelStyles.vrValue}>{raw ? value : value || 'Não informado'}</div>
-    </div>
-  )
-}
 
 // Ficha de visualização de um ativo (.view-panel do sistema original) —
 // somente leitura, com atalho para abrir a edição.

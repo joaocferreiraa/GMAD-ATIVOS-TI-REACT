@@ -1,7 +1,5 @@
 import Table from '../../ui/Table/Table'
-import Button from '../../ui/Button/Button'
-import tableStyles from '../../ui/Table/Table.module.css'
-import { EditIcon, TrashIcon } from '../../ui/Icon/icons'
+import RowActions from '../../ui/Table/RowActions'
 import { COLUMNS } from './columns'
 
 // Tabela de Estoque (#stockTable do sistema original): clique na linha abre
@@ -12,34 +10,7 @@ export default function StockTable({ rows, onView, onEdit, onDelete }) {
     {
       key: 'acoes',
       label: '',
-      render: (i) => (
-        <div className={tableStyles.rowActions}>
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Editar"
-            aria-label="Editar"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit(i)
-            }}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            variant="dangerGhost"
-            size="sm"
-            title="Excluir"
-            aria-label="Excluir"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(i)
-            }}
-          >
-            <TrashIcon />
-          </Button>
-        </div>
-      ),
+      render: (i) => <RowActions item={i} onEdit={onEdit} onDelete={onDelete} />,
     },
   ]
 

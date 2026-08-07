@@ -1,3 +1,5 @@
+import { createSearchMatcher } from './textFilter'
+
 // Verifica se um script foi criado nos últimos 14 dias (equivalente a
 // scriptNew() original) — usado para exibir o badge "Novo".
 export function scriptNew(iso) {
@@ -14,12 +16,8 @@ export function filterScripts(scripts, filters) {
   if (filters.categoria !== 'Todos') list = list.filter((s) => s.categoria === filters.categoria)
   if (filters.onlyFavorites) list = list.filter((s) => s.favorito)
   if (filters.search) {
-    const q = filters.search.toLowerCase()
-    list = list.filter((s) =>
-      [s.nome, s.categoria, s.descricao, s.autor].some(
-        (v) => v && String(v).toLowerCase().includes(q),
-      ),
-    )
+    const matches = createSearchMatcher(filters.search)
+    list = list.filter((s) => matches([s.nome, s.categoria, s.descricao, s.autor]))
   }
   if (filters.sort === 'data') {
     list.sort((a, b) => (b.dataAtualizacao || '').localeCompare(a.dataAtualizacao || ''))

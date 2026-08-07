@@ -3,6 +3,7 @@ import { useStock } from '../../hooks/data/useStock'
 import { useStockMutations } from '../../hooks/data/useStockMutations'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useEstoqueData } from './useEstoqueData'
+import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import Button from '../../components/ui/Button/Button'
 import Loading from '../../components/ui/Loading/Loading'
 import Alert from '../../components/ui/Alert/Alert'
@@ -23,17 +24,22 @@ const DEFAULT_FILTERS = {
 export default function EstoquePage() {
   const { data: stock, isLoading, isError } = useStock()
   const { data: assets } = useAssets()
-  const { createStock, updateStock, deleteStock } = useStockMutations()
+  const stockMutations = useStockMutations()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [viewingUid, setViewingUid] = useState(null)
-  const [formItem, setFormItem] = useState(undefined) // undefined = fechado, null = novo, objeto = editando
-  const [returnToViewUid, setReturnToViewUid] = useState(null)
-  const [pendingDelete, setPendingDelete] = useState(null)
 
   const list = stock ?? []
   const assetList = assets ?? []
   const data = useEstoqueData(list, filters)
+  const panel = useCrudPanelState({
+    list,
+    uidParam: 'stockUid',
+    mutations: {
+      create: stockMutations.createStock,
+      update: stockMutations.updateStock,
+      remove: stockMutations.deleteStock,
+    },
+  })
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -47,47 +53,6 @@ export default function EstoquePage() {
     updateFilters({ search: '', status: '' })
   }
 
-  function closeForm() {
-    const ret = returnToViewUid
-    setReturnToViewUid(null)
-    setFormItem(undefined)
-    if (ret) setViewingUid(ret)
-  }
-
-  function handleSaveForm(record, isEdit) {
-    const ret = isEdit ? returnToViewUid : null
-    if (isEdit) {
-      updateStock.mutate(
-        { stockUid: formItem.uid, record },
-        {
-          onSuccess: () => {
-            setReturnToViewUid(null)
-            setFormItem(undefined)
-            if (ret) setViewingUid(ret)
-          },
-        },
-      )
-    } else {
-      createStock.mutate(record, {
-        onSuccess: () => {
-          setFormItem(undefined)
-        },
-      })
-    }
-  }
-
-  function handleDeleteFromForm(item) {
-    setReturnToViewUid(null)
-    setFormItem(undefined)
-    setPendingDelete(item)
-  }
-
-  function handleConfirmDelete() {
-    deleteStock.mutate(pendingDelete, { onSuccess: () => setPendingDelete(null) })
-  }
-
-  const viewingItem = viewingUid ? list.find((i) => i.uid === viewingUid) : null
-
   return (
     <div>
       <div className={styles.heading}>
@@ -96,7 +61,7 @@ export default function EstoquePage() {
           <p>Peças, periféricos e dispositivos disponíveis para reposição ou entrega.</p>
         </div>
         <div className={styles.actionsRow}>
-          <Button variant="primary" onClick={() => setFormItem(null)}>
+          <Button variant="primary" onClick={panel.openNew}>
             + Novo item
           </Button>
         </div>
@@ -119,46 +84,39 @@ export default function EstoquePage() {
       {!isLoading && !isError && (
         <StockTable
           rows={data.rows}
-          onView={(i) => setViewingUid(i.uid)}
-          onEdit={(i) => {
-            setReturnToViewUid(null)
-            setFormItem(i)
-          }}
-          onDelete={(i) => setPendingDelete(i)}
+          onView={(i) => panel.openView(i.uid)}
+          onEdit={panel.openEdit}
+          onDelete={panel.requestDelete}
         />
       )}
 
       <StockViewModal
-        open={!!viewingItem}
-        item={viewingItem}
-        onClose={() => setViewingUid(null)}
-        onEdit={() => {
-          setReturnToViewUid(viewingUid)
-          setViewingUid(null)
-          setFormItem(viewingItem)
-        }}
+        open={!!panel.viewingItem}
+        item={panel.viewingItem}
+        onClose={panel.closeView}
+        onEdit={panel.openEditFromView}
       />
 
       <StockFormModal
-        open={formItem !== undefined}
-        item={formItem}
+        open={panel.formItem !== undefined}
+        item={panel.formItem}
         assets={assetList}
-        onClose={closeForm}
-        onSave={handleSaveForm}
-        onDelete={handleDeleteFromForm}
+        onClose={panel.closeForm}
+        onSave={panel.handleSaveForm}
+        onDelete={panel.handleDeleteFromForm}
       />
 
       <ConfirmDialog
-        open={!!pendingDelete}
+        open={!!panel.pendingDelete}
         title="Excluir item do estoque?"
         message={
-          pendingDelete
-            ? `O item "${pendingDelete.item}" (${pendingDelete.tipo}) será removido permanentemente do estoque.`
+          panel.pendingDelete
+            ? `O item "${panel.pendingDelete.item}" (${panel.pendingDelete.tipo}) será removido permanentemente do estoque.`
             : ''
         }
         confirmLabel="Excluir"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onConfirm={panel.handleConfirmDelete}
+        onCancel={panel.cancelDelete}
       />
     </div>
   )

@@ -1,3 +1,5 @@
+import { createSearchMatcher } from './textFilter'
+
 // Verifica se a última atualização de um instalador está dentro dos
 // últimos 30 dias (equivalente a installerRecent() original) — usado para
 // exibir o badge "Recente".
@@ -14,10 +16,8 @@ export function filterInstaladores(installers, filters) {
   let list = installers.slice()
   if (filters.categoria !== 'Todos') list = list.filter((i) => i.categoria === filters.categoria)
   if (filters.search) {
-    const q = filters.search.toLowerCase()
-    list = list.filter((i) =>
-      [i.nome, i.categoria, i.desenvolvedor].some((v) => v && String(v).toLowerCase().includes(q)),
-    )
+    const matches = createSearchMatcher(filters.search)
+    list = list.filter((i) => matches([i.nome, i.categoria, i.desenvolvedor]))
   }
   if (filters.sort === 'data') {
     list.sort((a, b) => (b.dataAtualizacao || '').localeCompare(a.dataAtualizacao || ''))
