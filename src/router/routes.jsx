@@ -1,20 +1,37 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { ROUTES } from '../constants/routes'
 import AppLayout from '../layouts/AppLayout/AppLayout'
 import AuthLayout from '../layouts/AuthLayout/AuthLayout'
 import ProtectedRoute from './ProtectedRoute'
 import LoginPage from '../pages/LoginPage'
-import DashboardPage from '../pages/DashboardPage'
-import AtivosPage from '../pages/AtivosPage'
-import EstoquePage from '../pages/EstoquePage'
-import ContatosPage from '../pages/ContatosPage'
-import InstaladoresPage from '../pages/InstaladoresPage'
-import ScriptsPage from '../pages/ScriptsPage'
-import InfraestruturaPage from '../pages/InfraestruturaPage'
-import UnidadesPage from '../pages/UnidadesPage'
-import AtividadePage from '../pages/AtividadePage'
-import RelatoriosPage from '../pages/RelatoriosPage'
 import NotFoundPage from '../pages/NotFoundPage'
+import RouteFallback from './RouteFallback'
+
+// Páginas atrás do login carregam sob demanda (React.lazy) em vez de entrar
+// no bundle inicial — LoginPage/NotFoundPage continuam estáticas por serem
+// as primeiras telas vistas por usuários não autenticados. Este arquivo é
+// config de rotas, não um componente — as declarações lazy() abaixo não são
+// exportadas, então não há nada a quebrar no Fast Refresh.
+/* eslint-disable react-refresh/only-export-components */
+const DashboardPage = lazy(() => import('../pages/DashboardPage'))
+const AtivosPage = lazy(() => import('../pages/AtivosPage'))
+const EstoquePage = lazy(() => import('../pages/EstoquePage'))
+const ContatosPage = lazy(() => import('../pages/ContatosPage'))
+const InstaladoresPage = lazy(() => import('../pages/InstaladoresPage'))
+const ScriptsPage = lazy(() => import('../pages/ScriptsPage'))
+const InfraestruturaPage = lazy(() => import('../pages/InfraestruturaPage'))
+const UnidadesPage = lazy(() => import('../pages/UnidadesPage'))
+const AtividadePage = lazy(() => import('../pages/AtividadePage'))
+const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
+
+function lazyPage(Component) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Component />
+    </Suspense>
+  )
+}
 
 export const router = createBrowserRouter([
   {
@@ -27,16 +44,16 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: ROUTES.dashboard, element: <DashboardPage /> },
-          { path: ROUTES.ativos, element: <AtivosPage /> },
-          { path: ROUTES.estoque, element: <EstoquePage /> },
-          { path: ROUTES.contatos, element: <ContatosPage /> },
-          { path: ROUTES.instaladores, element: <InstaladoresPage /> },
-          { path: ROUTES.scripts, element: <ScriptsPage /> },
-          { path: ROUTES.infraestrutura, element: <InfraestruturaPage /> },
-          { path: ROUTES.unidades, element: <UnidadesPage /> },
-          { path: ROUTES.atividade, element: <AtividadePage /> },
-          { path: ROUTES.relatorios, element: <RelatoriosPage /> },
+          { path: ROUTES.dashboard, element: lazyPage(DashboardPage) },
+          { path: ROUTES.ativos, element: lazyPage(AtivosPage) },
+          { path: ROUTES.estoque, element: lazyPage(EstoquePage) },
+          { path: ROUTES.contatos, element: lazyPage(ContatosPage) },
+          { path: ROUTES.instaladores, element: lazyPage(InstaladoresPage) },
+          { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },
+          { path: ROUTES.infraestrutura, element: lazyPage(InfraestruturaPage) },
+          { path: ROUTES.unidades, element: lazyPage(UnidadesPage) },
+          { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
+          { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
         ],
       },
     ],

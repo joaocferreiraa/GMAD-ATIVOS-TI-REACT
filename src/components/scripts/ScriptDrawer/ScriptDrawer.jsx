@@ -16,6 +16,7 @@ import {
 import { useToast } from '../../../hooks/useToast'
 import { fmtDate } from '../../../utils/formatters'
 import { scriptNew } from '../../../utils/scriptFilter'
+import { isHttpUrl } from '../../../utils/urlValidation'
 import panelStyles from '../ScriptPanel.module.css'
 
 // Painel de detalhes de um script (openScriptDrawer() do sistema original)
@@ -153,7 +154,7 @@ export default function ScriptDrawer({
               <CopyIcon /> Copiar comando
             </Button>
           )}
-          {item.urlDownload ? (
+          {isHttpUrl(item.urlDownload) ? (
             <a
               href={item.urlDownload}
               target="_blank"

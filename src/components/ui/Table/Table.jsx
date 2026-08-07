@@ -48,6 +48,18 @@ export default function Table({
                   .filter(Boolean)
                   .join(' ')}
                 onClick={column.sortable ? () => onSort(column.key) : undefined}
+                tabIndex={column.sortable ? 0 : undefined}
+                role={column.sortable ? 'button' : undefined}
+                onKeyDown={
+                  column.sortable
+                    ? (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          onSort(column.key)
+                        }
+                      }
+                    : undefined
+                }
                 aria-sort={
                   column.sortable && sortKey === column.key
                     ? sortDir === -1
@@ -67,6 +79,22 @@ export default function Table({
               key={getRowKey(row)}
               className={onRowClick ? styles.clickable : ''}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
+              role={onRowClick ? 'button' : undefined}
+              onKeyDown={
+                onRowClick
+                  ? (event) => {
+                      // Ignora eventos que borbulharam de botões de ação dentro da
+                      // linha (Editar/Excluir/Baixar/Favoritar) — só a própria
+                      // linha focada deve abrir a ficha de visualização.
+                      if (event.target !== event.currentTarget) return
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        onRowClick(row)
+                      }
+                    }
+                  : undefined
+              }
             >
               {columns.map((column) => (
                 <td

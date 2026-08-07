@@ -21,7 +21,7 @@ export default function ActivityList({ entries }) {
   return (
     <div className={styles.list}>
       {visible.map((e, i) => (
-        <div key={i} className={styles.item}>
+        <div key={`${e.ts}_${i}`} className={styles.item}>
           <span className={styles.time}>{fmtRelTime(e.ts)}</span>
           <span>
             {e.texto} <b>— {e.por || ''}</b>

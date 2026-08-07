@@ -20,7 +20,7 @@ export default function Gallery({ images, onOpen }) {
             }
           }}
         >
-          <img src={img.src} alt={img.alt} />
+          <img src={img.src} alt={img.alt} loading="lazy" />
           <div className={styles.cap}>
             <b>{img.caption}</b>
             <small>Clique para ampliar</small>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import { useClickOutside } from '../../../hooks/useClickOutside'
-import { useEscapeKey } from '../../../hooks/useEscapeKey'
+import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
+import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { ChevronDownIcon } from '../Icon/icons'
 import styles from './Dropdown.module.css'
 

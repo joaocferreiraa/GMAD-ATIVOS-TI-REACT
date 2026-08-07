@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { ToastContext } from './ToastContext'
+import { ToastActionsContext } from './ToastActionsContext'
+import { ToastStateContext } from './ToastStateContext'
 
 const TOAST_DURATION = 3400 // ms — mesmo tempo do toast() original
 
@@ -20,10 +21,12 @@ export function ToastProvider({ children }) {
     [dismissToast],
   )
 
-  const value = useMemo(
-    () => ({ toasts, showToast, dismissToast }),
-    [toasts, showToast, dismissToast],
-  )
+  const actions = useMemo(() => ({ showToast, dismissToast }), [showToast, dismissToast])
+  const state = useMemo(() => ({ toasts }), [toasts])
 
-  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
+  return (
+    <ToastActionsContext.Provider value={actions}>
+      <ToastStateContext.Provider value={state}>{children}</ToastStateContext.Provider>
+    </ToastActionsContext.Provider>
+  )
 }

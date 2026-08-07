@@ -3,7 +3,13 @@ import Card from '../../components/ui/Card/Card'
 import Gallery from '../../components/unidades/Gallery/Gallery'
 import Lightbox from '../../components/unidades/Lightbox/Lightbox'
 import { MADVILLE_IMAGES, CURITIBA_IMAGES } from './galleryImages'
+import { LOCATIONS } from './locations'
 import styles from './UnidadesPage.module.css'
+
+const LOC_TAG_CLASS = {
+  madville: 'locTagMadville',
+  curitiba: 'locTagCuritiba',
+}
 
 // Tela "Nossas unidades" — conteúdo 100% estático no sistema original
 // (galeria de fotos + endereços/mapas de 2 unidades), sem CRUD, sem relação
@@ -29,32 +35,21 @@ export default function UnidadesPage() {
       </Card>
 
       <div className={styles.locationsGrid}>
-        <div className={styles.locationCard}>
-          <span className={`${styles.locTag} ${styles.locTagMadville}`}>GMAD Madville</span>
-          <h3>Nossa localização</h3>
-          <p>Rua Anita Garibaldi, 2417, Joinville – SC</p>
-          <div className={styles.mapEmbed}>
-            <iframe
-              src="https://www.google.com/maps?q=Rua+Anita+Garibaldi,+2417,+Joinville+-+SC&output=embed"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Localização GMAD Madville"
-            />
+        {LOCATIONS.map((loc) => (
+          <div key={loc.id} className={styles.locationCard}>
+            <span className={`${styles.locTag} ${styles[LOC_TAG_CLASS[loc.id]]}`}>{loc.tag}</span>
+            <h3>Nossa localização</h3>
+            <p>{loc.address}</p>
+            <div className={styles.mapEmbed}>
+              <iframe
+                src={loc.mapSrc}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={loc.mapTitle}
+              />
+            </div>
           </div>
-        </div>
-        <div className={styles.locationCard}>
-          <span className={`${styles.locTag} ${styles.locTagCuritiba}`}>GMAD Curitiba</span>
-          <h3>Nossa localização</h3>
-          <p>BR 116, nº 19231 - Pinheirinho, Curitiba – PR, 81690-400</p>
-          <div className={styles.mapEmbed}>
-            <iframe
-              src="https://www.google.com/maps?q=BR+116+19231,+Pinheirinho,+Curitiba+-+PR,+81690-400&output=embed"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Localização GMAD Curitiba"
-            />
-          </div>
-        </div>
+        ))}
       </div>
 
       <Lightbox

@@ -23,6 +23,8 @@ export function createCrudMutations({
   createSuccessMessage,
   updateSuccessMessage,
   deleteSuccessMessage,
+  extraCreateFields,
+  useExtraMutations = () => null,
 }) {
   return function useCrudMutations() {
     const queryClient = useQueryClient()
@@ -45,9 +47,12 @@ export function createCrudMutations({
     const create = useMutation({
       mutationFn: async (record) => {
         const list = queryClient.getQueryData(queryKey) || []
-        const newRecord = withAudit
-          ? { ...record, uid: uid(), atualizadoEm: new Date().toISOString(), atualizadoPor: autor }
-          : { ...record, uid: uid() }
+        const newRecord = {
+          ...record,
+          uid: uid(),
+          ...extraCreateFields,
+          ...(withAudit ? { atualizadoEm: new Date().toISOString(), atualizadoPor: autor } : null),
+        }
         const next = [...list, newRecord]
         applyLocally(next)
         await pushLog(createLogMessage(record), autor)
@@ -85,6 +90,11 @@ export function createCrudMutations({
       },
     })
 
-    return { create, update, remove }
+    // Mutações extras específicas de um domínio (ex: favoritar/registrar
+    // download em Scripts) que não fazem parte do padrão CRUD comum — mesmas
+    // `applyLocally`/`persist`, sem log de atividade nem toast.
+    const extra = useExtraMutations({ queryClient, queryKey, applyLocally, persist })
+
+    return { create, update, remove, ...extra }
   }
 }

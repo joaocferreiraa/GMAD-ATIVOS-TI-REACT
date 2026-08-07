@@ -3,6 +3,7 @@ import RowActions from '../../ui/Table/RowActions'
 import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
 import { DownloadIcon } from '../../ui/Icon/icons'
+import { isHttpUrl } from '../../../utils/urlValidation'
 import { COLUMNS } from './columns'
 
 // Tabela de Instaladores (#installerTable do sistema original): clique na
@@ -16,7 +17,7 @@ export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
       label: '',
       render: (i) => (
         <RowActions item={i} onEdit={onEdit} onDelete={onDelete}>
-          {i.urlDownload ? (
+          {isHttpUrl(i.urlDownload) ? (
             <a
               href={i.urlDownload}
               target="_blank"

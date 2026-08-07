@@ -6,7 +6,13 @@ import styles from './Lightbox.module.css'
 export default function Lightbox({ open, image, onClose }) {
   return (
     <Overlay open={open} onClose={onClose} className={styles.overlay}>
-      <button type="button" className={styles.close} onClick={onClose} title="Fechar">
+      <button
+        type="button"
+        className={styles.close}
+        onClick={onClose}
+        title="Fechar"
+        aria-label="Fechar"
+      >
         <CloseIcon width={16} height={16} />
       </button>
       <div className={styles.content}>

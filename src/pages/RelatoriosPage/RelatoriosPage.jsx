@@ -100,7 +100,7 @@ export default function RelatoriosPage() {
     window.print()
   }
 
-  function handleExport() {
+  async function handleExport() {
     if (!activeColumns.length) {
       showToast('Selecione ao menos uma coluna.', 'danger')
       return
@@ -113,10 +113,10 @@ export default function RelatoriosPage() {
       exportReportCsv(activeReport, rows, activeColumns)
       showToast(`CSV exportado (${rows.length} registros).`)
     } else if (uiState.format === 'pdf') {
-      exportReportPdf(activeReport, rows, activeColumns, uiState.orientation, uiState.filters)
+      await exportReportPdf(activeReport, rows, activeColumns, uiState.orientation, uiState.filters)
       showToast(`PDF exportado (${rows.length} registros).`)
     } else {
-      exportReportExcel(activeReport, rows, activeColumns)
+      await exportReportExcel(activeReport, rows, activeColumns)
       showToast(`Excel exportado (${rows.length} registros).`)
     }
   }

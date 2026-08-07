@@ -1,8 +1,4 @@
-import * as XLSX from 'xlsx'
-import { jsPDF } from 'jspdf'
-import autoTable from 'jspdf-autotable'
-
-const BOM = String.fromCharCode(0xfeff)
+import { downloadCsv } from '../export/csvExport'
 
 // Aplica o format() de cada coluna (ou converte para string) e usa o label
 // da coluna como chave — mesmo formato de saída do reportFormattedRows()
@@ -53,34 +49,23 @@ export function buildReportMeta(report, rows, filters) {
 }
 
 // Exporta CSV com apenas as colunas ativas e valores já formatados
-// (equivalente a exportGenericCsv() original — separador ";", BOM UTF-8).
+// (equivalente a exportGenericCsv() original — separador ";", BOM UTF-8,
+// via downloadCsv() já usado pelos módulos de listagem).
 export function exportReportCsv(report, rows, columns) {
-  const header = columns.map((c) => c.label).join(';')
   const formatted = reportFormattedRows(rows, columns)
-  const body = formatted.map((r) =>
-    columns
-      .map((c) => {
-        let v = String(r[c.label] || '')
-        if (v.includes(';') || v.includes('"')) v = `"${v.replace(/"/g, '""')}"`
-        return v
-      })
-      .join(';'),
+  downloadCsv(
+    `${reportFileBaseName(report.title)}.csv`,
+    columns.map((c) => c.label),
+    formatted,
   )
-  const csv = BOM + [header, ...body].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${reportFileBaseName(report.title)}.csv`
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  URL.revokeObjectURL(url)
 }
 
 // Exporta um .xlsx real via SheetJS (equivalente a exportGenericExcel()
 // original) — nome da planilha limitado a 31 caracteres (limite do Excel).
-export function exportReportExcel(report, rows, columns) {
+// `xlsx` só é carregado quando o usuário realmente exporta, em vez de entrar
+// no bundle inicial de todas as páginas.
+export async function exportReportExcel(report, rows, columns) {
+  const XLSX = await import('xlsx')
   const formatted = reportFormattedRows(rows, columns)
   const ws = XLSX.utils.json_to_sheet(formatted, { header: columns.map((c) => c.label) })
   const wb = XLSX.utils.book_new()
@@ -89,8 +74,13 @@ export function exportReportExcel(report, rows, columns) {
 }
 
 // Exporta um PDF via jsPDF + autoTable (equivalente a exportGenericPdf()
-// original): cabeçalho com empresa/título/meta, depois a tabela.
-export function exportReportPdf(report, rows, columns, orientation, filters) {
+// original): cabeçalho com empresa/título/meta, depois a tabela. `jspdf`/
+// `jspdf-autotable` também só carregam sob demanda, pelo mesmo motivo.
+export async function exportReportPdf(report, rows, columns, orientation, filters) {
+  const [{ jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
   const meta = buildReportMeta(report, rows, filters)
   const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' })
   doc.setFontSize(14)

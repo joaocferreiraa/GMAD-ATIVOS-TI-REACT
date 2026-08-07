@@ -3,6 +3,7 @@ import RowActions from '../../ui/Table/RowActions'
 import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
 import { StarIcon, DownloadIcon } from '../../ui/Icon/icons'
+import { isHttpUrl } from '../../../utils/urlValidation'
 import panelStyles from '../ScriptPanel.module.css'
 import { COLUMNS } from './columns'
 
@@ -35,7 +36,7 @@ export default function ScriptTable({
           >
             <StarIcon />
           </button>
-          {s.urlDownload ? (
+          {isHttpUrl(s.urlDownload) ? (
             <a
               href={s.urlDownload}
               target="_blank"

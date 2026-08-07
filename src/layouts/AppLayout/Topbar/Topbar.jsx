@@ -69,6 +69,7 @@ export default function Topbar() {
               className={styles.iconBtn}
               onClick={toggleTheme}
               title="Alternar tema"
+              aria-label="Alternar tema"
             >
               {isDark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
             </button>

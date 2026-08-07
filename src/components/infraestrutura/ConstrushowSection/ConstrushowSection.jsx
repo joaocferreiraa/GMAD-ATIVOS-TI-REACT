@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import Button from '../../ui/Button/Button'
 import { ServerIcon, EditIcon } from '../../ui/Icon/icons'
 import { CONSTRUSHOW_FIELDS } from '../../../constants/infra'
@@ -11,7 +12,7 @@ import styles from '../InfraAccordion.module.css'
 // unidades, somente edição (sem adicionar/excluir).
 export default function ConstrushowSection({ list, search, openSection, onToggle, onEdit }) {
   const q = search.trim()
-  const blocks = filterConstrushow(list, search)
+  const blocks = useMemo(() => filterConstrushow(list, search), [list, search])
   const hasMatch = !q || blocks.length > 0
   const isOpen = q ? hasMatch : openSection === 'construshow'
 

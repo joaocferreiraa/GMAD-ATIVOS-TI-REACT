@@ -8,6 +8,7 @@ import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
 import { INSTALLER_CATEGORIAS, INSTALLER_ARQUITETURAS } from '../../../constants/installers'
 import { useToast } from '../../../hooks/useToast'
+import { isHttpUrl } from '../../../utils/urlValidation'
 
 const CATEGORIA_OPTIONS = INSTALLER_CATEGORIAS.map((c) => ({ value: c, label: c }))
 const ARQUITETURA_OPTIONS = INSTALLER_ARQUITETURAS.map((a) => ({ value: a, label: a }))
@@ -48,6 +49,12 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
       return
     }
 
+    const urlDownload = values.urlDownload.trim()
+    if (urlDownload && !isHttpUrl(urlDownload)) {
+      showToast('O link de download deve ser uma URL http(s) válida.', 'danger')
+      return
+    }
+
     const record = {
       nome,
       categoria: values.categoria,
@@ -56,7 +63,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
       tamanho: values.tamanho.trim(),
       desenvolvedor: values.desenvolvedor.trim(),
       dataAtualizacao: values.dataAtualizacao,
-      urlDownload: values.urlDownload.trim(),
+      urlDownload,
       observacoes: values.observacoes.trim(),
     }
     onSave(record, isEdit)

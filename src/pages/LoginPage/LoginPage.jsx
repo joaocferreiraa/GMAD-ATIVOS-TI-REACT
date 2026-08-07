@@ -90,7 +90,13 @@ export default function LoginPage() {
           </div>
           <h1>Acesse o Controle de Ativos</h1>
 
-          <div className={`${styles.loginError} ${authError ? styles.show : ''}`}>{authError}</div>
+          <div
+            className={`${styles.loginError} ${authError ? styles.show : ''}`}
+            role="alert"
+            aria-live="assertive"
+          >
+            {authError}
+          </div>
 
           <div className={styles.loginField}>
             <label htmlFor="loginUser">Usuário</label>

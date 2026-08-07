@@ -8,6 +8,7 @@ import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
 import { SCRIPT_CATEGORIAS, SCRIPT_TIPOS } from '../../../constants/scripts'
 import { useToast } from '../../../hooks/useToast'
+import { isHttpUrl } from '../../../utils/urlValidation'
 
 const CATEGORIA_OPTIONS = SCRIPT_CATEGORIAS.map((c) => ({ value: c, label: c }))
 const TIPO_OPTIONS = SCRIPT_TIPOS.map((t) => ({ value: t, label: t }))
@@ -54,6 +55,12 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
       return
     }
 
+    const urlDownload = values.urlDownload.trim()
+    if (urlDownload && !isHttpUrl(urlDownload)) {
+      showToast('O link de download deve ser uma URL http(s) válida.', 'danger')
+      return
+    }
+
     const record = {
       nome,
       categoria: values.categoria,
@@ -64,7 +71,7 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
       dataCriacao: values.dataCriacao,
       dataAtualizacao: values.dataAtualizacao,
       tamanho: values.tamanho.trim(),
-      urlDownload: values.urlDownload.trim(),
+      urlDownload,
       descricao: values.descricao.trim(),
       observacoes: values.observacoes.trim(),
       codigo: values.codigo,

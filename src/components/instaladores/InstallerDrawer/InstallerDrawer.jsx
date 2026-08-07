@@ -7,6 +7,7 @@ import { CopyIcon, DownloadIcon, EditIcon } from '../../ui/Icon/icons'
 import { useToast } from '../../../hooks/useToast'
 import { fmtDate } from '../../../utils/formatters'
 import { installerRecent } from '../../../utils/installerFilter'
+import { isHttpUrl } from '../../../utils/urlValidation'
 import panelStyles from '../InstallerPanel.module.css'
 import InstallerAvatar from '../InstallerAvatar/InstallerAvatar'
 
@@ -81,7 +82,7 @@ export default function InstallerDrawer({ open, item, onClose, onEdit }) {
               <CopyIcon /> Copiar link
             </Button>
           )}
-          {item.urlDownload ? (
+          {isHttpUrl(item.urlDownload) ? (
             <a
               href={item.urlDownload}
               target="_blank"

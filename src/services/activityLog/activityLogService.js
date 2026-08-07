@@ -24,9 +24,15 @@ export async function pushLog(texto, autor) {
   }
 }
 
-// Leitura do log de atividade — usada pelo relatório "Atividade recente" da
-// Central de Relatórios (a tela de Atividade recente em si ainda não foi
-// migrada).
+// Leitura do log de atividade — usada pela tela "Atividade recente" e pelo
+// relatório de mesmo nome na Central de Relatórios. Mesma defesa do
+// pushLog(): se a chave ainda não existir no kv_store, trata como log vazio
+// em vez de propagar erro (evita um "Verifique sua conexão" enganoso numa
+// situação que não tem nada a ver com rede).
 export async function getLogEntries() {
-  return kvGet(LOG_KEY)
+  try {
+    return (await kvGet(LOG_KEY)) || []
+  } catch {
+    return []
+  }
 }

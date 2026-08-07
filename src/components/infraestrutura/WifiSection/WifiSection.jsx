@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import Button from '../../ui/Button/Button'
 import { WifiIcon, PlusIcon, EditIcon } from '../../ui/Icon/icons'
 import { WIFI_FIELDS } from '../../../constants/infra'
@@ -22,7 +23,7 @@ export default function WifiSection({
   onEditWifi,
 }) {
   const q = search.trim()
-  const groups = groupWifi(list, search)
+  const groups = useMemo(() => groupWifi(list, search), [list, search])
   const hasMatch = !q || groups.length > 0
   const isOpen = q ? hasMatch : openSection === 'wifi'
 

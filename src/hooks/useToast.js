@@ -1,8 +1,8 @@
 import { useContext } from 'react'
-import { ToastContext } from '../contexts/ToastContext'
+import { ToastActionsContext } from '../contexts/ToastActionsContext'
 
 export function useToast() {
-  const context = useContext(ToastContext)
+  const context = useContext(ToastActionsContext)
   if (context === undefined) {
     throw new Error('useToast deve ser usado dentro de um ToastProvider.')
   }

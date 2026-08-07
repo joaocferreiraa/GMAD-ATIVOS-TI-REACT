@@ -12,7 +12,7 @@ export const MADVILLE_IMAGES = [
   { src: fachadaLoja, alt: 'Frota GMAD', caption: 'Fachada Loja' },
   { src: interiorLoja, alt: 'Interior Madville', caption: 'Interior Loja' },
   { src: centroDistribuicao, alt: 'Showroom Madville', caption: 'Centro de Distribuição' },
-  { src: solucoes, alt: '', caption: 'Soluções' },
+  { src: solucoes, alt: 'Soluções Madville', caption: 'Soluções' },
 ]
 
 export const CURITIBA_IMAGES = [
