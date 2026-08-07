@@ -23,3 +23,7 @@ Usuários autorizados são criados no painel do Supabase, em Authentication → 
 ## Stack
 
 React 19, React Router, TanStack Query, React Hook Form + Zod, Supabase (auth + Postgres via kv_store), CSS Modules.
+
+## Adicionando páginas e funcionalidades
+
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para o padrão a seguir ao criar um módulo, componente, modal, tabela, filtro ou integração novos.
