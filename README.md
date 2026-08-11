@@ -10,7 +10,11 @@ cp .env.example .env.local   # preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_K
 npm run dev
 ```
 
-Usuários autorizados são criados no painel do Supabase, em Authentication → Users.
+Usuários autorizados são criados no painel do Supabase, em Authentication → Users. O login aceita apenas `nome.sobrenome` (sem `@`) e completa com o domínio definido em `LOGIN_DOMAIN` (`src/services/supabase/authService.js`), hoje `@gmad.ti` — cadastre os usuários no Supabase com esse mesmo domínio.
+
+## Deploy
+
+O projeto usa `createBrowserRouter`, então o servidor precisa devolver `index.html` em qualquer rota (senão acessar `/ativos` direto pela URL dá 404). O `vercel.json` na raiz já faz esse rewrite. Configure `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` nas variáveis de ambiente do projeto na Vercel.
 
 ## Scripts
 

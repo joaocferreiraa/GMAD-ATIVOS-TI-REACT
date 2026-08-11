@@ -1,0 +1,13 @@
+# Normaliza finais de linha para LF no repositório e no checkout.
+# Sem isso, o Git no Windows (core.autocrlf=true) entrega CRLF em clones
+# novos e o Prettier (endOfLine: "lf") reprova todos os arquivos em
+# `npm run format:check` — e `npm run format` reescreveria o projeto inteiro.
+* text=auto eol=lf
+
+# Binários: nunca converter.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
