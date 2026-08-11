@@ -14,7 +14,9 @@ function AppShell() {
       <Topbar />
       <Sidebar />
       <div className={styles.content}>
-        <Outlet />
+        <div className={styles.view}>
+          <Outlet />
+        </div>
         <Footer />
       </div>
     </div>

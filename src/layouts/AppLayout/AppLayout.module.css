@@ -12,6 +12,10 @@
   }
 }
 
+.view {
+  flex: 1 0 auto;
+}
+
 .content {
   max-width: var(--app-max-w);
   margin: 0 auto;
