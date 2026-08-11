@@ -1,4 +1,14 @@
-/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.footer-note, .site-footer). */
+/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.footer-note, .site-footer),
+   com uma correção deliberada: o padding do conteúdo do rodapé (as 6
+   colunas) não usa mais a mesma fórmula "centralizada" de --app-max-w do
+   resto do app. Com a sidebar aberta, essa fórmula trava a largura útil do
+   conteúdo em --app-max-w - 48px (1272px), insuficiente para as 6 colunas
+   em qualquer largura de tela — no original isso já é uma margem
+   praticamente zerada (quebra de forma inconsistente dependendo de
+   scrollbar/largura exata da janela). O fundo verde continua sangrando até
+   a borda da tela (margin-left inalterado); só o conteúdo interno ganhou
+   mais espaço, deixando de acompanhar a centralização em telas muito
+   largas. */
 
 .footerNote {
   margin-top: 14px;
@@ -20,11 +30,8 @@
   border-radius: 0;
   padding-top: 36px;
   padding-bottom: 36px;
-  padding-left: max(
-    calc(var(--sidebar-w) + 24px),
-    calc(var(--sidebar-w) + 24px + (100vw - (var(--sidebar-w) + var(--app-max-w))) / 2)
-  );
-  padding-right: max(24px, calc(24px + (100vw - (var(--sidebar-w) + var(--app-max-w))) / 2));
+  padding-left: calc(var(--sidebar-w) + 24px);
+  padding-right: 24px;
   color: #fff;
   background: var(--verde-900);
   border: none;
