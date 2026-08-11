@@ -166,9 +166,25 @@
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
 }
 
+.syncIndicator.syncing .siDot {
+  background: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  animation: syncPulse 1s ease-in-out infinite;
+}
+
 .syncIndicator.offline .siDot {
   background: #f87171;
   box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+@keyframes syncPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .syncTooltip {

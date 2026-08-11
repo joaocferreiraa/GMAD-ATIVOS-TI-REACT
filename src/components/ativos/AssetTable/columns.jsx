@@ -21,6 +21,7 @@ const COMMON_TAIL = [
   {
     key: 'garantiaAte',
     label: 'Garantia',
+    sortable: true,
     render: (a) => {
       const w = warrantyInfo(a.garantiaAte)
       return <Badge variant={warrantyVariant(w.cls)}>{w.label}</Badge>
@@ -29,6 +30,7 @@ const COMMON_TAIL = [
   {
     key: 'status',
     label: 'Status',
+    sortable: true,
     render: (a) => <Badge variant={assetStatusVariant(a.status)}>{a.status || 'Ativo'}</Badge>,
   },
 ]
@@ -72,6 +74,7 @@ export const COLUMNS = {
     {
       key: 'processador',
       label: 'Config.',
+      sortable: true,
       render: (a) => {
         const parts = [a.processador, a.ram, a.armazenamento].filter(Boolean)
         return parts.length ? parts.join(' · ') : '—'
@@ -93,6 +96,7 @@ export const COLUMNS = {
     {
       key: 'pcVinculado',
       label: 'PC vinculado',
+      sortable: true,
       render: (a) => (a.pcVinculado ? <TagChip>{a.pcVinculado}</TagChip> : '—'),
     },
     {
@@ -110,7 +114,7 @@ export const COLUMNS = {
         </div>
       ),
     },
-    { key: 'serial', label: 'Série', render: (a) => a.serial || '—' },
+    { key: 'serial', label: 'Série', sortable: true, render: (a) => a.serial || '—' },
     { key: 'preco', label: 'Preço', sortable: true, render: (a) => fmtMoney(a.preco) },
     ...COMMON_TAIL,
   ],
@@ -135,7 +139,7 @@ export const COLUMNS = {
         </div>
       ),
     },
-    { key: 'imei1', label: 'IMEI', render: (a) => a.imei1 || '—' },
+    { key: 'imei1', label: 'IMEI', sortable: true, render: (a) => a.imei1 || '—' },
     { key: 'preco', label: 'Preço', sortable: true, render: (a) => fmtMoney(a.preco) },
     ...COMMON_TAIL,
   ],
@@ -160,9 +164,9 @@ export const COLUMNS = {
         </div>
       ),
     },
-    { key: 'conexao', label: 'Conexão', render: (a) => a.conexao || '—' },
-    { key: 'ip', label: 'IP', render: (a) => a.ip || '—' },
-    { key: 'serial', label: 'Série', render: (a) => a.serial || '—' },
+    { key: 'conexao', label: 'Conexão', sortable: true, render: (a) => a.conexao || '—' },
+    { key: 'ip', label: 'IP', sortable: true, render: (a) => a.ip || '—' },
+    { key: 'serial', label: 'Série', sortable: true, render: (a) => a.serial || '—' },
     { key: 'preco', label: 'Preço', sortable: true, render: (a) => fmtMoney(a.preco) },
     ...COMMON_TAIL,
   ],
@@ -176,7 +180,7 @@ export const COLUMNS = {
     },
     { key: 'departamento', label: 'Depto', render: (a) => a.departamento || '—', sortable: true },
     { key: 'usuario', label: 'Responsável', render: (a) => a.usuario || '—', sortable: true },
-    { key: 'localUso', label: 'Local de uso', render: (a) => a.localUso || '—' },
+    { key: 'localUso', label: 'Local de uso', sortable: true, render: (a) => a.localUso || '—' },
     {
       key: 'modelo',
       label: 'Marca / Modelo',
@@ -192,7 +196,7 @@ export const COLUMNS = {
         </div>
       ),
     },
-    { key: 'serial', label: 'Série', render: (a) => a.serial || '—' },
+    { key: 'serial', label: 'Série', sortable: true, render: (a) => a.serial || '—' },
     { key: 'preco', label: 'Preço', sortable: true, render: (a) => fmtMoney(a.preco) },
     ...COMMON_TAIL,
   ],

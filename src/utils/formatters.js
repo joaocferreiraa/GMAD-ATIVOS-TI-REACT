@@ -60,6 +60,18 @@ export function fmtRelTime(iso) {
   return `${d}d atrás`
 }
 
+// Horário da última sincronização com o Supabase, para o tooltip do
+// indicador da Topbar — equivalente ao relativeSyncTime() original (formato
+// diferente de fmtRelTime(): "Agora"/"há N minutos", depois vira HH:mm).
+export function relativeSyncTime(lastSync) {
+  if (!lastSync) return '—'
+  const diffMin = Math.floor((Date.now() - lastSync.getTime()) / 60000)
+  if (diffMin < 1) return 'Agora'
+  if (diffMin === 1) return 'há 1 minuto'
+  if (diffMin < 60) return `há ${diffMin} minutos`
+  return lastSync.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
 // Situação da garantia de um ativo a partir da data de vencimento (ISO).
 // cls: 'ok' | 'warn' (vence em até 60 dias) | 'expired' | 'none' (sem data).
 export function warrantyInfo(iso) {

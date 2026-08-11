@@ -11,6 +11,17 @@ export default function InfraRow({ label, value, masked }) {
   const [visible, setVisible] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  // O original reconstrói o HTML do zero a cada mudança de estado, então a
+  // senha sempre volta a ficar mascarada (ex.: ao trocar de rede Wi-Fi na
+  // mesma unidade). Replica isso reescondendo sempre que o valor mudar —
+  // ajustado durante o render (não em efeito), como recomendado pelo React
+  // para resetar estado quando uma prop muda.
+  const [prevValue, setPrevValue] = useState(value)
+  if (value !== prevValue) {
+    setPrevValue(value)
+    setVisible(false)
+  }
+
   const hasValue = value !== undefined && value !== null && String(value).trim() !== ''
 
   async function handleCopy() {

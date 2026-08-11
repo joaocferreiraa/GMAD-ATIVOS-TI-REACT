@@ -34,8 +34,11 @@ const DEFAULT_FILTERS = {
 
 // Reaplica dept/usuario só se ainda fizerem sentido no novo escopo de
 // unidade/categoria (mesmo ajuste do renderDeptFilter/renderUsuarioFilter
-// originais), calculado no próprio evento que muda o escopo — não depois,
-// em efeito.
+// originais — usado ao trocar de categoria), calculado no próprio evento
+// que muda o escopo — não depois, em efeito. Ao trocar de UNIDADE, o
+// original zera "dept" incondicionalmente (handler de #unitTabs, antes de
+// renderDeptFilter rodar) — ver handleUnitChange, que só reaproveita a
+// parte de "usuario" desta função.
 function clampDeptUsuario(assets, unidade, categoria, dept, usuario) {
   const scopedByUnit =
     unidade === 'Todas' ? assets : assets.filter((a) => matchesUnitValue(a.unidade, unidade))
@@ -76,7 +79,8 @@ export default function AtivosPage() {
     setFilters((f) => ({
       ...f,
       unidade,
-      ...clampDeptUsuario(list, unidade, f.categoria, f.dept, f.usuario),
+      dept: '',
+      usuario: clampDeptUsuario(list, unidade, f.categoria, f.dept, f.usuario).usuario,
     }))
   }
 

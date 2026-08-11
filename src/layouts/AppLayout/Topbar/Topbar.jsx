@@ -1,30 +1,50 @@
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useTheme } from '../../../hooks/theme/useTheme'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
-import { initials, nameFromEmail } from '../../../utils/formatters'
+import { useSyncStatus } from '../../../hooks/useSyncStatus'
+import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
 import { MenuIcon, MoonIcon, SunIcon } from '../../../components/ui/Icon/icons'
 import styles from './Topbar.module.css'
 
-// Indicador de sincronização: sem uma camada de dados migrada ainda, reflete
-// apenas se o Supabase está configurado (conectado/sem conexão). O estado
-// "sincronizando" e o horário da última sincronização voltam junto com a
-// migração das telas que de fato leem/gravam dados.
-function SyncIndicator({ connected }) {
+const SYNC_LABEL = {
+  syncing: 'Sincronizando...',
+  offline: 'Sem conexão',
+  connected: 'Sincronizado',
+}
+
+// Indicador de sincronização (equivalente ao #syncIndicator original):
+// 'syncing' enquanto uma chamada ao Supabase está em andamento (ver
+// kvStore.js), 'connected'/'offline' depois, com a hora da última
+// sincronização bem-sucedida no tooltip.
+function SyncIndicator() {
+  const { status, lastSync } = useSyncStatus()
+
   return (
-    <div className={`${styles.syncIndicator} ${connected ? '' : styles.offline}`} tabIndex={0}>
+    <div
+      className={`${styles.syncIndicator} ${status !== 'connected' ? styles[status] : ''}`}
+      tabIndex={0}
+    >
       <span className={styles.siDot} />
-      <span>{connected ? 'Sincronizado' : 'Sem conexão'}</span>
+      <span>{SYNC_LABEL[status]}</span>
       <div className={styles.syncTooltip}>
         <span className={styles.stTitle}>Status da sincronização</span>
-        {connected ? (
-          <div className={styles.stRow}>
-            <span>Banco de dados:</span>
-            <b>Conectado</b>
-          </div>
-        ) : (
+        {status === 'syncing' && <div className={styles.stLine}>Sincronizando dados...</div>}
+        {status === 'offline' && (
           <>
             <div className={styles.stLine}>Não foi possível comunicar com o banco de dados.</div>
             <div className={styles.stLine}>Verifique sua conexão.</div>
+          </>
+        )}
+        {status === 'connected' && (
+          <>
+            <div className={styles.stRow}>
+              <span>Banco de dados:</span>
+              <b>Conectado</b>
+            </div>
+            <div className={styles.stRow}>
+              <span>Última sincronização:</span>
+              <b>{relativeSyncTime(lastSync)}</b>
+            </div>
           </>
         )}
       </div>
@@ -33,7 +53,7 @@ function SyncIndicator({ connected }) {
 }
 
 export default function Topbar() {
-  const { user, isSupabaseConfigured, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
   const { collapsed, toggleSidebar } = useSidebarState()
 
@@ -73,7 +93,7 @@ export default function Topbar() {
             >
               {isDark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
             </button>
-            <SyncIndicator connected={isSupabaseConfigured} />
+            <SyncIndicator />
             <div className={styles.userChip}>
               <div className={styles.avatar}>{initials(displayName)}</div>
               <span>{displayName}</span>
