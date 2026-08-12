@@ -7,11 +7,14 @@ import {
   ScriptsIcon,
   UnitsIcon,
   ClockIcon,
+  WifiIcon,
+  ServerIcon,
 } from '../components/ui/Icon/icons'
 import { CATEGORIES, CAT_LABEL_PLURAL } from './categories'
 import { STOCK_TIPOS } from './stock'
 import { INSTALLER_CATEGORIAS } from './installers'
 import { SCRIPT_CATEGORIAS, SCRIPT_TIPOS } from './scripts'
+import { INFRA_UNIT_NAMES } from './infra'
 import { getUnidades } from '../utils/units'
 import { getUsuarios } from '../utils/assetsFilter'
 import { getContatoDepartamentos } from '../utils/contatosFilter'
@@ -24,7 +27,8 @@ import { fmtDate, fmtMoney, unitDisplayName } from '../utils/formatters'
 // repassada a uma função icon()), e `buildRows(data)` substitui `getRows()`
 // — já que no React os dados de cada módulo vêm de hooks carregados de uma
 // vez só (o "data" bag: { assets, stock, contatos, installers, scripts,
-// logEntries }), em vez de variáveis globais lidas sob demanda.
+// wifi, construshow, logEntries }), em vez de variáveis globais lidas sob
+// demanda.
 export const REPORT_DEFS = [
   {
     key: 'painel',
@@ -64,7 +68,11 @@ export const REPORT_DEFS = [
       { key: 'status', label: 'Status' },
       { key: 'dataAquisicao', label: 'Aquisição', format: fmtDate },
       { key: 'garantiaAte', label: 'Garantia', format: fmtDate },
-      { key: 'preco', label: 'Preço', format: fmtMoney },
+      {
+        key: 'preco',
+        label: 'Preço / Aluguel',
+        format: (v, r) => (r?.posse === 'Alugado' ? `${fmtMoney(r.valorAluguel)}/mês` : fmtMoney(v)),
+      },
     ],
     filters: [
       {
@@ -102,6 +110,7 @@ export const REPORT_DEFS = [
     icon: ContactsIcon,
     columns: [
       { key: 'nome', label: 'Nome' },
+      { key: 'unidade', label: 'Unidade', format: unitDisplayName },
       { key: 'departamento', label: 'Departamento' },
       { key: 'celular', label: 'Celular corporativo' },
       { key: 'telefone', label: 'Telefone' },
@@ -109,6 +118,13 @@ export const REPORT_DEFS = [
       { key: 'email', label: 'E-mail corporativo' },
     ],
     filters: [
+      {
+        key: 'unidade',
+        label: 'Unidade',
+        allLabel: 'Todas as unidades',
+        options: (data) => getUnidades(data.contatos),
+        optionLabel: unitDisplayName,
+      },
       {
         key: 'departamento',
         label: 'Departamento',
@@ -130,6 +146,7 @@ export const REPORT_DEFS = [
       { key: 'quantidade', label: 'Quantidade' },
       { key: 'unidade', label: 'Unidade', format: unitDisplayName },
       { key: 'status', label: 'Status' },
+      { key: 'observacoes', label: 'Observações' },
     ],
     filters: [
       { key: 'tipo', label: 'Tipo', allLabel: 'Todos os tipos', options: () => STOCK_TIPOS },
@@ -197,6 +214,53 @@ export const REPORT_DEFS = [
       { key: 'tipo', label: 'Tipo', allLabel: 'Todos os tipos', options: () => SCRIPT_TIPOS },
     ],
     buildRows: (data) => data.scripts,
+  },
+  {
+    key: 'wifi',
+    title: 'Redes Wi-Fi',
+    desc: 'Configurações de rede Wi-Fi cadastradas por unidade.',
+    icon: WifiIcon,
+    columns: [
+      { key: 'unidade', label: 'Unidade' },
+      { key: 'redeNome', label: 'Nome da rede' },
+      { key: 'ssid', label: 'SSID' },
+      { key: 'seguranca', label: 'Tipo de segurança' },
+      { key: 'ipInterno', label: 'IP Interno' },
+      { key: 'ipExterno', label: 'IP Externo' },
+      { key: 'gateway', label: 'Gateway' },
+      { key: 'dnsPrimario', label: 'DNS Primário' },
+      { key: 'dnsSecundario', label: 'DNS Secundário' },
+      { key: 'observacoes', label: 'Observações' },
+    ],
+    filters: [
+      {
+        key: 'unidade',
+        label: 'Unidade',
+        allLabel: 'Todas as unidades',
+        options: () => INFRA_UNIT_NAMES,
+      },
+    ],
+    buildRows: (data) => data.wifi,
+  },
+  {
+    key: 'construshow',
+    title: 'Construshow (IPs)',
+    desc: 'IPs internos e externos do sistema Construshow por unidade.',
+    icon: ServerIcon,
+    columns: [
+      { key: 'unidade', label: 'Unidade' },
+      { key: 'ipInterno', label: 'IP Interno' },
+      { key: 'ipExterno', label: 'IP Externo' },
+    ],
+    filters: [
+      {
+        key: 'unidade',
+        label: 'Unidade',
+        allLabel: 'Todas as unidades',
+        options: () => INFRA_UNIT_NAMES,
+      },
+    ],
+    buildRows: (data) => data.construshow,
   },
   {
     key: 'unidades',

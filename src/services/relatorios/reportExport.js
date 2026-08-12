@@ -8,7 +8,7 @@ function reportFormattedRows(rows, columns) {
     const out = {}
     columns.forEach((c) => {
       const raw = r[c.key]
-      out[c.label] = c.format ? c.format(raw) : raw == null ? '' : String(raw)
+      out[c.label] = c.format ? c.format(raw, r) : raw == null ? '' : String(raw)
     })
     return out
   })

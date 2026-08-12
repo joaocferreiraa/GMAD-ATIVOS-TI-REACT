@@ -12,7 +12,7 @@ export default function ReportTable({ columns, rows }) {
     label: c.label,
     render: (r) => {
       const raw = r[c.key]
-      return c.format ? c.format(raw) : raw == null || raw === '' ? '—' : String(raw)
+      return c.format ? c.format(raw, r) : raw == null || raw === '' ? '—' : String(raw)
     },
   }))
 

@@ -6,14 +6,23 @@ import { buildReportMeta } from '../../services/relatorios/reportExport'
 // Agregação da tela de Relatórios, separada da renderização — equivalente
 // ao REPORTS + reportComputedRows()/reportActiveColumns()/buildReportMeta()
 // do sistema original. `data`: { assets, stock, contatos, installers,
-// scripts, logEntries } (já com fallback para array vazio).
+// scripts, wifi, construshow, logEntries } (já com fallback para array vazio).
 export function useRelatoriosData(data, uiState) {
   const { activeKey, filters, columns, sortKey } = uiState
 
   const reports = useMemo(
     () => REPORT_DEFS.map((def) => ({ ...def, rows: def.buildRows(data) })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.assets, data.stock, data.contatos, data.installers, data.scripts, data.logEntries],
+    [
+      data.assets,
+      data.stock,
+      data.contatos,
+      data.installers,
+      data.scripts,
+      data.wifi,
+      data.construshow,
+      data.logEntries,
+    ],
   )
 
   const activeReport = activeKey ? reports.find((r) => r.key === activeKey) : null

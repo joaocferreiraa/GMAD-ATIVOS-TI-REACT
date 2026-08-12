@@ -4,6 +4,7 @@ import { useStock } from '../../hooks/data/useStock'
 import { useContatos } from '../../hooks/data/useContatos'
 import { useInstaladores } from '../../hooks/data/useInstaladores'
 import { useScripts } from '../../hooks/data/useScripts'
+import { useInfra } from '../../hooks/data/useInfra'
 import { useAtividade } from '../../hooks/data/useAtividade'
 import { useRelatoriosData } from './useRelatoriosData'
 import { useToast } from '../../hooks/useToast'
@@ -30,6 +31,7 @@ export default function RelatoriosPage() {
   const contatosQ = useContatos()
   const installersQ = useInstaladores()
   const scriptsQ = useScripts()
+  const infraQ = useInfra()
   const atividadeQ = useAtividade()
   const { showToast } = useToast()
 
@@ -39,6 +41,8 @@ export default function RelatoriosPage() {
     contatos: contatosQ.data ?? [],
     installers: installersQ.data ?? [],
     scripts: scriptsQ.data ?? [],
+    wifi: infraQ.data?.wifi ?? [],
+    construshow: infraQ.data?.construshow ?? [],
     logEntries: atividadeQ.data ?? [],
   }
   const isLoading =
@@ -47,6 +51,7 @@ export default function RelatoriosPage() {
     contatosQ.isLoading ||
     installersQ.isLoading ||
     scriptsQ.isLoading ||
+    infraQ.isLoading ||
     atividadeQ.isLoading
   const isError =
     assetsQ.isError ||
@@ -54,6 +59,7 @@ export default function RelatoriosPage() {
     contatosQ.isError ||
     installersQ.isError ||
     scriptsQ.isError ||
+    infraQ.isError ||
     atividadeQ.isError
 
   const [uiState, setUiState] = useState({
