@@ -9,7 +9,7 @@ export function downloadCsv(filename, columns, rows) {
     columns
       .map((key) => {
         let value = row[key] !== undefined && row[key] !== null ? String(row[key]) : ''
-        if (value.includes(';') || value.includes('"')) value = `"${value.replace(/"/g, '""')}"`
+        if (/[;"\n\r]/.test(value)) value = `"${value.replace(/"/g, '""')}"`
         return value
       })
       .join(';'),

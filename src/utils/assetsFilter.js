@@ -1,5 +1,5 @@
 import { matchesUnitValue } from './units'
-import { warrantyInfo } from './formatters'
+import { assetWarrantyInfo } from './formatters'
 import { createSearchMatcher } from './textFilter'
 
 // Lista de ativos filtrada e ordenada pela barra de filtros da tela de
@@ -21,7 +21,7 @@ export function filterAssets(assets, filters) {
     )
   }
   if (filters.garantia)
-    list = list.filter((a) => warrantyInfo(a.garantiaAte).cls === filters.garantia)
+    list = list.filter((a) => assetWarrantyInfo(a).cls === filters.garantia)
   if (filters.usuario) list = list.filter((a) => a.usuario === filters.usuario)
   if (filters.search) {
     const matches = createSearchMatcher(filters.search)

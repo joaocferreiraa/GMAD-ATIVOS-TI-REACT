@@ -27,5 +27,5 @@ export function getUnidades(assets) {
 
 export function getDepartamentos(scoped) {
   const set = new Set(scoped.map((a) => a.departamento).filter(Boolean))
-  return Array.from(set).sort()
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }

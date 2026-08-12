@@ -33,9 +33,11 @@ export default function UnitColumnChart({
   const total = data.reduce((sum, d) => sum + d.value, 0)
   if (!total) return <EmptyHint>{emptyMessage}</EmptyHint>
 
+  // Cor atribuída pelo índice original (antes do filtro) — senão a cor de
+  // cada rótulo mudaria conforme quais outros itens têm valor zero.
   const chartData = data
-    .filter((d) => d.value > 0)
     .map((d, index) => ({ ...d, color: colors[index % colors.length] }))
+    .filter((d) => d.value > 0)
 
   const focusLabel = hoveredLabel ?? pinnedLabel
   const focus = focusLabel ? chartData.find((d) => d.label === focusLabel) : null

@@ -26,9 +26,12 @@ export default function DonutChart({
   const total = data.reduce((sum, d) => sum + d.value, 0)
   if (!total) return <EmptyHint>{emptyMessage}</EmptyHint>
 
+  // Cor atribuída pelo índice original (antes do filtro) — senão a cor de
+  // cada rótulo mudaria conforme quais outros itens têm valor zero, o que
+  // quebra mapeamentos semânticos como status (verde/laranja/vermelho).
   const chartData = data
-    .filter((d) => d.value > 0)
     .map((d, index) => ({ ...d, color: colors[index % colors.length] }))
+    .filter((d) => d.value > 0)
 
   return (
     <div className={styles.wrap}>

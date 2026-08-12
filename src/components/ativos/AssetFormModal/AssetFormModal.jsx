@@ -17,9 +17,18 @@ import { nextIdFor } from '../../../utils/id'
 import { useToast } from '../../../hooks/useToast'
 import panelStyles from '../AssetPanel.module.css'
 import modalStyles from '../../ui/Modal/Modal.module.css'
+import formFieldStyles from '../../ui/FormField/FormField.module.css'
 
 const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c, label: c }))
 const NOVO_DEPARTAMENTO = '__novo__'
+
+// Todas as chaves de spec técnico usadas por alguma categoria — usada pra
+// limpar campos da categoria anterior que não pertencem à nova categoria ao
+// salvar (ex: IMEI de um Celular que virou Desktop), já que a mutação de
+// update faz um merge raso e manteria esses valores presos pra sempre.
+const ALL_SPEC_KEYS = Array.from(
+  new Set(Object.values(FIELD_GROUPS).flatMap((group) => group.map((f) => f.key))),
+)
 
 // Só os campos indispensáveis pro registro fazer sentido (mesmos exigidos
 // pela checagem manual anterior); `.loose()` mantém os demais campos do
@@ -29,8 +38,14 @@ const assetSchema = z
     categoria: z.string(),
     id: z.string().trim().min(1, 'Informe o ID do ativo.'),
     unidade: z.string().trim().min(1, 'Selecione a unidade.'),
+    departamento: z.string(),
+    departamentoNovo: z.string(),
   })
   .loose()
+  .refine((data) => data.departamento !== NOVO_DEPARTAMENTO || data.departamentoNovo.trim(), {
+    message: 'Informe o novo departamento.',
+    path: ['departamentoNovo'],
+  })
 
 function buildSpecDefaults(categoria, asset) {
   const groups = FIELD_GROUPS[categoria] || []
@@ -150,6 +165,10 @@ export default function AssetFormModal({
     const spec = Object.fromEntries(
       Object.entries(values.spec || {}).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]),
     )
+    // Zera antes de reaplicar: sem isso, um valor de uma categoria/situação
+    // anterior (ex: IMEI de Celular, aluguel de Impressora) sobreviveria pro
+    // sempre no registro salvo, já que o update faz merge raso.
+    const clearedSpec = Object.fromEntries(ALL_SPEC_KEYS.map((k) => [k, undefined]))
 
     const record = {
       categoria: values.categoria,
@@ -162,6 +181,10 @@ export default function AssetFormModal({
       garantiaAte: values.garantiaAte,
       preco: values.preco,
       status: values.status,
+      posse: undefined,
+      valorAluguel: undefined,
+      renovacaoAluguel: undefined,
+      ...clearedSpec,
       ...(values.categoria === 'Impressora'
         ? { posse: values.posse, valorAluguel: values.valorAluguel, renovacaoAluguel: values.renovacaoAluguel }
         : {}),
@@ -317,11 +340,18 @@ export default function AssetFormModal({
                   )}
                 />
                 {departamento === NOVO_DEPARTAMENTO && (
-                  <Input
-                    placeholder="Digite o novo departamento"
-                    style={{ marginTop: 8 }}
-                    {...register('departamentoNovo')}
-                  />
+                  <>
+                    <Input
+                      placeholder="Digite o novo departamento"
+                      style={{ marginTop: 8 }}
+                      {...register('departamentoNovo')}
+                    />
+                    {errors.departamentoNovo && (
+                      <span className={formFieldStyles.errorMessage} role="alert">
+                        {errors.departamentoNovo.message}
+                      </span>
+                    )}
+                  </>
                 )}
               </FormField>
             </FormGrid>
