@@ -98,7 +98,6 @@ export default function ScriptsPage() {
         onEdit={panel.openEditFromView}
         onDelete={() => handleDeleteFromDrawer(panel.viewingItem)}
         onToggleFavorite={(uid) => toggleFavorite.mutate(uid)}
-        onDownload={(uid) => registerDownload.mutate(uid)}
       />
 
       <ScriptFormModal

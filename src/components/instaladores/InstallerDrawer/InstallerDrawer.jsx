@@ -51,15 +51,10 @@ export default function InstallerDrawer({ open, item, onClose, onEdit }) {
             label="Última atualização"
             raw
             value={
-              <>
+              <span className={panelStyles.vrValueBadgeGroup}>
                 {item.dataAtualizacao ? fmtDate(item.dataAtualizacao) : 'Não informado'}
-                {recent && (
-                  <>
-                    {' '}
-                    <Badge variant="ok">Recente</Badge>
-                  </>
-                )}
-              </>
+                {recent && <Badge variant="ok">Recente</Badge>}
+              </span>
             }
           />
         </div>

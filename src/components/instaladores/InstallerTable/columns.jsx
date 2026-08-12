@@ -34,15 +34,10 @@ export const COLUMNS = [
     key: 'dataAtualizacao',
     label: 'Atualizado',
     render: (i) => (
-      <>
+      <span className={cellStyles.badgeGroup}>
         {i.dataAtualizacao ? fmtDate(i.dataAtualizacao) : '—'}
-        {installerRecent(i.dataAtualizacao) && (
-          <>
-            {' '}
-            <Badge variant="ok">Recente</Badge>
-          </>
-        )}
-      </>
+        {installerRecent(i.dataAtualizacao) && <Badge variant="ok">Recente</Badge>}
+      </span>
     ),
   },
 ]

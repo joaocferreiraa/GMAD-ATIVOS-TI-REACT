@@ -40,6 +40,10 @@
   composes: vrValue from '../../styles/viewPanel.module.css';
 }
 
+.vrValueBadgeGroup {
+  composes: vrValueBadgeGroup from '../../styles/viewPanel.module.css';
+}
+
 .footer {
   display: flex;
   justify-content: space-between;

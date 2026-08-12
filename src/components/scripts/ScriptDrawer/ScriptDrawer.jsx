@@ -2,26 +2,18 @@ import Drawer from '../../ui/Drawer/Drawer'
 import Badge from '../../ui/Badge/Badge'
 import Button from '../../ui/Button/Button'
 import ViewRow from '../../ui/ViewRow/ViewRow'
-import buttonStyles from '../../ui/Button/Button.module.css'
 import TagChip from '../../ui/TagChip/TagChip'
 import CodeBlock from '../../ui/CodeBlock/CodeBlock'
-import {
-  StarIcon,
-  PlayIcon,
-  CopyIcon,
-  DownloadIcon,
-  EditIcon,
-  TrashIcon,
-} from '../../ui/Icon/icons'
+import { StarIcon, CopyIcon, EditIcon, TrashIcon } from '../../ui/Icon/icons'
 import { useToast } from '../../../hooks/useToast'
 import { fmtDate } from '../../../utils/formatters'
 import { scriptNew } from '../../../utils/scriptFilter'
-import { isHttpUrl } from '../../../utils/urlValidation'
 import panelStyles from '../ScriptPanel.module.css'
 
 // Painel de detalhes de um script (openScriptDrawer() do sistema original)
-// — drawer lateral (largo), somente leitura, com favoritar, copiar
-// código/comando, baixar (registra o download) e editar/excluir.
+// — drawer lateral (largo), somente leitura, com favoritar, copiar código
+// e editar/excluir. Execução e download ficam de fora de propósito: o
+// processo é manual (copiar o código e rodar no computador de destino).
 export default function ScriptDrawer({
   open,
   item,
@@ -29,21 +21,11 @@ export default function ScriptDrawer({
   onEdit,
   onDelete,
   onToggleFavorite,
-  onDownload,
 }) {
   const { showToast } = useToast()
   if (!item) return null
 
   const isNew = scriptNew(item.dataCriacao)
-
-  async function handleCopyCmd() {
-    try {
-      await navigator.clipboard.writeText(item.urlDownload)
-      showToast('Comando copiado.')
-    } catch {
-      showToast('Não foi possível copiar.', 'danger')
-    }
-  }
 
   async function handleCopyCode() {
     try {
@@ -52,10 +34,6 @@ export default function ScriptDrawer({
     } catch {
       showToast('Não foi possível copiar o código.', 'danger')
     }
-  }
-
-  function handleRun() {
-    showToast('Execução remota ainda não está disponível — estrutura preparada para uso futuro.')
   }
 
   return (
@@ -102,15 +80,10 @@ export default function ScriptDrawer({
             label="Data de criação"
             raw
             value={
-              <>
+              <span className={panelStyles.vrValueBadgeGroup}>
                 {item.dataCriacao ? fmtDate(item.dataCriacao) : 'Não informado'}
-                {isNew && (
-                  <>
-                    {' '}
-                    <Badge variant="ok">Novo</Badge>
-                  </>
-                )}
-              </>
+                {isNew && <Badge variant="ok">Novo</Badge>}
+              </span>
             }
           />
           <ViewRow
@@ -146,29 +119,6 @@ export default function ScriptDrawer({
       <div className={panelStyles.footer}>
         <div />
         <div className={panelStyles.footerActions}>
-          <Button variant="ghost" size="sm" onClick={handleRun} title="Preparado para uso futuro">
-            <PlayIcon /> Executar
-          </Button>
-          {item.urlDownload && (
-            <Button size="sm" onClick={handleCopyCmd}>
-              <CopyIcon /> Copiar comando
-            </Button>
-          )}
-          {isHttpUrl(item.urlDownload) ? (
-            <a
-              href={item.urlDownload}
-              target="_blank"
-              rel="noopener"
-              className={`${buttonStyles.btn} ${buttonStyles.primary} ${buttonStyles.sm}`}
-              onClick={() => onDownload(item.uid)}
-            >
-              <DownloadIcon /> Baixar
-            </a>
-          ) : (
-            <Button size="sm" disabled title="Sem link cadastrado">
-              <DownloadIcon /> Baixar
-            </Button>
-          )}
           <Button size="sm" onClick={onEdit}>
             <EditIcon /> Editar
           </Button>
