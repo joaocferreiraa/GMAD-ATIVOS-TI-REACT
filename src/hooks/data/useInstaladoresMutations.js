@@ -1,9 +1,13 @@
 import { createCrudMutations } from './createCrudMutations'
-import { saveInstaladores } from '../../services/instaladores/installersService'
+import {
+  getInstaladoresWithMeta,
+  saveInstaladores,
+} from '../../services/instaladores/installersService'
 import { queryKeys } from '../../constants/queryKeys'
 
 const useCrud = createCrudMutations({
   queryKey: queryKeys.instaladores,
+  getFreshFn: getInstaladoresWithMeta,
   saveFn: saveInstaladores,
   uidParam: 'instaladorUid',
   withAudit: true,

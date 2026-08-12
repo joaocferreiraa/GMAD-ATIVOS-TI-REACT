@@ -1,9 +1,10 @@
 import { createCrudMutations } from './createCrudMutations'
-import { saveContatos } from '../../services/contatos/contatosService'
+import { getContatosWithMeta, saveContatos } from '../../services/contatos/contatosService'
 import { queryKeys } from '../../constants/queryKeys'
 
 const useCrud = createCrudMutations({
   queryKey: queryKeys.contatos,
+  getFreshFn: getContatosWithMeta,
   saveFn: saveContatos,
   uidParam: 'contatoUid',
   withAudit: false,

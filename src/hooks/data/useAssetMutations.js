@@ -1,9 +1,10 @@
 import { createCrudMutations } from './createCrudMutations'
-import { saveAssets } from '../../services/ativos/assetsService'
+import { getAssetsWithMeta, saveAssets } from '../../services/ativos/assetsService'
 import { queryKeys } from '../../constants/queryKeys'
 
 const useCrud = createCrudMutations({
   queryKey: queryKeys.ativos,
+  getFreshFn: getAssetsWithMeta,
   saveFn: saveAssets,
   uidParam: 'assetUid',
   withAudit: true,

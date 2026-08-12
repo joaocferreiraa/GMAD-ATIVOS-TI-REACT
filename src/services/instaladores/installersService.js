@@ -1,4 +1,4 @@
-import { kvGet, kvSet } from '../supabase/kvStore'
+import { kvGet, kvGetWithMeta, kvSet } from '../supabase/kvStore'
 
 const DATA_KEY = 'gmad_instaladores_data'
 
@@ -7,9 +7,16 @@ export async function getInstaladores() {
   return kvGet(DATA_KEY)
 }
 
+// Igual a getInstaladores, mas inclui o `updated_at` da linha — ver
+// getAssetsWithMeta.
+export async function getInstaladoresWithMeta() {
+  return kvGetWithMeta(DATA_KEY)
+}
+
 // Grava a lista completa de instaladores — o kv_store guarda o array
 // inteiro sob uma única chave, então toda escrita reescreve a lista
 // completa (mesmo padrão do saveInstallerData() original).
-export async function saveInstaladores(installers) {
-  await kvSet(DATA_KEY, installers)
+// `expectedUpdatedAt`: gravação condicional (compare-and-swap) — ver kvSet.
+export async function saveInstaladores(installers, expectedUpdatedAt) {
+  await kvSet(DATA_KEY, installers, { expectedUpdatedAt })
 }

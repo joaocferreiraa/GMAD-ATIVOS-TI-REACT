@@ -1,4 +1,4 @@
-import { kvGet, kvSet } from '../supabase/kvStore'
+import { kvGet, kvGetWithMeta, kvSet } from '../supabase/kvStore'
 
 const DATA_KEY = 'gmad_infra_data'
 
@@ -11,8 +11,15 @@ export async function getInfra() {
   return kvGet(DATA_KEY)
 }
 
+// Igual a getInfra, mas inclui o `updated_at` da linha — ver
+// getAssetsWithMeta.
+export async function getInfraWithMeta() {
+  return kvGetWithMeta(DATA_KEY)
+}
+
 // Grava o objeto completo de infraestrutura — toda escrita reescreve
 // { construshow, wifi } inteiro (mesmo padrão do saveInfraData() original).
-export async function saveInfra(infraData) {
-  await kvSet(DATA_KEY, infraData)
+// `expectedUpdatedAt`: gravação condicional (compare-and-swap) — ver kvSet.
+export async function saveInfra(infraData, expectedUpdatedAt) {
+  await kvSet(DATA_KEY, infraData, { expectedUpdatedAt })
 }

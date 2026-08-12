@@ -34,16 +34,63 @@ export async function kvGet(key) {
   }
 }
 
-export async function kvSet(key, value) {
+// Igual a kvGet, mas também devolve o `updated_at` da linha — usado pelas
+// mutações pra ler o valor mais recente (não o do cache local, que pode
+// estar desatualizado) e depois gravar de forma condicional via kvSet.
+export async function kvGetWithMeta(key) {
   markSyncing()
   try {
-    const { error } = await requireSupabase()
+    const { data, error } = await requireSupabase()
       .from('kv_store')
-      .upsert({ key, value, updated_at: new Date().toISOString() })
+      .select('value, updated_at')
+      .eq('key', key)
+      .single()
     if (error) throw error
     markConnected()
+    return { value: data.value, updatedAt: data.updated_at }
   } catch (e) {
     markOffline()
+    throw e
+  }
+}
+
+// Erro específico de conflito de escrita — ver kvSet(expectedUpdatedAt).
+export class KvConflictError extends Error {
+  constructor(key) {
+    super(`Conflito ao gravar "${key}": outra sessão alterou os dados nesse meio-tempo.`)
+    this.name = 'KvConflictError'
+  }
+}
+
+// `expectedUpdatedAt`: quando informado, a gravação só acontece se o
+// `updated_at` da linha ainda for esse (compare-and-swap) — se outra sessão
+// já tiver gravado por cima, lança KvConflictError em vez de sobrescrever
+// silenciosamente. Sem esse parâmetro, grava incondicionalmente (upsert),
+// mesmo comportamento de antes.
+export async function kvSet(key, value, { expectedUpdatedAt } = {}) {
+  markSyncing()
+  try {
+    const sb = requireSupabase()
+    const nextUpdatedAt = new Date().toISOString()
+    if (expectedUpdatedAt !== undefined) {
+      const { data, error } = await sb
+        .from('kv_store')
+        .update({ value, updated_at: nextUpdatedAt })
+        .eq('key', key)
+        .eq('updated_at', expectedUpdatedAt)
+        .select('key')
+      if (error) throw error
+      if (!data || data.length === 0) {
+        markConnected()
+        throw new KvConflictError(key)
+      }
+    } else {
+      const { error } = await sb.from('kv_store').upsert({ key, value, updated_at: nextUpdatedAt })
+      if (error) throw error
+    }
+    markConnected()
+  } catch (e) {
+    if (!(e instanceof KvConflictError)) markOffline()
     throw e
   }
 }

@@ -1,9 +1,10 @@
 import { createCrudMutations } from './createCrudMutations'
-import { saveStock } from '../../services/estoque/stockService'
+import { getStockWithMeta, saveStock } from '../../services/estoque/stockService'
 import { queryKeys } from '../../constants/queryKeys'
 
 const useCrud = createCrudMutations({
   queryKey: queryKeys.estoque,
+  getFreshFn: getStockWithMeta,
   saveFn: saveStock,
   uidParam: 'stockUid',
   withAudit: true,

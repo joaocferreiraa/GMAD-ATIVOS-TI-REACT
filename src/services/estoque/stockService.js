@@ -1,4 +1,4 @@
-import { kvGet, kvSet } from '../supabase/kvStore'
+import { kvGet, kvGetWithMeta, kvSet } from '../supabase/kvStore'
 
 const DATA_KEY = 'gmad_estoque_data'
 
@@ -8,8 +8,14 @@ export async function getStock() {
   return kvGet(DATA_KEY)
 }
 
+// Igual a getStock, mas inclui o `updated_at` da linha — ver getAssetsWithMeta.
+export async function getStockWithMeta() {
+  return kvGetWithMeta(DATA_KEY)
+}
+
 // Grava a lista completa de itens de estoque — cada escrita reescreve a
 // lista inteira (mesmo padrão do saveStockData() original).
-export async function saveStock(stock) {
-  await kvSet(DATA_KEY, stock)
+// `expectedUpdatedAt`: gravação condicional (compare-and-swap) — ver kvSet.
+export async function saveStock(stock, expectedUpdatedAt) {
+  await kvSet(DATA_KEY, stock, { expectedUpdatedAt })
 }

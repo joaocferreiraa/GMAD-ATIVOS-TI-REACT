@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { createCrudMutations } from './createCrudMutations'
-import { saveScripts } from '../../services/scripts/scriptsService'
+import { getScriptsWithMeta, saveScripts } from '../../services/scripts/scriptsService'
 import { queryKeys } from '../../constants/queryKeys'
 
 const useCrud = createCrudMutations({
   queryKey: queryKeys.scripts,
+  getFreshFn: getScriptsWithMeta,
   saveFn: saveScripts,
   uidParam: 'scriptUid',
   withAudit: true,
@@ -17,24 +18,24 @@ const useCrud = createCrudMutations({
   deleteSuccessMessage: 'Script excluído.',
   // toggleFavorite/registerDownload seguem o original: sem log de atividade
   // e sem toast, só persistem a mudança.
-  useExtraMutations: ({ queryClient, queryKey, applyLocally, persist }) => ({
+  useExtraMutations: ({ applyLocally, persist, getFreshFn }) => ({
     toggleFavorite: useMutation({
       mutationFn: async (scriptUid) => {
-        const list = queryClient.getQueryData(queryKey) || []
+        const { value: list, updatedAt } = await getFreshFn()
         const next = list.map((s) => (s.uid === scriptUid ? { ...s, favorito: !s.favorito } : s))
         applyLocally(next)
-        await persist(next)
+        await persist(next, updatedAt)
         return next.find((s) => s.uid === scriptUid)
       },
     }),
     registerDownload: useMutation({
       mutationFn: async (scriptUid) => {
-        const list = queryClient.getQueryData(queryKey) || []
+        const { value: list, updatedAt } = await getFreshFn()
         const next = list.map((s) =>
           s.uid === scriptUid ? { ...s, downloads: (s.downloads || 0) + 1 } : s,
         )
         applyLocally(next)
-        await persist(next)
+        await persist(next, updatedAt)
       },
     }),
   }),

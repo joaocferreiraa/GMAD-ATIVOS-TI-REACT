@@ -1,4 +1,4 @@
-import { kvGet, kvSet } from '../supabase/kvStore'
+import { kvGet, kvGetWithMeta, kvSet } from '../supabase/kvStore'
 
 const DATA_KEY = 'gmad_contatos_v1'
 
@@ -10,8 +10,16 @@ export async function getContatos() {
   return data?.colaboradores ?? []
 }
 
+// Igual a getContatos, mas inclui o `updated_at` da linha e já desembrulha
+// `colaboradores` — ver getAssetsWithMeta.
+export async function getContatosWithMeta() {
+  const { value, updatedAt } = await kvGetWithMeta(DATA_KEY)
+  return { value: value?.colaboradores ?? [], updatedAt }
+}
+
 // Grava a lista completa de colaboradores, reembrulhada em `{ colaboradores }`
 // para preservar exatamente o formato já existente no banco.
-export async function saveContatos(colaboradores) {
-  await kvSet(DATA_KEY, { colaboradores })
+// `expectedUpdatedAt`: gravação condicional (compare-and-swap) — ver kvSet.
+export async function saveContatos(colaboradores, expectedUpdatedAt) {
+  await kvSet(DATA_KEY, { colaboradores }, { expectedUpdatedAt })
 }
