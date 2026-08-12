@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { ROUTES } from '../../constants/routes'
 import { EyeIcon, EyeOffIcon, LoginIcon } from '../../components/ui/Icon/icons'
-import loginBackground from '../../assets/images/login-background.png'
+import loginBackground from '../../assets/images/login-background.jpg'
 import styles from './LoginPage.module.css'
 
 const REMEMBER_KEY = 'gmad_remembered_user'
@@ -86,10 +86,10 @@ export default function LoginPage() {
         <div className={styles.loginBox}>
           <div className={styles.loginBrand}>
             <div className={styles.lbText}>
-              <span className={styles.lbSub}>GMAD Madville · Curitiba</span>
+              <span className={styles.lbSub}>GMAD Madville | Curitiba</span>
             </div>
           </div>
-          <h1>Acesse o Controle de Ativos</h1>
+          <h1>Acesse o Painel de TI</h1>
 
           <div
             className={`${styles.loginError} ${authError ? styles.show : ''}`}

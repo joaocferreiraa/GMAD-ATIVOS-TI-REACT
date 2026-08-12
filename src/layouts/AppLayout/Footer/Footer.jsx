@@ -14,7 +14,7 @@ export default function Footer() {
     <div className={styles.bottomBar}>
       <div className={styles.bottomBarInner}>
         <p className={styles.bottomCopy}>
-          © {new Date().getFullYear()} GMAD Madville | Curitiba — Controle de TI
+          © {new Date().getFullYear()} GMAD Madville | Curitiba — Painel de TI
         </p>
         <p className={styles.bottomMeta}>
           Versão {BUILD_DATE ? `${BUILD_DATE} · ` : ''}v{BUILD_NUMBER} · Suporte:{' '}
