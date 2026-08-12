@@ -1,8 +1,17 @@
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useTheme } from '../../../hooks/theme/useTheme'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
 import { useSyncStatus } from '../../../hooks/useSyncStatus'
+import { useNotifications } from '../../../hooks/useNotifications'
+import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
+import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
+import { assetStatusVariant } from '../../../utils/statusBadge'
+import { ROUTES } from '../../../constants/routes'
+import Badge from '../../../components/ui/Badge/Badge'
+import CommandPalette from '../CommandPalette/CommandPalette'
 import {
   PanelIcon,
   MoonIcon,
@@ -59,12 +68,96 @@ function SyncIndicator() {
   )
 }
 
+// Sino de notificações: reaproveita os mesmos itens do "Requer atenção" do
+// Dashboard (garantias vencendo + manutenção), com contador no ícone e
+// painel suspenso ao clicar. Clicar num item leva direto para Ativos.
+function NotificationsButton() {
+  const navigate = useNavigate()
+  const items = useNotifications()
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef(null)
+
+  function close() {
+    setOpen(false)
+  }
+
+  useClickOutside(rootRef, open, close)
+  useEscapeKey(open, close)
+
+  return (
+    <div ref={rootRef} className={styles.notifRoot}>
+      <button
+        type="button"
+        className={styles.iconBtn}
+        onClick={() => setOpen((current) => !current)}
+        title="Notificações"
+        aria-label="Notificações"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <BellIcon width={16} height={16} />
+        {items.length > 0 && (
+          <span className={styles.notifBadge}>{items.length > 9 ? '9+' : items.length}</span>
+        )}
+      </button>
+
+      {open && (
+        <div className={styles.notifPanel} role="menu">
+          <div className={styles.notifHeader}>Notificações</div>
+          {items.length === 0 ? (
+            <div className={styles.notifEmpty}>
+              <BellIcon width={22} height={22} />
+              <b>Nenhuma notificação</b>
+              <span>Você será notificado sobre atualizações</span>
+            </div>
+          ) : (
+            <div className={styles.notifList}>
+              {items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="menuitem"
+                  className={styles.notifItem}
+                  onClick={() => {
+                    close()
+                    navigate(ROUTES.ativos)
+                  }}
+                >
+                  <div className={styles.notifMain}>
+                    <b>{item.title}</b>
+                    <span>{item.subtitle}</span>
+                  </div>
+                  {item.status && (
+                    <Badge variant={assetStatusVariant(item.status)}>{item.status}</Badge>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Topbar() {
   const { user, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
   const { collapsed, toggleSidebar } = useSidebarState()
+  const [paletteOpen, setPaletteOpen] = useState(false)
 
   const displayName = nameFromEmail(user?.email)
+
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen(true)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <div className={styles.heroNav}>
@@ -92,20 +185,17 @@ export default function Topbar() {
             >
               {isDark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
             </button>
-            <div className={styles.search} title="Busca em breve">
-              <SearchIcon width={14} height={14} />
-              <span className={styles.searchPlaceholder}>Buscar</span>
-              <kbd className={styles.searchKbd}>⌘K</kbd>
-            </div>
-            <SyncIndicator />
             <button
               type="button"
-              className={styles.iconBtn}
-              title="Notificações"
-              aria-label="Notificações"
+              className={styles.search}
+              onClick={() => setPaletteOpen(true)}
+              title="Buscar (Ctrl+K)"
             >
-              <BellIcon width={16} height={16} />
+              <SearchIcon width={14} height={14} />
+              <span className={styles.searchPlaceholder}>Buscar</span>
             </button>
+            <SyncIndicator />
+            <NotificationsButton />
             <div className={styles.userChip}>
               <div className={styles.avatar}>{initials(displayName)}</div>
               <span>{displayName}</span>
@@ -122,6 +212,8 @@ export default function Topbar() {
           </div>
         </div>
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   )
 }

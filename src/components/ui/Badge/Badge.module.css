@@ -30,7 +30,5 @@
 
 .muted {
   color: var(--text-faint);
-  font-weight: 500;
-  background: none;
-  padding: 3px 0;
+  background: color-mix(in srgb, var(--text-faint) 14%, transparent);
 }

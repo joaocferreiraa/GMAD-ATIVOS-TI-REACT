@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useContatos } from '../../hooks/data/useContatos'
 import { useContatoMutations } from '../../hooks/data/useContatoMutations'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useContatosData } from './useContatosData'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import Button from '../../components/ui/Button/Button'
-import Loading from '../../components/ui/Loading/Loading'
+import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
 import ContatoFilters from '../../components/contatos/ContatoFilters/ContatoFilters'
@@ -29,6 +30,7 @@ export default function ContatosPage() {
   const { data: contatos, isLoading, isError } = useContatos()
   const { data: assets } = useAssets()
   const contatoMutations = useContatoMutations()
+  const location = useLocation()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
 
@@ -44,6 +46,16 @@ export default function ContatosPage() {
       remove: contatoMutations.deleteContato,
     },
   })
+
+  // Abre a ficha de um contato específico ao chegar via busca da Topbar
+  // (CommandPalette navega com location.state.openUid). Comparação com o
+  // valor já tratado durante o render, em vez de useEffect+setState.
+  const requestedUid = location.state?.openUid
+  const [handledUid, setHandledUid] = useState(null)
+  if (requestedUid && requestedUid !== handledUid && list.some((c) => c.uid === requestedUid)) {
+    setHandledUid(requestedUid)
+    panel.openView(requestedUid)
+  }
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -86,11 +98,7 @@ export default function ContatosPage() {
         onClear={handleClearFilters}
       />
 
-      {isLoading && (
-        <div className={styles.state}>
-          <Loading label="Carregando contatos..." />
-        </div>
-      )}
+      {isLoading && <TableSkeleton columns={7} />}
 
       {isError && (
         <Alert variant="danger">

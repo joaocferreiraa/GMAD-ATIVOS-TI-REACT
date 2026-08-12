@@ -5,7 +5,7 @@ import { useAssets } from '../../hooks/data/useAssets'
 import { useEstoqueData } from './useEstoqueData'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import Button from '../../components/ui/Button/Button'
-import Loading from '../../components/ui/Loading/Loading'
+import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
@@ -71,11 +71,7 @@ export default function EstoquePage() {
 
       <StockFilters filters={filters} onChange={updateFilters} onClear={handleClearFilters} />
 
-      {isLoading && (
-        <div className={styles.state}>
-          <Loading label="Carregando estoque..." />
-        </div>
-      )}
+      {isLoading && <TableSkeleton columns={6} />}
 
       {isError && (
         <Alert variant="danger">Não foi possível carregar o estoque. Verifique sua conexão.</Alert>

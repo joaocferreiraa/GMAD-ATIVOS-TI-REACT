@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Modal from '../../ui/Modal/Modal'
 import Button from '../../ui/Button/Button'
 import FormField from '../../ui/FormField/FormField'
@@ -9,9 +11,20 @@ import Select from '../../ui/Select/Select'
 import { INSTALLER_CATEGORIAS, INSTALLER_ARQUITETURAS } from '../../../constants/installers'
 import { useToast } from '../../../hooks/useToast'
 import { isHttpUrl } from '../../../utils/urlValidation'
+import modalStyles from '../../ui/Modal/Modal.module.css'
 
 const CATEGORIA_OPTIONS = INSTALLER_CATEGORIAS.map((c) => ({ value: c, label: c }))
 const ARQUITETURA_OPTIONS = INSTALLER_ARQUITETURAS.map((a) => ({ value: a, label: a }))
+
+const installerSchema = z
+  .object({
+    nome: z.string().trim().min(1, 'Informe o nome do programa.'),
+    urlDownload: z
+      .string()
+      .trim()
+      .refine((v) => !v || isHttpUrl(v), 'O link de download deve ser uma URL http(s) válida.'),
+  })
+  .loose()
 
 function buildDefaultValues(item) {
   return {
@@ -32,8 +45,16 @@ function buildDefaultValues(item) {
 export default function InstallerFormModal({ open, item, onClose, onSave, onDelete }) {
   const isEdit = !!item
   const { showToast } = useToast()
+  const [shake, setShake] = useState(false)
 
-  const { control, register, handleSubmit, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(installerSchema),
     defaultValues: buildDefaultValues(item),
   })
 
@@ -43,39 +64,34 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
   }, [open, item])
 
   function onSubmit(values) {
-    const nome = values.nome.trim()
-    if (!nome) {
-      showToast('Preencha o nome do programa.', 'danger')
-      return
-    }
-
-    const urlDownload = values.urlDownload.trim()
-    if (urlDownload && !isHttpUrl(urlDownload)) {
-      showToast('O link de download deve ser uma URL http(s) válida.', 'danger')
-      return
-    }
-
     const record = {
-      nome,
+      nome: values.nome,
       categoria: values.categoria,
       versao: values.versao.trim(),
       arquitetura: values.arquitetura,
       tamanho: values.tamanho.trim(),
       desenvolvedor: values.desenvolvedor.trim(),
       dataAtualizacao: values.dataAtualizacao,
-      urlDownload,
+      urlDownload: values.urlDownload,
       observacoes: values.observacoes.trim(),
     }
     onSave(record, isEdit)
   }
 
-  const submit = handleSubmit(onSubmit)
+  function onInvalid() {
+    showToast('Corrija os campos destacados.', 'danger')
+    setShake(true)
+    setTimeout(() => setShake(false), 320)
+  }
+
+  const submit = handleSubmit(onSubmit, onInvalid)
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       showCloseButton={false}
+      className={shake ? modalStyles.shake : ''}
       title={isEdit ? 'Editar instalador' : 'Novo instalador'}
       subtitle={
         isEdit
@@ -101,7 +117,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
       }
     >
       <FormGrid>
-        <FormField label="Nome do programa" required htmlFor="i_nome">
+        <FormField label="Nome do programa" required htmlFor="i_nome" error={errors.nome?.message}>
           <Input id="i_nome" placeholder="Ex: AnyDesk" {...register('nome')} />
         </FormField>
         <FormField label="Categoria" required htmlFor="i_categoria">
@@ -148,7 +164,11 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
         <FormField label="Última atualização" htmlFor="i_dataAtualizacao">
           <Input id="i_dataAtualizacao" type="date" {...register('dataAtualizacao')} />
         </FormField>
-        <FormField label="Link de download" htmlFor="i_urlDownload">
+        <FormField
+          label="Link de download"
+          htmlFor="i_urlDownload"
+          error={errors.urlDownload?.message}
+        >
           <Input
             id="i_urlDownload"
             placeholder="URL do arquivo (Supabase Storage, rede interna...)"

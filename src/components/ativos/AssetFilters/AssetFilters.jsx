@@ -21,7 +21,7 @@ const GARANTIA_OPTIONS = [
   { value: 'expired', label: 'Vencida' },
   { value: 'warn', label: 'Vencendo (60 dias)' },
   { value: 'ok', label: 'Válida' },
-  { value: 'none', label: 'Sem data' },
+  { value: 'missing', label: 'Sem garantia' },
 ]
 
 // Barra de filtros da tela de Ativos (.toolbar do sistema original).

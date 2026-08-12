@@ -1,7 +1,7 @@
 import Badge from '../../ui/Badge/Badge'
 import TagChip from '../../ui/TagChip/TagChip'
 import tableStyles from '../../ui/Table/Table.module.css'
-import { fmtMoney, unitDisplayName, warrantyInfo } from '../../../utils/formatters'
+import { fmtMoney, unitDisplayName, assetWarrantyInfo } from '../../../utils/formatters'
 import { assetStatusVariant, warrantyVariant } from '../../../utils/statusBadge'
 
 // Definições de coluna por categoria, portadas 1:1 do objeto COLUMNS do
@@ -23,7 +23,7 @@ const COMMON_TAIL = [
     label: 'Garantia',
     sortable: true,
     render: (a) => {
-      const w = warrantyInfo(a.garantiaAte)
+      const w = assetWarrantyInfo(a)
       return <Badge variant={warrantyVariant(w.cls)}>{w.label}</Badge>
     },
   },
@@ -167,7 +167,13 @@ export const COLUMNS = {
     { key: 'conexao', label: 'Conexão', sortable: true, render: (a) => a.conexao || '—' },
     { key: 'ip', label: 'IP', sortable: true, render: (a) => a.ip || '—' },
     { key: 'serial', label: 'Série', sortable: true, render: (a) => a.serial || '—' },
-    { key: 'preco', label: 'Preço', sortable: true, render: (a) => fmtMoney(a.preco) },
+    {
+      key: 'preco',
+      label: 'Preço / Aluguel',
+      sortable: true,
+      render: (a) =>
+        a.posse === 'Alugado' ? `${fmtMoney(a.valorAluguel)}/mês` : fmtMoney(a.preco),
+    },
     ...COMMON_TAIL,
   ],
   Televisão: [

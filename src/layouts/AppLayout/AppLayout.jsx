@@ -24,7 +24,7 @@ function AppShell() {
 }
 
 // Casca da aplicação autenticada: sidebar + topbar fixos, conteúdo da página
-// (via Outlet) e rodapé institucional, reproduzindo o #app/.app originais.
+// (via Outlet) e a barra de rodapé, reproduzindo o #app/.app originais.
 export default function AppLayout() {
   return (
     <SidebarProvider>

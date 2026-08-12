@@ -11,11 +11,13 @@ export function FormGrid({ className = '', children, ...props }) {
 
 // Par label + campo (.form-field). `required` acrescenta o asterisco laranja;
 // `full` faz o campo ocupar a linha inteira da grade (.form-field.full).
+// `error` (string) exibe uma mensagem de validação abaixo do campo.
 export default function FormField({
   label,
   htmlFor,
   required,
   full,
+  error,
   className = '',
   children,
   ...props
@@ -24,6 +26,7 @@ export default function FormField({
     styles.field,
     required ? styles.required : '',
     full ? styles.full : '',
+    error ? styles.invalid : '',
     className,
   ]
     .filter(Boolean)
@@ -33,6 +36,11 @@ export default function FormField({
     <div className={classes} {...props}>
       {label && <label htmlFor={htmlFor}>{label}</label>}
       {children}
+      {error && (
+        <span className={styles.errorMessage} role="alert">
+          {error}
+        </span>
+      )}
     </div>
   )
 }

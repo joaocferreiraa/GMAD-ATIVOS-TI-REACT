@@ -21,7 +21,6 @@ const ContatosPage = lazy(() => import('../pages/ContatosPage'))
 const InstaladoresPage = lazy(() => import('../pages/InstaladoresPage'))
 const ScriptsPage = lazy(() => import('../pages/ScriptsPage'))
 const InfraestruturaPage = lazy(() => import('../pages/InfraestruturaPage'))
-const UnidadesPage = lazy(() => import('../pages/UnidadesPage'))
 const AtividadePage = lazy(() => import('../pages/AtividadePage'))
 const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
 
@@ -51,7 +50,6 @@ export const router = createBrowserRouter([
           { path: ROUTES.instaladores, element: lazyPage(InstaladoresPage) },
           { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },
           { path: ROUTES.infraestrutura, element: lazyPage(InfraestruturaPage) },
-          { path: ROUTES.unidades, element: lazyPage(UnidadesPage) },
           { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
           { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
         ],

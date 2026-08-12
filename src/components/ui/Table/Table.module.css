@@ -47,6 +47,25 @@
 .table tbody tr {
   border-bottom: 1px solid var(--border);
   transition: background 0.18s ease;
+  animation: rowIn 0.28s ease both;
+  animation-delay: calc(var(--i, 0) * 20ms);
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table tbody tr {
+    animation: none;
+  }
 }
 
 .table tbody tr.clickable {
@@ -96,6 +115,71 @@
   display: flex;
   gap: 4px;
   justify-content: flex-end;
+  opacity: 0;
+  transform: translateX(4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.table tbody tr:hover .rowActions,
+.table tbody tr:focus-within .rowActions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowActions {
+    transition: none;
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.pageInfo {
+  white-space: nowrap;
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageCurrent {
+  min-width: 52px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.prevIcon {
+  transform: rotate(90deg);
+}
+
+.nextIcon {
+  transform: rotate(-90deg);
+}
+
+@media (max-width: 760px) {
+  .rowActions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 }
 
 @media (max-width: 760px) {

@@ -8,7 +8,6 @@ export const ROUTES = {
   instaladores: '/instaladores',
   scripts: '/scripts',
   infraestrutura: '/infraestrutura',
-  unidades: '/unidades',
   atividade: '/atividade',
   relatorios: '/relatorios',
 }

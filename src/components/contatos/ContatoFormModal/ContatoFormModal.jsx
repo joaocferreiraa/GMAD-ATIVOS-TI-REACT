@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Modal from '../../ui/Modal/Modal'
 import Button from '../../ui/Button/Button'
 import FormField from '../../ui/FormField/FormField'
@@ -10,8 +12,23 @@ import { getUnidades } from '../../../utils/units'
 import { getContatoDepartamentos } from '../../../utils/contatosFilter'
 import { unitDisplayName } from '../../../utils/formatters'
 import { useToast } from '../../../hooks/useToast'
+import modalStyles from '../../ui/Modal/Modal.module.css'
+import formFieldStyles from '../../ui/FormField/FormField.module.css'
 
 const NOVO_DEPARTAMENTO = '__novo__'
+
+const contatoSchema = z
+  .object({
+    nome: z.string().trim().min(1, 'Informe o nome.'),
+    unidade: z.string().min(1, 'Selecione a unidade.'),
+    departamento: z.string().min(1, 'Selecione o departamento.'),
+    departamentoNovo: z.string(),
+  })
+  .loose()
+  .refine((data) => data.departamento !== NOVO_DEPARTAMENTO || data.departamentoNovo.trim(), {
+    message: 'Informe o novo departamento.',
+    path: ['departamentoNovo'],
+  })
 
 function buildDefaultValues(contato) {
   return {
@@ -42,8 +59,17 @@ export default function ContatoFormModal({
 }) {
   const isEdit = !!contato
   const { showToast } = useToast()
+  const [shake, setShake] = useState(false)
 
-  const { control, register, handleSubmit, watch, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(contatoSchema),
     defaultValues: buildDefaultValues(contato),
   })
 
@@ -62,21 +88,14 @@ export default function ContatoFormModal({
     departamentoOptions.push(contato.departamento)
 
   function onSubmit(values) {
-    const nome = values.nome.trim()
-    const unidade = values.unidade
     const departamentoFinal =
       values.departamento === NOVO_DEPARTAMENTO
         ? values.departamentoNovo.trim()
         : values.departamento.trim()
 
-    if (!nome || !unidade || !departamentoFinal) {
-      showToast('Preencha o nome, a unidade e o departamento.', 'danger')
-      return
-    }
-
     const record = {
-      nome,
-      unidade,
+      nome: values.nome,
+      unidade: values.unidade,
       departamento: departamentoFinal,
       isGestor: values.isGestor,
       celular: values.celular.trim(),
@@ -87,13 +106,20 @@ export default function ContatoFormModal({
     onSave(record, isEdit)
   }
 
-  const submit = handleSubmit(onSubmit)
+  function onInvalid() {
+    showToast('Corrija os campos destacados.', 'danger')
+    setShake(true)
+    setTimeout(() => setShake(false), 320)
+  }
+
+  const submit = handleSubmit(onSubmit, onInvalid)
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       showCloseButton={false}
+      className={shake ? modalStyles.shake : ''}
       title={isEdit ? 'Editar colaborador' : 'Novo colaborador'}
       subtitle={
         isEdit
@@ -119,10 +145,15 @@ export default function ContatoFormModal({
       }
     >
       <FormGrid>
-        <FormField label="Nome" required htmlFor="c_nome">
+        <FormField label="Nome" required htmlFor="c_nome" error={errors.nome?.message}>
           <Input id="c_nome" placeholder="Ex: João Ferreira" {...register('nome')} />
         </FormField>
-        <FormField label="Unidade" required htmlFor="c_unidade">
+        <FormField
+          label="Unidade"
+          required
+          htmlFor="c_unidade"
+          error={errors.unidade?.message}
+        >
           <Controller
             control={control}
             name="unidade"
@@ -139,7 +170,12 @@ export default function ContatoFormModal({
             )}
           />
         </FormField>
-        <FormField label="Departamento" required htmlFor="c_departamento">
+        <FormField
+          label="Departamento"
+          required
+          htmlFor="c_departamento"
+          error={errors.departamento?.message}
+        >
           <Controller
             control={control}
             name="departamento"
@@ -157,11 +193,18 @@ export default function ContatoFormModal({
             )}
           />
           {departamento === NOVO_DEPARTAMENTO && (
-            <Input
-              placeholder="Digite o novo departamento"
-              style={{ marginTop: 8 }}
-              {...register('departamentoNovo')}
-            />
+            <>
+              <Input
+                placeholder="Digite o novo departamento"
+                style={{ marginTop: 8 }}
+                {...register('departamentoNovo')}
+              />
+              {errors.departamentoNovo && (
+                <span className={formFieldStyles.errorMessage} role="alert">
+                  {errors.departamentoNovo.message}
+                </span>
+              )}
+            </>
           )}
         </FormField>
         <FormField label="Celular corporativo" htmlFor="c_celular">

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useAssetMutations } from '../../hooks/data/useAssetMutations'
 import { useAtivosData } from './useAtivosData'
@@ -8,7 +9,7 @@ import { exportAssetsCsv } from '../../services/ativos/assetsService'
 import { MADVILLE_GROUP, getDepartamentos, matchesUnitValue } from '../../utils/units'
 import { getUsuarios } from '../../utils/assetsFilter'
 import Button from '../../components/ui/Button/Button'
-import Loading from '../../components/ui/Loading/Loading'
+import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import Tabs, { Tab, TabGroupLabel } from '../../components/ui/Tabs/Tabs'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
@@ -56,6 +57,7 @@ export default function AtivosPage() {
   const { data: assets, isLoading, isError, refetch } = useAssets()
   const assetMutations = useAssetMutations()
   const { showToast } = useToast()
+  const location = useLocation()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
 
@@ -70,6 +72,16 @@ export default function AtivosPage() {
       remove: assetMutations.deleteAsset,
     },
   })
+
+  // Abre a ficha de um ativo específico ao chegar via busca da Topbar
+  // (CommandPalette navega com location.state.openUid). Comparação com o
+  // valor já tratado durante o render, em vez de useEffect+setState.
+  const requestedUid = location.state?.openUid
+  const [handledUid, setHandledUid] = useState(null)
+  if (requestedUid && requestedUid !== handledUid && list.some((a) => a.uid === requestedUid)) {
+    setHandledUid(requestedUid)
+    panel.openView(requestedUid)
+  }
 
   function updateFilters(patch) {
     setFilters((f) => ({ ...f, ...patch }))
@@ -192,11 +204,7 @@ export default function AtivosPage() {
         onClear={handleClearFilters}
       />
 
-      {isLoading && (
-        <div className={styles.state}>
-          <Loading label="Carregando ativos..." />
-        </div>
-      )}
+      {isLoading && <TableSkeleton columns={7} />}
 
       {isError && (
         <Alert variant="danger">Não foi possível carregar os ativos. Verifique sua conexão.</Alert>

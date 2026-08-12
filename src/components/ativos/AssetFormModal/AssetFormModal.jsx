@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Modal from '../../ui/Modal/Modal'
 import Button from '../../ui/Button/Button'
 import FormField from '../../ui/FormField/FormField'
@@ -14,9 +16,21 @@ import { unitDisplayName } from '../../../utils/formatters'
 import { nextIdFor } from '../../../utils/id'
 import { useToast } from '../../../hooks/useToast'
 import panelStyles from '../AssetPanel.module.css'
+import modalStyles from '../../ui/Modal/Modal.module.css'
 
 const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c, label: c }))
 const NOVO_DEPARTAMENTO = '__novo__'
+
+// Só os campos indispensáveis pro registro fazer sentido (mesmos exigidos
+// pela checagem manual anterior); `.loose()` mantém os demais campos do
+// formulário (spec, departamento, usuário, ...) intocados na saída.
+const assetSchema = z
+  .object({
+    categoria: z.string(),
+    id: z.string().trim().min(1, 'Informe o ID do ativo.'),
+    unidade: z.string().trim().min(1, 'Selecione a unidade.'),
+  })
+  .loose()
 
 function buildSpecDefaults(categoria, asset) {
   const groups = FIELD_GROUPS[categoria] || []
@@ -33,9 +47,12 @@ function buildDefaultValues(asset, defaultUnidade) {
     departamento: asset?.departamento || '',
     departamentoNovo: '',
     usuario: asset?.usuario || '',
+    posse: asset?.posse === 'Alugado' || asset?.posse === 'Comprado' ? asset.posse : '',
     dataAquisicao: asset?.dataAquisicao || '',
     garantiaAte: asset?.garantiaAte || '',
     preco: asset?.preco ?? '',
+    valorAluguel: asset?.valorAluguel ?? '',
+    renovacaoAluguel: asset?.renovacaoAluguel || '',
     status: asset?.status || 'Ativo',
     spec: buildSpecDefaults(categoria, asset),
   }
@@ -54,8 +71,19 @@ export default function AssetFormModal({
 }) {
   const isEdit = !!asset
   const { showToast } = useToast()
+  const [shake, setShake] = useState(false)
 
-  const { control, register, handleSubmit, watch, getValues, setValue, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    getValues,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(assetSchema),
     defaultValues: buildDefaultValues(asset, defaultUnidade),
   })
 
@@ -66,7 +94,10 @@ export default function AssetFormModal({
 
   const categoria = watch('categoria')
   const departamento = watch('departamento')
+  const posse = watch('posse')
   const specGroups = FIELD_GROUPS[categoria] || []
+  const isImpressora = categoria === 'Impressora'
+  const isAlugada = isImpressora && posse === 'Alugado'
 
   const unidadeOptions = getUnidades(assets)
   if (asset?.unidade && !unidadeOptions.includes(asset.unidade)) unidadeOptions.push(asset.unidade)
@@ -77,11 +108,28 @@ export default function AssetFormModal({
   function handleCategoriaChange(newCategoria, onChange) {
     onChange(newCategoria)
     setValue('spec', buildSpecDefaults(newCategoria, isEdit ? asset : null))
+    if (newCategoria !== 'Impressora' && getValues('posse') === 'Alugado') {
+      setValue('posse', 'Comprado')
+      setValue('valorAluguel', '')
+      setValue('renovacaoAluguel', '')
+    }
     if (!isEdit) {
       const currentId = getValues('id')
       const looksAuto = !currentId || Object.values(ID_PREFIX).some((p) => currentId.startsWith(p))
       const unidadeVal = getValues('unidade')
       if (looksAuto && unidadeVal) setValue('id', nextIdFor(assets, newCategoria, unidadeVal))
+    }
+  }
+
+  function handlePosseChange(newPosse, onChange) {
+    onChange(newPosse)
+    if (newPosse === 'Alugado') {
+      setValue('dataAquisicao', '')
+      setValue('garantiaAte', '')
+      setValue('preco', '')
+    } else {
+      setValue('valorAluguel', '')
+      setValue('renovacaoAluguel', '')
     }
   }
 
@@ -93,12 +141,8 @@ export default function AssetFormModal({
   }
 
   function onSubmit(values) {
-    const id = values.id.trim()
-    const unidade = values.unidade.trim()
-    if (!id || !unidade) {
-      showToast('Preencha ID do ativo e Unidade/Local.', 'danger')
-      return
-    }
+    const id = values.id
+    const unidade = values.unidade
     const departamentoFinal =
       values.departamento === NOVO_DEPARTAMENTO
         ? values.departamentoNovo.trim()
@@ -118,12 +162,21 @@ export default function AssetFormModal({
       garantiaAte: values.garantiaAte,
       preco: values.preco,
       status: values.status,
+      ...(values.categoria === 'Impressora'
+        ? { posse: values.posse, valorAluguel: values.valorAluguel, renovacaoAluguel: values.renovacaoAluguel }
+        : {}),
       ...spec,
     }
     onSave(record, isEdit)
   }
 
-  const submit = handleSubmit(onSubmit)
+  function onInvalid() {
+    showToast('Corrija os campos destacados.', 'danger')
+    setShake(true)
+    setTimeout(() => setShake(false), 320)
+  }
+
+  const submit = handleSubmit(onSubmit, onInvalid)
 
   return (
     <Modal
@@ -131,6 +184,7 @@ export default function AssetFormModal({
       onClose={onClose}
       showCloseButton={false}
       maxWidth="min(94vw, 1040px)"
+      className={shake ? modalStyles.shake : ''}
       footer={
         <>
           <div>
@@ -170,7 +224,12 @@ export default function AssetFormModal({
           <div className={panelStyles.viewCard}>
             <div className={panelStyles.viewSectionTitle}>Informações gerais</div>
             <FormGrid>
-              <FormField label="Categoria" required htmlFor="f_categoria">
+              <FormField
+                label="Categoria"
+                required
+                htmlFor="f_categoria"
+                error={errors.categoria?.message}
+              >
                 <Controller
                   control={control}
                   name="categoria"
@@ -184,7 +243,12 @@ export default function AssetFormModal({
                   )}
                 />
               </FormField>
-              <FormField label="ID do ativo (hostname/tag)" required htmlFor="f_id">
+              <FormField
+                label="ID do ativo (hostname/tag)"
+                required
+                htmlFor="f_id"
+                error={errors.id?.message}
+              >
                 <Input id="f_id" placeholder="Ex: DSK-0028" {...register('id')} />
               </FormField>
               <FormField label="Etiqueta física" htmlFor="f_etiqueta">
@@ -213,7 +277,12 @@ export default function AssetFormModal({
           <div className={panelStyles.viewCard}>
             <div className={panelStyles.viewSectionTitle}>Localização</div>
             <FormGrid>
-              <FormField label="Unidade / Local" required htmlFor="f_unidade">
+              <FormField
+                label="Unidade / Local"
+                required
+                htmlFor="f_unidade"
+                error={errors.unidade?.message}
+              >
                 <Controller
                   control={control}
                   name="unidade"
@@ -270,15 +339,48 @@ export default function AssetFormModal({
           <div className={panelStyles.viewCard}>
             <div className={panelStyles.viewSectionTitle}>Informações complementares</div>
             <FormGrid>
-              <FormField label="Data de aquisição" htmlFor="f_dataAquisicao">
-                <Input id="f_dataAquisicao" type="date" {...register('dataAquisicao')} />
-              </FormField>
-              <FormField label="Garantia até" htmlFor="f_garantiaAte">
-                <Input id="f_garantiaAte" type="date" {...register('garantiaAte')} />
-              </FormField>
-              <FormField label="Preço de compra (R$)" htmlFor="f_preco">
-                <Input id="f_preco" type="number" step="0.01" {...register('preco')} />
-              </FormField>
+              {isImpressora && (
+                <FormField label="Situação" htmlFor="f_posse">
+                  <Controller
+                    control={control}
+                    name="posse"
+                    render={({ field }) => (
+                      <Select
+                        id="f_posse"
+                        value={field.value}
+                        onChange={(v) => handlePosseChange(v, field.onChange)}
+                        options={[
+                          { value: '', label: 'Não definida' },
+                          { value: 'Comprado', label: 'Comprada' },
+                          { value: 'Alugado', label: 'Alugada' },
+                        ]}
+                      />
+                    )}
+                  />
+                </FormField>
+              )}
+              {isAlugada ? (
+                <>
+                  <FormField label="Valor do aluguel (R$)" htmlFor="f_valorAluguel">
+                    <Input id="f_valorAluguel" type="number" step="0.01" {...register('valorAluguel')} />
+                  </FormField>
+                  <FormField label="Renovação do contrato" htmlFor="f_renovacaoAluguel">
+                    <Input id="f_renovacaoAluguel" type="date" {...register('renovacaoAluguel')} />
+                  </FormField>
+                </>
+              ) : (
+                <>
+                  <FormField label="Data de aquisição" htmlFor="f_dataAquisicao">
+                    <Input id="f_dataAquisicao" type="date" {...register('dataAquisicao')} />
+                  </FormField>
+                  <FormField label="Garantia até" htmlFor="f_garantiaAte">
+                    <Input id="f_garantiaAte" type="date" {...register('garantiaAte')} />
+                  </FormField>
+                  <FormField label="Preço de compra (R$)" htmlFor="f_preco">
+                    <Input id="f_preco" type="number" step="0.01" {...register('preco')} />
+                  </FormField>
+                </>
+              )}
               <FormField label="Status" htmlFor="f_status">
                 <Controller
                   control={control}

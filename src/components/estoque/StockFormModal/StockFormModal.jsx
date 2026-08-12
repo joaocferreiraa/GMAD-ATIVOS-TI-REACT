@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Modal from '../../ui/Modal/Modal'
 import Button from '../../ui/Button/Button'
 import FormField from '../../ui/FormField/FormField'
@@ -10,9 +12,17 @@ import { getUnidades } from '../../../utils/units'
 import { unitDisplayName } from '../../../utils/formatters'
 import { STOCK_TIPOS, STOCK_STATUS_OPTIONS } from '../../../constants/stock'
 import { useToast } from '../../../hooks/useToast'
+import modalStyles from '../../ui/Modal/Modal.module.css'
 
 const TIPO_OPTIONS = STOCK_TIPOS.map((t) => ({ value: t, label: t }))
 const STATUS_OPTIONS = STOCK_STATUS_OPTIONS.map((s) => ({ value: s, label: s }))
+
+const stockSchema = z
+  .object({
+    item: z.string().trim().min(1, 'Informe o nome do item.'),
+    quantidade: z.coerce.string().trim().min(1, 'Informe a quantidade.'),
+  })
+  .loose()
 
 function buildDefaultValues(item) {
   return {
@@ -32,8 +42,16 @@ function buildDefaultValues(item) {
 export default function StockFormModal({ open, item, assets, onClose, onSave, onDelete }) {
   const isEdit = !!item
   const { showToast } = useToast()
+  const [shake, setShake] = useState(false)
 
-  const { control, register, handleSubmit, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(stockSchema),
     defaultValues: buildDefaultValues(item),
   })
 
@@ -46,19 +64,11 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
   if (item?.unidade && !unidadeOptions.includes(item.unidade)) unidadeOptions.push(item.unidade)
 
   function onSubmit(values) {
-    const itemNome = values.item.trim()
-    const quantidade = String(values.quantidade).trim()
-
-    if (!itemNome || quantidade === '') {
-      showToast('Preencha o nome do item e a quantidade.', 'danger')
-      return
-    }
-
     const record = {
       tipo: values.tipo,
-      item: itemNome,
+      item: values.item,
       marcaModelo: values.marcaModelo.trim(),
-      quantidade,
+      quantidade: values.quantidade,
       unidade: values.unidade.trim(),
       status: values.status,
       observacoes: values.observacoes.trim(),
@@ -66,13 +76,20 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
     onSave(record, isEdit)
   }
 
-  const submit = handleSubmit(onSubmit)
+  function onInvalid() {
+    showToast('Corrija os campos destacados.', 'danger')
+    setShake(true)
+    setTimeout(() => setShake(false), 320)
+  }
+
+  const submit = handleSubmit(onSubmit, onInvalid)
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       showCloseButton={false}
+      className={shake ? modalStyles.shake : ''}
       title={isEdit ? 'Editar item de estoque' : 'Novo item de estoque'}
       subtitle={
         isEdit
@@ -112,7 +129,7 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
             )}
           />
         </FormField>
-        <FormField label="Nome do item" required htmlFor="s_item">
+        <FormField label="Nome do item" required htmlFor="s_item" error={errors.item?.message}>
           <Input id="s_item" placeholder="Ex: Memória RAM 8GB DDR4" {...register('item')} />
         </FormField>
         <FormField label="Marca / Modelo" htmlFor="s_marcaModelo">
@@ -122,7 +139,12 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
             {...register('marcaModelo')}
           />
         </FormField>
-        <FormField label="Quantidade em estoque" required htmlFor="s_quantidade">
+        <FormField
+          label="Quantidade em estoque"
+          required
+          htmlFor="s_quantidade"
+          error={errors.quantidade?.message}
+        >
           <Input id="s_quantidade" type="number" min={0} step={1} {...register('quantidade')} />
         </FormField>
         <FormField label="Unidade / Local de armazenamento" htmlFor="s_unidade">

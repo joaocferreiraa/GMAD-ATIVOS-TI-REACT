@@ -27,6 +27,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
 @media (max-width: 480px) {
   .panel {
     max-width: 100%;

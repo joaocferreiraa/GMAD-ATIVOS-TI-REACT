@@ -5,7 +5,7 @@ import ViewRow from '../../ui/ViewRow/ViewRow'
 import { FIELD_GROUPS } from '../../../constants/fieldGroups'
 import { CAT_ICON } from '../../../constants/categories'
 import { StockIcon } from '../../ui/Icon/icons'
-import { fmtDate, fmtMoney, unitDisplayName, warrantyInfo } from '../../../utils/formatters'
+import { fmtDate, fmtMoney, unitDisplayName, assetWarrantyInfo } from '../../../utils/formatters'
 import { assetStatusVariant, warrantyVariant } from '../../../utils/statusBadge'
 import panelStyles from '../AssetPanel.module.css'
 
@@ -16,7 +16,11 @@ export default function AssetViewModal({ open, asset, onClose, onEdit }) {
 
   const groups = (FIELD_GROUPS[asset.categoria] || []).filter((g) => g.key !== 'nf')
   const techRows = groups.filter((g) => asset[g.key])
-  const warranty = warrantyInfo(asset.garantiaAte)
+  const warranty = assetWarrantyInfo(asset)
+  const isImpressora = asset.categoria === 'Impressora'
+  const isAlugada = isImpressora && asset.posse === 'Alugado'
+  const situacaoLabel =
+    asset.posse === 'Alugado' ? 'Alugada' : asset.posse === 'Comprado' ? 'Comprada' : 'Não definida'
   const Icon = CAT_ICON[asset.categoria] || StockIcon
   const metaParts = [asset.departamento, unitDisplayName(asset.unidade)].filter(Boolean)
 
@@ -88,13 +92,23 @@ export default function AssetViewModal({ open, asset, onClose, onEdit }) {
           <div className={panelStyles.viewCard}>
             <div className={panelStyles.viewSectionTitle}>Informações complementares</div>
             <div className={panelStyles.viewRows}>
-              <ViewRow label="Data de aquisição" value={fmtDate(asset.dataAquisicao)} />
-              <ViewRow
-                label="Garantia"
-                raw
-                value={<Badge variant={warrantyVariant(warranty.cls)}>{warranty.label}</Badge>}
-              />
-              <ViewRow label="Preço de compra" value={fmtMoney(asset.preco)} />
+              {isImpressora && <ViewRow label="Situação" value={situacaoLabel} />}
+              {isAlugada ? (
+                <>
+                  <ViewRow label="Valor do aluguel" value={fmtMoney(asset.valorAluguel)} />
+                  <ViewRow label="Renovação do contrato" value={fmtDate(asset.renovacaoAluguel)} />
+                </>
+              ) : (
+                <>
+                  <ViewRow label="Data de aquisição" value={fmtDate(asset.dataAquisicao)} />
+                  <ViewRow
+                    label="Garantia"
+                    raw
+                    value={<Badge variant={warrantyVariant(warranty.cls)}>{warranty.label}</Badge>}
+                  />
+                  <ViewRow label="Preço de compra" value={fmtMoney(asset.preco)} />
+                </>
+              )}
               {asset.nf && <ViewRow label="Nota fiscal" value={asset.nf} />}
             </div>
           </div>

@@ -11,6 +11,54 @@
   margin: auto;
   box-shadow: 0 16px 36px -12px rgba(15, 30, 20, 0.22);
   position: relative;
+  animation: modalIn 0.2s ease both;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    animation: none;
+  }
+}
+
+.shake {
+  animation: modalShake 0.32s ease;
+}
+
+@keyframes modalShake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake {
+    animation: none;
+  }
 }
 
 .modal h2 {

@@ -32,3 +32,35 @@
   content: ' *';
   color: var(--laranja);
 }
+
+.errorMessage {
+  font-size: 11.5px;
+  color: var(--danger);
+  animation: errorIn 0.15s ease both;
+}
+
+@keyframes errorIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invalid input,
+.invalid select,
+.invalid textarea,
+.invalid button[role='combobox'] {
+  border-color: var(--danger);
+}
+
+.invalid input:focus,
+.invalid select:focus,
+.invalid textarea:focus,
+.invalid button[role='combobox']:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-bg);
+}

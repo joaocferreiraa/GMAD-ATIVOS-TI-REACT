@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { CATEGORIES, CAT_ICON, CAT_LABEL_PLURAL } from '../../constants/categories'
 import { getUnidades, isMadvilleUnit, matchesUnitValue, MADVILLE_GROUP } from '../../utils/units'
-import { fmtMoney, unitDisplayName, warrantyInfo } from '../../utils/formatters'
+import { fmtMoney, unitDisplayName, warrantyInfo, assetWarrantyInfo } from '../../utils/formatters'
+import { buildAttentionList } from '../../utils/attention'
 import { BuildingIcon, DollarIcon, StockIcon } from '../../components/ui/Icon/icons'
 
 const DONUT_COLORS_CAT = [
@@ -64,15 +65,64 @@ export function useDashboardData(assets, dashUnidade) {
           ? unidades.filter(isMadvilleUnit).length
           : 1
 
+    // ---- Detalhe on-hover de cada KPI: sempre algo que não está em nenhum
+    // outro card do painel (valores em R$ por categoria, saúde por
+    // categoria, maior/menor unidade, top categorias por valor) ----
+    const totalDetail = [
+      { label: 'Valor investido', value: fmtMoney(invest, { maximumFractionDigits: 0 }) },
+      { label: 'Valor médio por ativo', value: fmtMoney(total ? invest / total : 0) },
+    ]
+
+    function categoryDetail(categoria) {
+      const inCat = scoped.filter((a) => a.categoria === categoria)
+      const catInvest = inCat.reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0)
+      const rows = [
+        { label: 'Valor investido', value: fmtMoney(catInvest, { maximumFractionDigits: 0 }) },
+        { label: 'Em manutenção', value: inCat.filter((a) => a.status === 'Manutenção').length },
+        { label: 'Inativos', value: inCat.filter((a) => a.status === 'Inativo').length },
+      ]
+      if (categoria === 'Impressora') {
+        rows.push({ label: 'Compradas', value: inCat.filter((a) => a.posse === 'Comprado').length })
+        rows.push({ label: 'Alugadas', value: inCat.filter((a) => a.posse === 'Alugado').length })
+      }
+      return rows
+    }
+
+    const unitCounts = unidades
+      .map((u) => ({ label: unitDisplayName(u), count: assets.filter((a) => a.unidade === u).length }))
+      .sort((a, b) => b.count - a.count)
+    const unidadesDetail = unitCounts.length
+      ? [
+          {
+            label: 'Maior unidade',
+            value: `${unitCounts[0].label} · ${unitCounts[0].count}`,
+          },
+          {
+            label: 'Menor unidade',
+            value: `${unitCounts[unitCounts.length - 1].label} · ${unitCounts[unitCounts.length - 1].count}`,
+          },
+        ]
+      : []
+
+    const investDetail = CATEGORIES.map((c) => ({
+      label: CAT_LABEL_PLURAL[c],
+      raw: scoped.filter((a) => a.categoria === c).reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0),
+    }))
+      .filter((c) => c.raw > 0)
+      .sort((a, b) => b.raw - a.raw)
+      .slice(0, 3)
+      .map((c) => ({ label: c.label, value: fmtMoney(c.raw, { maximumFractionDigits: 0 }) }))
+
     const inventoryTiles = [
-      { icon: StockIcon, tone: 'green', value: total, label: 'Total de ativos' },
+      { icon: StockIcon, tone: 'green', value: total, label: 'Total de ativos', detail: totalDetail },
       ...CATEGORIES.map((c) => ({
         icon: CAT_ICON[c],
         tone: 'green',
         value: scoped.filter((a) => a.categoria === c).length,
         label: CAT_LABEL_PLURAL[c],
+        detail: categoryDetail(c),
       })),
-      { icon: BuildingIcon, tone: 'green', value: unidadesCount, label: 'Unidades' },
+      { icon: BuildingIcon, tone: 'green', value: unidadesCount, label: 'Unidades', detail: unidadesDetail },
     ]
     const financeTiles = [
       {
@@ -80,6 +130,7 @@ export function useDashboardData(assets, dashUnidade) {
         tone: 'orange',
         value: fmtMoney(invest, { maximumFractionDigits: 0 }),
         label: 'Valor investido',
+        detail: investDetail,
       },
     ]
 
@@ -88,28 +139,17 @@ export function useDashboardData(assets, dashUnidade) {
     const venc = scoped.filter(
       (a) => a.garantiaAte && warrantyInfo(a.garantiaAte).cls === 'warn',
     ).length
+    const semGarantia = scoped.filter((a) => assetWarrantyInfo(a).cls === 'missing').length
     const semEtiqueta = scoped.filter((a) => a.etiqueta !== 'Possui').length
     const miniStats = [
       { tone: 'warn', value: manut, label: 'Em manutenção' },
       { tone: 'danger', value: venc, label: 'Garantias vencendo' },
+      { tone: 'leaf', value: semGarantia, label: 'Sem garantia' },
       { tone: 'leaf', value: semEtiqueta, label: 'Sem etiqueta física' },
     ]
 
     // ---- Lista de atenção (até 8 itens) ----
-    const attentionList = scoped
-      .filter((a) => {
-        if (a.status === 'Manutenção') return true
-        if (!a.garantiaAte) return false
-        const cls = warrantyInfo(a.garantiaAte).cls
-        return cls === 'warn' || cls === 'expired'
-      })
-      .slice(0, 8)
-      .map((a) => ({
-        id: a.uid,
-        title: `${a.id} · ${a.usuario || unitDisplayName(a.unidade) || ''}`,
-        subtitle: a.status === 'Manutenção' ? 'Em manutenção' : warrantyInfo(a.garantiaAte).label,
-        status: a.status || 'Ativo',
-      }))
+    const attentionList = buildAttentionList(scoped)
 
     // ---- Gráfico por categoria (respeita o filtro de unidade) ----
     const categoryChart = {
@@ -123,7 +163,7 @@ export function useDashboardData(assets, dashUnidade) {
 
     // ---- Gráfico por unidade (sempre todas as unidades, sem o filtro) ----
     const unitChart = {
-      data: unidades.map((u) => ({
+      data: orderedBy(unidades, UNIT_SELECT_ORDER).map((u) => ({
         label: unitDisplayName(u),
         value: assets.filter((a) => a.unidade === u).length,
       })),

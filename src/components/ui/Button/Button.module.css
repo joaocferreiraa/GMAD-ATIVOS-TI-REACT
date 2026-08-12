@@ -42,14 +42,14 @@
 }
 
 .primary {
-  background: var(--laranja);
-  border-color: var(--laranja);
+  background: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }
 
 .primary:hover {
-  background: var(--laranja-forte);
-  border-color: var(--laranja-forte);
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
 }
 
 .brand {

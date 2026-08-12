@@ -26,6 +26,7 @@ export default function ReportTable({ columns, rows }) {
       columns={tableColumns}
       rows={keyedRows}
       rowKey="__rowKey"
+      paginate={false}
       emptyTitle="Nenhum registro encontrado"
       emptyMessage="Ajuste os filtros para gerar o relatório."
     />

@@ -9,8 +9,8 @@ import KpiStrip from '../../components/dashboard/KpiStrip/KpiStrip'
 import MiniStats from '../../components/dashboard/MiniStats/MiniStats'
 import AttentionList from '../../components/dashboard/AttentionList/AttentionList'
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
-import BarChart from '../../components/charts/BarChart/BarChart'
 import DonutChart from '../../components/charts/DonutChart/DonutChart'
+import UnitColumnChart from '../../components/charts/UnitColumnChart/UnitColumnChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
 import styles from './DashboardPage.module.css'
 
@@ -78,10 +78,13 @@ export default function DashboardPage() {
                 madville={dashboard.groupSplit.madville}
                 outras={dashboard.groupSplit.outras}
               />
-              <BarChart {...dashboard.unitChart} emptyMessage="Nenhuma unidade cadastrada ainda." />
+              <UnitColumnChart
+                {...dashboard.unitChart}
+                emptyMessage="Nenhuma unidade cadastrada ainda."
+              />
             </Card>
             <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">
-              <DonutChart {...dashboard.statusChart} />
+              <DonutChart key={dashUnidade} {...dashboard.statusChart} />
             </Card>
           </div>
 

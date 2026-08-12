@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Modal from '../../ui/Modal/Modal'
 import Button from '../../ui/Button/Button'
 import FormField from '../../ui/FormField/FormField'
@@ -9,9 +11,20 @@ import Select from '../../ui/Select/Select'
 import { SCRIPT_CATEGORIAS, SCRIPT_TIPOS } from '../../../constants/scripts'
 import { useToast } from '../../../hooks/useToast'
 import { isHttpUrl } from '../../../utils/urlValidation'
+import modalStyles from '../../ui/Modal/Modal.module.css'
 
 const CATEGORIA_OPTIONS = SCRIPT_CATEGORIAS.map((c) => ({ value: c, label: c }))
 const TIPO_OPTIONS = SCRIPT_TIPOS.map((t) => ({ value: t, label: t }))
+
+const scriptSchema = z
+  .object({
+    nome: z.string().trim().min(1, 'Informe o nome do script.'),
+    urlDownload: z
+      .string()
+      .trim()
+      .refine((v) => !v || isHttpUrl(v), 'O link de download deve ser uma URL http(s) válida.'),
+  })
+  .loose()
 
 function buildDefaultValues(item) {
   return {
@@ -38,8 +51,16 @@ function buildDefaultValues(item) {
 export default function ScriptFormModal({ open, item, onClose, onSave, onDelete }) {
   const isEdit = !!item
   const { showToast } = useToast()
+  const [shake, setShake] = useState(false)
 
-  const { control, register, handleSubmit, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(scriptSchema),
     defaultValues: buildDefaultValues(item),
   })
 
@@ -49,20 +70,8 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
   }, [open, item])
 
   function onSubmit(values) {
-    const nome = values.nome.trim()
-    if (!nome) {
-      showToast('Preencha o nome do script.', 'danger')
-      return
-    }
-
-    const urlDownload = values.urlDownload.trim()
-    if (urlDownload && !isHttpUrl(urlDownload)) {
-      showToast('O link de download deve ser uma URL http(s) válida.', 'danger')
-      return
-    }
-
     const record = {
-      nome,
+      nome: values.nome,
       categoria: values.categoria,
       tipo: values.tipo,
       extensao: values.extensao.trim(),
@@ -71,7 +80,7 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
       dataCriacao: values.dataCriacao,
       dataAtualizacao: values.dataAtualizacao,
       tamanho: values.tamanho.trim(),
-      urlDownload,
+      urlDownload: values.urlDownload,
       descricao: values.descricao.trim(),
       observacoes: values.observacoes.trim(),
       codigo: values.codigo,
@@ -79,13 +88,20 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
     onSave(record, isEdit)
   }
 
-  const submit = handleSubmit(onSubmit)
+  function onInvalid() {
+    showToast('Corrija os campos destacados.', 'danger')
+    setShake(true)
+    setTimeout(() => setShake(false), 320)
+  }
+
+  const submit = handleSubmit(onSubmit, onInvalid)
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       showCloseButton={false}
+      className={shake ? modalStyles.shake : ''}
       title={isEdit ? 'Editar script' : 'Novo script'}
       subtitle={
         isEdit
@@ -111,7 +127,12 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
       }
     >
       <FormGrid>
-        <FormField label="Nome do script" required htmlFor="sc_nome">
+        <FormField
+          label="Nome do script"
+          required
+          htmlFor="sc_nome"
+          error={errors.nome?.message}
+        >
           <Input id="sc_nome" placeholder="Ex: Limpeza de temporários" {...register('nome')} />
         </FormField>
         <FormField label="Categoria" required htmlFor="sc_categoria">
@@ -160,7 +181,11 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
         <FormField label="Tamanho" htmlFor="sc_tamanho">
           <Input id="sc_tamanho" placeholder="Ex: 12KB" {...register('tamanho')} />
         </FormField>
-        <FormField label="Link de download" htmlFor="sc_urlDownload">
+        <FormField
+          label="Link de download"
+          htmlFor="sc_urlDownload"
+          error={errors.urlDownload?.message}
+        >
           <Input
             id="sc_urlDownload"
             placeholder="URL do arquivo (Supabase Storage, rede interna...)"

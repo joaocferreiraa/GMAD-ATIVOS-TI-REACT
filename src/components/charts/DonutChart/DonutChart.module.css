@@ -15,11 +15,18 @@
 .center {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+}
+
+/* Tooltip do Recharts é renderizado antes do .center no DOM e, sem z-index
+   próprio, fica coberto por ele — força a ficar sempre por cima. */
+:global(.recharts-tooltip-wrapper) {
+  z-index: 20;
 }
 
 .centerValue {

@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import EmptyState from '../EmptyState/EmptyState'
+import Button from '../Button/Button'
+import { ChevronDownIcon } from '../Icon/icons'
 import styles from './Table.module.css'
 
 const TD_VARIANT_CLASS = {
@@ -12,6 +15,7 @@ const TD_VARIANT_CLASS = {
 // columns: [{ key, label, render(row), sortable, variant: 'muted'|'mono' }]
 // rows: array de objetos
 // rowKey: nome do campo (string) ou função (row) => string
+// paginate: false desliga a paginação (padrão ligada, pageSize configurável)
 export default function Table({
   columns,
   rows,
@@ -22,8 +26,21 @@ export default function Table({
   onRowClick,
   emptyTitle = 'Nenhum registro encontrado',
   emptyMessage,
+  paginate = true,
+  pageSize = 15,
 }) {
   const getRowKey = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey]
+  const [page, setPage] = useState(1)
+  const [prevRows, setPrevRows] = useState(rows)
+
+  // Volta pra primeira página sempre que o conjunto filtrado/ordenado mudar
+  // (nova referência de `rows` a cada mudança de filtro, busca ou ordenação).
+  // Ajustado durante a renderização (não em efeito) — padrão recomendado
+  // pelo React para "resetar estado quando uma prop muda".
+  if (rows !== prevRows) {
+    setPrevRows(rows)
+    setPage(1)
+  }
 
   if (!rows.length) {
     return (
@@ -32,6 +49,14 @@ export default function Table({
       </div>
     )
   }
+
+  const pageCount = paginate ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1
+  const currentPage = Math.min(page, pageCount)
+  const pageRows = paginate
+    ? rows.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : rows
+  const rangeStart = paginate ? (currentPage - 1) * pageSize + 1 : 1
+  const rangeEnd = paginate ? Math.min(currentPage * pageSize, rows.length) : rows.length
 
   return (
     <div className={styles.tableWrap}>
@@ -74,10 +99,11 @@ export default function Table({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {pageRows.map((row, index) => (
             <tr
               key={getRowKey(row)}
               className={onRowClick ? styles.clickable : ''}
+              style={{ '--i': index }}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               tabIndex={onRowClick ? 0 : undefined}
               role={onRowClick ? 'button' : undefined}
@@ -109,6 +135,34 @@ export default function Table({
           ))}
         </tbody>
       </table>
+      {paginate && pageCount > 1 && (
+        <div className={styles.pagination}>
+          <span className={styles.pageInfo}>
+            {rangeStart}–{rangeEnd} de {rows.length}
+          </span>
+          <div className={styles.pageButtons}>
+            <Button
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+            >
+              <ChevronDownIcon className={styles.prevIcon} />
+            </Button>
+            <span className={styles.pageCurrent}>
+              {currentPage} / {pageCount}
+            </span>
+            <Button
+              size="sm"
+              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              disabled={currentPage === pageCount}
+              aria-label="Próxima página"
+            >
+              <ChevronDownIcon className={styles.nextIcon} />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

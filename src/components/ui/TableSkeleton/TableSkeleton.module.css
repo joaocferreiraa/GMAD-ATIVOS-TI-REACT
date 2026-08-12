@@ -1,0 +1,76 @@
+.wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-hover) 25%,
+    var(--border-strong) 37%,
+    var(--surface-hover) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.table td:nth-child(1) .bar {
+  width: 70%;
+}
+
+.table td:nth-child(2) .bar {
+  width: 85%;
+}
+
+.table td:nth-child(3) .bar {
+  width: 55%;
+}
+
+.table td:nth-child(4) .bar {
+  width: 40%;
+}
+
+.table td:nth-child(5) .bar {
+  width: 60%;
+}
+
+.table td:nth-child(n + 6) .bar {
+  width: 50%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation: none;
+  }
+}

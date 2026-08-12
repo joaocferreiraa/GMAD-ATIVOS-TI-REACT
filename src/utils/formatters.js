@@ -73,9 +73,9 @@ export function relativeSyncTime(lastSync) {
 }
 
 // Situação da garantia de um ativo a partir da data de vencimento (ISO).
-// cls: 'ok' | 'warn' (vence em até 60 dias) | 'expired' | 'none' (sem data).
+// cls: 'ok' | 'warn' (vence em até 60 dias) | 'expired' | 'missing' (sem data).
 export function warrantyInfo(iso) {
-  if (!iso) return { label: '—', cls: 'none' }
+  if (!iso) return { label: 'Sem garantia', cls: 'missing' }
   const target = new Date(`${iso}T00:00:00`)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -83,4 +83,14 @@ export function warrantyInfo(iso) {
   if (days < 0) return { label: `Vencida (${fmtDate(iso)})`, cls: 'expired' }
   if (days <= 60) return { label: `Vence em ${days}d`, cls: 'warn' }
   return { label: fmtDate(iso), cls: 'ok' }
+}
+
+// Mesma coisa, mas ciente da exceção das impressoras: "Sem garantia" só se
+// aplica a impressoras marcadas como Compradas — alugadas e as ainda sem
+// Situação definida não têm esse dado cobrado (mantém o "—" neutro).
+export function assetWarrantyInfo(asset) {
+  const info = warrantyInfo(asset.garantiaAte)
+  if (info.cls !== 'missing') return info
+  const applies = asset.categoria !== 'Impressora' || asset.posse === 'Comprado'
+  return applies ? info : { label: '—', cls: 'none' }
 }

@@ -13,7 +13,7 @@ import {
   exportReportPdf,
 } from '../../services/relatorios/reportExport'
 import Button from '../../components/ui/Button/Button'
-import Loading from '../../components/ui/Loading/Loading'
+import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import PrintHeader from '../../components/ui/PrintHeader/PrintHeader'
 import ReportCard from '../../components/relatorios/ReportCard/ReportCard'
@@ -165,11 +165,7 @@ export default function RelatoriosPage() {
             onExport={handleExport}
           />
 
-          {isLoading && (
-            <div className={styles.state}>
-              <Loading label="Carregando dados do relatório..." />
-            </div>
-          )}
+          {isLoading && <TableSkeleton columns={activeColumns.length || 5} />}
 
           {isError && (
             <Alert variant="danger">

@@ -173,5 +173,5 @@
 }
 
 :global(:root[data-theme='dark']) .sidebar {
-  background: #1c1c20;
+  background: var(--bg-elevated);
 }
