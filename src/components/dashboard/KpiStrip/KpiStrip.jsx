@@ -8,10 +8,8 @@ function Tile({ icon: Icon, tone, value, label }) {
       <div className={`${styles.icon} ${styles[TONE_CLASS[tone]]}`}>
         <Icon />
       </div>
-      <div className={styles.text}>
-        <div className={styles.value}>{value}</div>
-        <div className={styles.label}>{label}</div>
-      </div>
+      <div className={styles.value}>{value}</div>
+      <div className={styles.label}>{label}</div>
     </div>
   )
 }
@@ -21,16 +19,12 @@ function Tile({ icon: Icon, tone, value, label }) {
 export default function KpiStrip({ inventoryTiles, financeTiles }) {
   return (
     <div className={styles.kpis}>
-      <div className={`${styles.group} ${styles.inventory}`}>
-        {inventoryTiles.map((tile) => (
-          <Tile key={tile.label} {...tile} />
-        ))}
-      </div>
-      <div className={`${styles.group} ${styles.finance}`}>
-        {financeTiles.map((tile) => (
-          <Tile key={tile.label} {...tile} />
-        ))}
-      </div>
+      {inventoryTiles.map((tile) => (
+        <Tile key={tile.label} {...tile} />
+      ))}
+      {financeTiles.map((tile) => (
+        <Tile key={tile.label} {...tile} />
+      ))}
     </div>
   )
 }

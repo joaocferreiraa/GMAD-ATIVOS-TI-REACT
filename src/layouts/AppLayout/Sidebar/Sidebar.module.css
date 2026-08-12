@@ -1,21 +1,58 @@
-/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.sidebar, .sidebar-nav). */
+/* Barra lateral clara com cabeçalho de marca, rótulo de seção e saudação no
+   rodapé, alinhada ao padrão visual usado nos demais sites GMAD. */
 
 .sidebar {
   position: fixed;
-  top: var(--header-h);
+  top: 0;
   left: 0;
   bottom: 0;
   width: var(--sidebar-w);
-  z-index: 50;
+  z-index: 61;
   background: var(--surface);
   border-right: 1px solid var(--border);
   box-shadow: 3px 0 16px rgba(15, 56, 35, 0.06);
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
+  padding: 20px 14px;
   overflow-y: auto;
   overflow-x: hidden;
   transition: width 0.28s ease;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.brandLogo {
+  height: 36px;
+  width: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.sidebar.collapsed .brandLogo {
+  height: 24px;
+}
+
+.brandSub {
+  padding: 0 2px;
+  margin: 0 0 22px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.sectionLabel {
+  padding: 0 4px;
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
 
 .nav {
@@ -30,12 +67,11 @@
   gap: 10px;
   background: transparent;
   border: none;
-  border-left: 2px solid transparent;
   text-align: left;
   text-decoration: none;
   color: var(--text-muted);
-  padding: 10px 13px;
-  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 9px 12px;
+  border-radius: 10px;
   font-size: 13.5px;
   font-weight: 500;
   font-family: var(--font-body);
@@ -44,14 +80,13 @@
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    border-color 0.18s ease,
     padding 0.28s ease,
     justify-content 0.28s ease;
 }
 
 .navIcon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -59,8 +94,8 @@
 }
 
 .navIcon svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .navButton:hover {
@@ -69,10 +104,13 @@
 }
 
 .navButton.active {
-  background: var(--verde-100);
-  color: var(--brand-strong);
-  border-left-color: var(--brand);
+  background: var(--surface-hover);
+  color: var(--text);
   font-weight: 600;
+}
+
+.navButton.active .navIcon {
+  color: var(--brand);
 }
 
 .label {
@@ -84,6 +122,19 @@
   transition:
     opacity 0.2s ease,
     max-width 0.28s ease;
+}
+
+.greeting {
+  margin-top: auto;
+  padding: 14px 12px 2px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.sidebar.collapsed .top {
+  justify-content: center;
 }
 
 .sidebar.collapsed .navButton {
@@ -105,6 +156,13 @@
     border-right: none;
     border-bottom: 1px solid var(--border);
     padding: 10px 12px;
+  }
+
+  .top,
+  .brandSub,
+  .sectionLabel,
+  .greeting {
+    display: none;
   }
 
   .nav {

@@ -19,7 +19,7 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background: var(--bg-elevated);
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.45;

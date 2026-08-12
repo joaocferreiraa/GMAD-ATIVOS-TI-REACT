@@ -1,78 +1,30 @@
-/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.kpis, .kpi-group, .stat-tile). */
+/* Faixa de KPIs do Dashboard: cada indicador é um card próprio com ícone em
+   círculo colorido, no lugar dos ícones soltos numa faixa única. */
 
 .kpis {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  column-gap: 32px;
-  row-gap: 16px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
   margin-bottom: 28px;
 }
 
-.group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 32px;
-  row-gap: 16px;
-}
-
-.inventory {
-  flex: 1 1 auto;
-  justify-content: space-between;
-}
-
-.finance {
-  padding-left: 32px;
-  margin-left: auto;
-  border-left: 1px solid var(--border);
-}
-
-@media (max-width: 1100px) {
-  .inventory {
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 760px) {
-  .kpis {
-    flex-direction: column;
-    row-gap: 0;
-  }
-
-  .finance {
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
-    border-top: 1px solid var(--border);
-    padding-top: 16px;
-    margin-top: 16px;
-    width: 100%;
-  }
-}
-
 .tile {
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 0 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 18px 20px;
   min-width: 0;
 }
 
 .icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: var(--text-faint);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 14px;
 }
 
 .icon svg {
@@ -81,35 +33,28 @@
 }
 
 .iconGreen {
+  background: var(--verde-100);
   color: var(--brand);
 }
 
 .iconOrange {
+  background: color-mix(in srgb, var(--laranja-forte) 16%, transparent);
   color: var(--laranja-forte);
-}
-
-.text {
-  min-width: 0;
 }
 
 .value {
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
   line-height: 1.15;
   color: var(--text);
 }
 
 .label {
-  margin-top: 2px;
-  font-size: 11.5px;
+  margin-top: 4px;
+  font-size: 12.5px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.finance .value {
-  font-size: 23px;
-  color: var(--laranja-forte);
 }

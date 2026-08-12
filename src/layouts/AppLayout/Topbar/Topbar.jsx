@@ -3,7 +3,14 @@ import { useTheme } from '../../../hooks/theme/useTheme'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
 import { useSyncStatus } from '../../../hooks/useSyncStatus'
 import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
-import { MenuIcon, MoonIcon, SunIcon } from '../../../components/ui/Icon/icons'
+import {
+  PanelIcon,
+  MoonIcon,
+  SunIcon,
+  SearchIcon,
+  BellIcon,
+  LogoutIcon,
+} from '../../../components/ui/Icon/icons'
 import styles from './Topbar.module.css'
 
 const SYNC_LABEL = {
@@ -63,25 +70,17 @@ export default function Topbar() {
     <div className={styles.heroNav}>
       <div className={styles.heroNavInner}>
         <div className={styles.topbar}>
-          <div className={styles.brand}>
+          <div className={styles.left}>
             <button
               type="button"
-              className={styles.iconBtn}
+              className={styles.panelBtn}
               onClick={toggleSidebar}
               title={collapsed ? 'Expandir menu' : 'Recolher menu'}
               aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
               aria-expanded={!collapsed}
             >
-              <MenuIcon width={16} height={16} />
+              <PanelIcon width={16} height={16} />
             </button>
-            <div className={styles.brandMark}>
-              GM<span className={styles.bmA}>A</span>D
-            </div>
-            <div className={styles.brandUnits}>
-              <span className={styles.buName}>Madville</span>
-              <span className={styles.buSep}>|</span>
-              <span className={styles.buName}>Curitiba</span>
-            </div>
           </div>
           <div className={styles.navRight}>
             <button
@@ -93,13 +92,32 @@ export default function Topbar() {
             >
               {isDark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
             </button>
+            <div className={styles.search} title="Busca em breve">
+              <SearchIcon width={14} height={14} />
+              <span className={styles.searchPlaceholder}>Buscar</span>
+              <kbd className={styles.searchKbd}>⌘K</kbd>
+            </div>
             <SyncIndicator />
+            <button
+              type="button"
+              className={styles.iconBtn}
+              title="Notificações"
+              aria-label="Notificações"
+            >
+              <BellIcon width={16} height={16} />
+            </button>
             <div className={styles.userChip}>
               <div className={styles.avatar}>{initials(displayName)}</div>
               <span>{displayName}</span>
             </div>
-            <button type="button" className={styles.btnLogout} onClick={() => signOut()}>
-              Sair
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={() => signOut()}
+              title="Sair"
+              aria-label="Sair"
+            >
+              <LogoutIcon width={16} height={16} />
             </button>
           </div>
         </div>

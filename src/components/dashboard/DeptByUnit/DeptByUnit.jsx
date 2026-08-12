@@ -1,19 +1,15 @@
+import BarChart from '../../charts/BarChart/BarChart'
 import EmptyHint from '../EmptyHint/EmptyHint'
 import styles from './DeptByUnit.module.css'
 
-function DeptBar({ label, value, max }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0
-  return (
-    <div className={styles.row}>
-      <span className={styles.dot} />
-      <div className={styles.label}>{label}</div>
-      <div className={styles.track}>
-        <div className={styles.fill} style={{ width: `${pct}%` }} />
-      </div>
-      <div className={styles.value}>{value}</div>
-    </div>
-  )
-}
+const DEPT_COLORS = [
+  'var(--verde-700)',
+  'var(--laranja)',
+  'var(--verde-600)',
+  'var(--verde-800)',
+  'var(--laranja-forte)',
+  'var(--verde-900)',
+]
 
 // Distribuição por setor em cada unidade (.dept-by-unit) — um bloco por
 // unidade, sempre com todos os ativos (não respeita o filtro do dashboard,
@@ -23,23 +19,18 @@ export default function DeptByUnit({ units }) {
 
   return (
     <div className={styles.grid}>
-      {units.map((unit) => {
-        const max = Math.max(1, ...unit.bars.map((b) => b.value))
-        return (
-          <div key={unit.unit} className={styles.block}>
-            <div className={styles.title}>
-              {unit.label} <span className={styles.count}>{unit.total}</span>
-            </div>
-            {unit.bars.length ? (
-              unit.bars.map((bar) => (
-                <DeptBar key={bar.label} label={bar.label} value={bar.value} max={max} />
-              ))
-            ) : (
-              <EmptyHint>Sem ativos cadastrados.</EmptyHint>
-            )}
+      {units.map((unit) => (
+        <div key={unit.unit} className={styles.block}>
+          <div className={styles.title}>
+            {unit.label} <span className={styles.count}>{unit.total}</span>
           </div>
-        )
-      })}
+          {unit.bars.length ? (
+            <BarChart data={unit.bars} colors={DEPT_COLORS} compact showTotal={false} />
+          ) : (
+            <EmptyHint>Sem ativos cadastrados.</EmptyHint>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

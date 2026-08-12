@@ -21,6 +21,7 @@
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.84.0",
     "react-router-dom": "^7.18.2",
+    "recharts": "^3.10.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.4.3"
   },

@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { ROUTES } from '../../constants/routes'
+import { EyeIcon, EyeOffIcon, LoginIcon } from '../../components/ui/Icon/icons'
 import loginBackground from '../../assets/images/login-background.png'
 import styles from './LoginPage.module.css'
 
@@ -122,6 +123,7 @@ export default function LoginPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="loginPass"
+                className={styles.inputWithToggle}
                 autoComplete="current-password"
                 placeholder="••••••••••"
                 {...register('senha')}
@@ -136,8 +138,10 @@ export default function LoginPage() {
                 type="button"
                 className={styles.loginTogglePw}
                 onClick={() => setShowPassword((prev) => !prev)}
+                title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
-                {showPassword ? 'OCULTAR' : 'MOSTRAR'}
+                {showPassword ? <EyeOffIcon width={17} height={17} /> : <EyeIcon width={17} height={17} />}
               </button>
             </div>
           </div>
@@ -151,6 +155,7 @@ export default function LoginPage() {
             disabled={isSubmitting}
             onClick={submit}
           >
+            <LoginIcon width={17} height={17} />
             Acessar o sistema
           </button>
           <div className={styles.loginFoot}>

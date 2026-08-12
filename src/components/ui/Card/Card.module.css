@@ -3,9 +3,10 @@
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 11px;
+  border-radius: var(--radius);
   padding: 18px 20px 22px;
-  box-shadow: none;
+  box-shadow: var(--shadow-soft);
+  min-width: 0;
 }
 
 .plain {

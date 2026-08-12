@@ -10,6 +10,7 @@ import MiniStats from '../../components/dashboard/MiniStats/MiniStats'
 import AttentionList from '../../components/dashboard/AttentionList/AttentionList'
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
 import BarChart from '../../components/charts/BarChart/BarChart'
+import DonutChart from '../../components/charts/DonutChart/DonutChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
 import styles from './DashboardPage.module.css'
 
@@ -56,7 +57,7 @@ export default function DashboardPage() {
               title="Distribuição por categoria"
               subtitle="Quantidade de ativos por tipo de equipamento"
             >
-              <BarChart {...dashboard.categoryChart} />
+              <DonutChart {...dashboard.categoryChart} />
             </Card>
             <Card
               attn
@@ -80,7 +81,7 @@ export default function DashboardPage() {
               <BarChart {...dashboard.unitChart} emptyMessage="Nenhuma unidade cadastrada ainda." />
             </Card>
             <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">
-              <BarChart {...dashboard.statusChart} />
+              <DonutChart {...dashboard.statusChart} />
             </Card>
           </div>
 

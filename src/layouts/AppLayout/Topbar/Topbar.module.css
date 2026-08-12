@@ -1,22 +1,20 @@
-/* Portado 1:1 de site-ativos-ti-gmad-madville.html (.hero-nav, .topbar, .nav-right). */
+/* Barra superior clara: alterna do antigo topo verde (.hero-nav) para um
+   padrão neutro, alinhado à identidade visual usada nos demais sites GMAD. */
 
 .heroNav {
   position: fixed;
   top: 0;
-  left: 0;
+  left: var(--sidebar-w);
   right: 0;
-  color: #fff;
   height: var(--header-h);
   z-index: 60;
-  background: var(--verde-900);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  transition: left 0.28s ease;
 }
 
 .heroNavInner {
-  position: relative;
-  z-index: 2;
   height: 100%;
-  margin: 0;
   padding: 0 24px;
   display: flex;
   align-items: center;
@@ -31,76 +29,67 @@
   width: 100%;
 }
 
-.brand {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.brandMark {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 19px;
-  letter-spacing: 0.4px;
-  line-height: 1;
-  color: #fff;
+.left {
   display: flex;
   align-items: center;
+  gap: 10px;
   flex-shrink: 0;
-}
-
-.brandMark .bmA {
-  color: var(--laranja);
-}
-
-.brandUnits {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brandUnits .buName {
-  font-family: var(--font-display);
-  font-size: 13.5px;
-  font-weight: 600;
-  letter-spacing: 0.1px;
-  color: #bfeacb;
-}
-
-.brandUnits .buSep {
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 12px;
-  font-weight: 400;
-}
-
-:global(:root[data-theme='dark']) .brandUnits .buName {
-  color: var(--brand);
 }
 
 .navRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.iconBtn {
-  width: 32px;
-  height: 32px;
+.panelBtn {
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 15px;
-  transition: background 0.18s ease;
+  flex-shrink: 0;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.panelBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.panelBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
 }
 
 .iconBtn:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--surface-hover);
+  color: var(--text);
 }
 
 .iconBtn svg {
@@ -108,22 +97,50 @@
   height: 16px;
 }
 
-.userChip {
-  height: 32px;
+.search {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 0 12px 0 5px;
+  height: 34px;
+  min-width: 190px;
+  padding: 0 12px;
   border-radius: 30px;
-  font-size: 12.5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  cursor: default;
   box-sizing: border-box;
 }
 
+.searchPlaceholder {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.searchKbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+.userChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
 .avatar {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--laranja);
   display: flex;
@@ -136,23 +153,19 @@
   flex-shrink: 0;
 }
 
-.userChip span {
-  color: rgba(255, 255, 255, 0.9);
-}
-
 .syncIndicator {
   position: relative;
-  height: 32px;
+  height: 34px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 0 12px;
   border-radius: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-muted);
   cursor: default;
   outline: none;
 }
@@ -245,42 +258,18 @@
   line-height: 1.5;
 }
 
-.btnLogout {
-  height: 32px;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  color: #fff;
-  padding: 0 14px;
-  border-radius: var(--radius);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 0.18s ease;
-}
-
-.btnLogout:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-
 @media (max-width: 860px) {
   .heroNav {
     position: static;
-    margin-left: 0;
     height: auto;
   }
 
   .heroNavInner {
     height: auto;
     padding: 14px 24px;
-    margin-left: auto;
   }
-}
 
-:global(:root[data-theme='dark']) .heroNav {
-  background: var(--bg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  .search {
+    display: none;
+  }
 }
