@@ -105,6 +105,12 @@
   color: var(--text-muted);
 }
 
+.nameWithBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .cellStack b {
   color: var(--text);
   font-size: 12.5px;

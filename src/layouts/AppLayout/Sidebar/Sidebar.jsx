@@ -19,6 +19,8 @@ export default function Sidebar() {
 
       {!collapsed && <div className={styles.brandSub}>Madville | Curitiba</div>}
 
+      {!collapsed && <div className={styles.navDivider} />}
+
       {!collapsed && <div className={styles.sectionLabel}>Navegação</div>}
 
       <div className={styles.nav}>

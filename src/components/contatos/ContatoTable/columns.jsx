@@ -15,9 +15,19 @@ export function buildColumns(gestorMap, assets) {
       label: 'Nome',
       sortable: true,
       render: (c) => (
-        <>
-          {c.nome} {c.isGestor && <Badge variant="ok">Gestor</Badge>}
-        </>
+        <span className={tableStyles.nameWithBadge}>
+          {c.nome}
+          {c.isGestor && (
+            <>
+              {/* Espaço "de verdade" pra quem copia o texto da célula — como é só
+                  espaço em branco entre dois itens flex, o layout continua vindo
+                  do gap do container (CSS não renderiza esse nó, mas ele
+                  permanece selecionável). */}
+              {' '}
+              <Badge variant="ok">Gestor</Badge>
+            </>
+          )}
+        </span>
       ),
     },
     {
