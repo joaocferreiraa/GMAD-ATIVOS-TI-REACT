@@ -77,6 +77,21 @@
   font-weight: 500;
 }
 
+.vrLink {
+  composes: vrValue;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: var(--accent-strong);
+  cursor: pointer;
+  text-align: left;
+}
+
+.vrLink:hover {
+  text-decoration: underline;
+}
+
 .vrValueBadgeGroup {
   display: inline-flex;
   align-items: center;

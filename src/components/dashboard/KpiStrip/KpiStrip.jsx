@@ -5,13 +5,17 @@ import styles from './KpiStrip.module.css'
 
 const TONE_CLASS = { green: 'iconGreen', orange: 'iconOrange' }
 
-// Passar o mouse (ou clicar/focar via teclado) revela um detalhe que não
-// aparece em nenhum outro card do painel: valor investido/saúde por
-// categoria, maior e menor unidade, top categorias por valor — ver
-// useDashboardData.js. O popover só existe no DOM quando ativo (hover ou
-// clique fixando), em vez de sempre presente com opacity/visibility — evita
+// Passar o mouse (ou focar via teclado) revela um detalhe que não aparece em
+// nenhum outro card do painel: valor investido/saúde por categoria, maior e
+// menor unidade, top categorias por valor — ver useDashboardData.js. O
+// popover só existe no DOM quando ativo (hover ou clique fixando, pra tiles
+// sem `to`), em vez de sempre presente com opacity/visibility — evita
 // qualquer problema de CSS/empilhamento silencioso.
-function Tile({ icon: Icon, tone, value, label, detail = [] }) {
+//
+// Tiles com `to` (total + cada categoria — ver useDashboardData.js) levam
+// pra Ativos cadastrados já filtrado: clicar navega em vez de fixar o
+// popover, mas o hover continua mostrando o detalhe antes de clicar.
+function Tile({ icon: Icon, tone, value, label, detail = [], to, onNavigate }) {
   const [pinned, setPinned] = useState(false)
   const [hovered, setHovered] = useState(false)
   const rootRef = useRef(null)
@@ -24,14 +28,30 @@ function Tile({ icon: Icon, tone, value, label, detail = [] }) {
   useClickOutside(rootRef, pinned, close)
   useEscapeKey(pinned, close)
 
+  function handleClick() {
+    if (to) onNavigate(to)
+    else setPinned((p) => !p)
+  }
+
+  // Enter/Space aciona o clique — um <div role="button"> não faz isso
+  // sozinho como um <button> nativo faria, então sem isso um tile só é
+  // alcançável com o mouse.
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleClick()
+    }
+  }
+
   return (
     <div
       ref={rootRef}
       className={`${styles.tile} ${show ? styles.active : ''}`}
       tabIndex={0}
       role="button"
-      aria-expanded={show}
-      onClick={() => setPinned((p) => !p)}
+      aria-expanded={to ? undefined : show}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
@@ -58,14 +78,14 @@ function Tile({ icon: Icon, tone, value, label, detail = [] }) {
 
 // Faixa de KPIs do Dashboard (.kpis do sistema original): grupo de inventário
 // (total + por categoria + unidades) e grupo financeiro (valor investido).
-export default function KpiStrip({ inventoryTiles, financeTiles }) {
+export default function KpiStrip({ inventoryTiles, financeTiles, onNavigate }) {
   return (
     <div className={styles.kpis}>
       {inventoryTiles.map((tile) => (
-        <Tile key={tile.label} {...tile} />
+        <Tile key={tile.label} {...tile} onNavigate={onNavigate} />
       ))}
       {financeTiles.map((tile) => (
-        <Tile key={tile.label} {...tile} />
+        <Tile key={tile.label} {...tile} onNavigate={onNavigate} />
       ))}
     </div>
   )

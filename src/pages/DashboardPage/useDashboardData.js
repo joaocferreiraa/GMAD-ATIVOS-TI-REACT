@@ -4,6 +4,7 @@ import { getUnidades, isMadvilleUnit, matchesUnitValue, MADVILLE_GROUP } from '.
 import { fmtMoney, unitDisplayName, warrantyInfo, assetWarrantyInfo } from '../../utils/formatters'
 import { buildAttentionList } from '../../utils/attention'
 import { BuildingIcon, DollarIcon, StockIcon } from '../../components/ui/Icon/icons'
+import { ROUTES } from '../../constants/routes'
 
 const DONUT_COLORS_CAT = [
   'var(--verde-700)',
@@ -113,14 +114,33 @@ export function useDashboardData(assets, dashUnidade) {
       .slice(0, 3)
       .map((c) => ({ label: c.label, value: fmtMoney(c.raw, { maximumFractionDigits: 0 }) }))
 
+    // Cada tile de categoria (e o total) leva pra Ativos cadastrados já
+    // filtrado por essa categoria e pela unidade selecionada aqui no
+    // Dashboard (mesmo mecanismo location.state.filters do sino de
+    // notificações, lido em AtivosPage). "Unidades" e "Valor investido" não
+    // mapeiam pra um filtro de Ativos, então continuam só com o popover de
+    // detalhe ao clicar.
+    const tileFilters = (categoria) => ({
+      route: ROUTES.ativos,
+      state: { filters: { unidade: dashUnidade, categoria } },
+    })
+
     const inventoryTiles = [
-      { icon: StockIcon, tone: 'green', value: total, label: 'Total de ativos', detail: totalDetail },
+      {
+        icon: StockIcon,
+        tone: 'green',
+        value: total,
+        label: 'Total de ativos',
+        detail: totalDetail,
+        to: tileFilters('Todos'),
+      },
       ...CATEGORIES.map((c) => ({
         icon: CAT_ICON[c],
         tone: 'green',
         value: scoped.filter((a) => a.categoria === c).length,
         label: CAT_LABEL_PLURAL[c],
         detail: categoryDetail(c),
+        to: tileFilters(c),
       })),
       { icon: BuildingIcon, tone: 'green', value: unidadesCount, label: 'Unidades', detail: unidadesDetail },
     ]

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAssets } from '../../hooks/data/useAssets'
+import { useNavigateTo } from '../../hooks/useNavigateTo'
 import { useDashboardData } from './useDashboardData'
 import Card from '../../components/ui/Card/Card'
 import Dropdown from '../../components/ui/Dropdown/Dropdown'
@@ -17,6 +18,7 @@ import styles from './DashboardPage.module.css'
 export default function DashboardPage() {
   const { data: assets, isLoading, isError } = useAssets()
   const [dashUnidade, setDashUnidade] = useState('Todas')
+  const navigateTo = useNavigateTo()
 
   const dashboard = useDashboardData(assets ?? [], dashUnidade)
 
@@ -50,6 +52,7 @@ export default function DashboardPage() {
           <KpiStrip
             inventoryTiles={dashboard.inventoryTiles}
             financeTiles={dashboard.financeTiles}
+            onNavigate={navigateTo}
           />
 
           <div className={styles.grid}>

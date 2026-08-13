@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import Overlay from '../../../components/ui/Modal/Overlay'
 import { useGlobalSearch } from '../../../hooks/useGlobalSearch'
+import { useNavigateTo } from '../../../hooks/useNavigateTo'
 import { SearchIcon } from '../../../components/ui/Icon/icons'
 import styles from './CommandPalette.module.css'
 
@@ -11,7 +11,7 @@ import styles from './CommandPalette.module.css'
 // item leva para a página correspondente já com a ficha daquele registro
 // aberta (via location.state.openUid, lido em AtivosPage/ContatosPage).
 export default function CommandPalette({ open, onClose }) {
-  const navigate = useNavigate()
+  const navigateTo = useNavigateTo()
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const inputRef = useRef(null)
@@ -52,7 +52,7 @@ export default function CommandPalette({ open, onClose }) {
 
   function runItem(item) {
     if (!item) return
-    navigate(item.route, { state: { openUid: item.uid } })
+    navigateTo({ route: item.route, state: { openUid: item.uid } })
     onClose()
   }
 

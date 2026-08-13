@@ -21,7 +21,12 @@ function findCelularAtivo(assets, nome) {
 export function contatoCelularInfo(assets, contato) {
   const ativo = findCelularAtivo(assets, contato.nome)
   if (ativo)
-    return { texto: ativo.modelo || 'Não informado', patrimonio: ativo.id, fromAtivo: true }
+    return {
+      texto: ativo.modelo || 'Não informado',
+      patrimonio: ativo.id,
+      fromAtivo: true,
+      uid: ativo.uid,
+    }
   if (contato.celular) return { texto: contato.celular, patrimonio: null, fromAtivo: false }
   return null
 }
@@ -65,6 +70,7 @@ export function filterContatos(colaboradores, assets, filters) {
       return matches([
         c.nome,
         c.departamento,
+        c.vendaTipo,
         unitDisplayName(c.unidade),
         c.telefone,
         c.email,

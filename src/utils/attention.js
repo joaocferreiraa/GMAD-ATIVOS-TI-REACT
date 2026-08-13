@@ -1,4 +1,5 @@
 import { unitDisplayName, assetWarrantyInfo } from './formatters'
+import { ROUTES } from '../constants/routes'
 
 function attentionReason(asset) {
   if (asset.status === 'Manutenção') return 'manutencao'
@@ -14,6 +15,12 @@ function attentionReason(asset) {
 // assetWarrantyInfo só considera "sem garantia" quando de fato se aplica).
 // Sem limite — quem consome decide como paginar/agrupar (Dashboard mostra um
 // item por ativo; o sino de notificações agrupa "sem garantia" numa contagem).
+//
+// Cada item carrega `to` (rota + state) já pronto para navegação — quem
+// consome (Topbar) só faz navigate(item.to.route, { state: item.to.state }),
+// sem precisar saber o que é "manutenção" ou "garantia". Um tipo de
+// notificação novo que aponte para um ativo específico automaticamente
+// funciona sem tocar na Topbar.
 export function getAttentionItems(assets) {
   return assets
     .map((a) => ({ asset: a, reason: attentionReason(a) }))
@@ -24,6 +31,7 @@ export function getAttentionItems(assets) {
       subtitle: reason === 'manutencao' ? 'Em manutenção' : assetWarrantyInfo(a).label,
       status: a.status || 'Ativo',
       reason,
+      to: { route: ROUTES.ativos, state: { openUid: a.uid } },
     }))
 }
 

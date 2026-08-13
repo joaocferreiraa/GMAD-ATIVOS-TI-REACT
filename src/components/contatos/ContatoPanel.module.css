@@ -38,3 +38,7 @@
 .vrValue {
   composes: vrValue from '../../styles/viewPanel.module.css';
 }
+
+.vrLink {
+  composes: vrLink from '../../styles/viewPanel.module.css';
+}

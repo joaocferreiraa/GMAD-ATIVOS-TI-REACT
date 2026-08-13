@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useAssets } from './data/useAssets'
 import { getAttentionItems } from '../utils/attention'
 import { assetWarrantyInfo } from '../utils/formatters'
+import { ROUTES } from '../constants/routes'
 
 const MAX_ITEMS = 6
 
@@ -29,6 +30,10 @@ export function useNotifications() {
             title: `${missingCount} ${missingCount === 1 ? 'dispositivo' : 'dispositivos'} sem garantia`,
             subtitle: 'Cadastre a data de garantia para acompanhar o vencimento.',
             status: null,
+            to: {
+              route: ROUTES.ativos,
+              state: { filters: { unidade: 'Todas', garantia: 'missing' } },
+            },
           },
         ]
       : []

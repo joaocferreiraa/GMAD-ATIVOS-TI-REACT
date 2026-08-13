@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useTheme } from '../../../hooks/theme/useTheme'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
 import { useSyncStatus } from '../../../hooks/useSyncStatus'
 import { useNotifications } from '../../../hooks/useNotifications'
+import { useNavigateTo } from '../../../hooks/useNavigateTo'
 import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
 import { assetStatusVariant } from '../../../utils/statusBadge'
-import { ROUTES } from '../../../constants/routes'
 import Badge from '../../../components/ui/Badge/Badge'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import {
@@ -70,9 +69,15 @@ function SyncIndicator() {
 
 // Sino de notificações: reaproveita os mesmos itens do "Requer atenção" do
 // Dashboard (garantias vencendo + manutenção), com contador no ícone e
-// painel suspenso ao clicar. Clicar num item leva direto para Ativos.
+// painel suspenso ao clicar. Cada item já chega com `to: { route, state }`
+// pronto (ver getAttentionItems/useNotifications) — a Topbar só navega,
+// sem saber o que é cada tipo de notificação. Um tipo novo (ex: ficha de
+// contato, item de estoque) só precisa montar seu próprio `to` na origem;
+// se apontar para um ativo usa state.openUid (mesmo mecanismo do
+// CommandPalette, lido em AtivosPage/ContatosPage), se for algo agrupado
+// usa state.filters (lido em AtivosPage) ou nenhum state.
 function NotificationsButton() {
-  const navigate = useNavigate()
+  const navigateTo = useNavigateTo()
   const items = useNotifications()
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
@@ -120,7 +125,7 @@ function NotificationsButton() {
                   className={styles.notifItem}
                   onClick={() => {
                     close()
-                    navigate(ROUTES.ativos)
+                    if (item.to) navigateTo(item.to)
                   }}
                 >
                   <div className={styles.notifMain}>
@@ -196,6 +201,7 @@ export default function Topbar() {
             </button>
             <SyncIndicator />
             <NotificationsButton />
+            <div className={styles.navDivider} />
             <div className={styles.userChip}>
               <div className={styles.avatar}>{initials(displayName)}</div>
               <span>{displayName}</span>

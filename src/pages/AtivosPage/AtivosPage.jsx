@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useAssetMutations } from '../../hooks/data/useAssetMutations'
+import { useContatos } from '../../hooks/data/useContatos'
 import { useAtivosData } from './useAtivosData'
 import { useToast } from '../../hooks/useToast'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
@@ -55,6 +56,7 @@ function clampDeptUsuario(assets, unidade, categoria, dept, usuario) {
 
 export default function AtivosPage() {
   const { data: assets, isLoading, isError, refetch } = useAssets()
+  const { data: contatos } = useContatos()
   const assetMutations = useAssetMutations()
   const { showToast } = useToast()
   const location = useLocation()
@@ -62,6 +64,7 @@ export default function AtivosPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
 
   const list = assets ?? []
+  const contatosList = contatos ?? []
   const data = useAtivosData(list, filters)
   const panel = useCrudPanelState({
     list,
@@ -81,6 +84,24 @@ export default function AtivosPage() {
   if (requestedUid && requestedUid !== handledUid && list.some((a) => a.uid === requestedUid)) {
     setHandledUid(requestedUid)
     panel.openView(requestedUid)
+  }
+
+  // Aplica um recorte de filtros ao chegar via sino de notificações ou via
+  // os cards do Dashboard (location.state.filters). Dedup por
+  // `location.key` (único por navegação, mesmo pra cliques repetidos no
+  // mesmo item) em vez do objeto `filters` em si — esse objeto vem de um
+  // useMemo (useNotifications/useDashboardData) e mantém a mesma
+  // referência entre renders, então comparar por referência deixava de
+  // reaplicar num segundo clique na mesma notificação. Reseta pros
+  // DEFAULT_FILTERS antes de aplicar o recorte novo: como a Topbar nunca
+  // desmonta entre rotas, ficar só sobrepondo (`{...f, ...requestedFilters}`)
+  // deixava filtros antigos (dept/usuario/status/...) ativos por baixo,
+  // estreitando o resultado silenciosamente.
+  const requestedFilters = location.state?.filters
+  const [handledFiltersKey, setHandledFiltersKey] = useState(null)
+  if (requestedFilters && location.key !== handledFiltersKey) {
+    setHandledFiltersKey(location.key)
+    setFilters({ ...DEFAULT_FILTERS, ...requestedFilters })
   }
 
   function updateFilters(patch) {
@@ -234,6 +255,7 @@ export default function AtivosPage() {
         open={panel.formItem !== undefined}
         asset={panel.formItem}
         assets={list}
+        contatos={contatosList}
         defaultUnidade={
           filters.unidade !== 'Todas' && filters.unidade !== MADVILLE_GROUP ? filters.unidade : ''
         }
