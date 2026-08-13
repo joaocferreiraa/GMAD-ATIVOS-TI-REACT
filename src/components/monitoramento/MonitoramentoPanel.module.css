@@ -1,0 +1,81 @@
+/* Núcleo comum às fichas de visualização vem de src/styles/viewPanel.module.css
+   — mesmo padrão de StockPanel.module.css/ContatoPanel.module.css. Usado por
+   MonitorViewModal. */
+
+.viewHeaderRow {
+  composes: viewHeaderRowBase from '../../styles/viewPanel.module.css';
+  padding-right: 40px;
+}
+
+.viewHeadTitle {
+  composes: viewHeadTitle from '../../styles/viewPanel.module.css';
+}
+
+.viewHeadSub {
+  composes: viewHeadSub from '../../styles/viewPanel.module.css';
+}
+
+.viewHeadBadge {
+  composes: viewHeadBadge from '../../styles/viewPanel.module.css';
+}
+
+.viewHeadMeta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.viewSection {
+  composes: viewSection from '../../styles/viewPanel.module.css';
+}
+
+.viewSectionTitle {
+  composes: viewSectionTitle from '../../styles/viewPanel.module.css';
+}
+
+.viewRows {
+  composes: viewRows from '../../styles/viewPanel.module.css';
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.selectorsRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eventsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.eventRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.eventRow:last-child {
+  border-bottom: none;
+}
+
+.eventTime {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+}
+
+.eventMsg {
+  color: var(--text);
+}

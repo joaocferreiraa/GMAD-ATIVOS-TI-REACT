@@ -444,6 +444,17 @@ export function ServerIcon(props) {
   )
 }
 
+// Ícone da aba "Monitoramento de Rede" — pulso/atividade (distinto de
+// ServerIcon/WifiIcon, já usados em Infraestrutura/Relatórios), pra
+// representar monitoramento contínuo em vez de hardware ou sinal em si.
+export function NetworkMonitorIcon(props) {
+  return (
+    <IconBase {...props}>
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </IconBase>
+  )
+}
+
 export function PlusIcon(props) {
   return (
     <IconBase {...props}>

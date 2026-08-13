@@ -1,0 +1,15 @@
+{
+  "name": "gmad-network-monitor-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agente local de monitoramento de rede do Painel de TI GMAD — roda dentro da rede da GMAD (perto dos servidores/IPs privados) e grava medições reais (ping) no Supabase, pra alimentar a aba Monitoramento de Rede do painel.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "dotenv": "^16.4.5"
+  }
+}

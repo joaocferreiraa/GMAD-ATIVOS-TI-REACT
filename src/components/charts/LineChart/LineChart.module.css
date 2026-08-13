@@ -1,0 +1,21 @@
+.tooltip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 7px 10px;
+  font-size: 12.5px;
+}
+
+.tooltipTime {
+  color: var(--text-muted);
+}
+
+.tooltipValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text);
+}

@@ -1,0 +1,35 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.item:hover {
+  background: var(--surface-hover);
+}
+
+.item.active {
+  border-color: var(--brand);
+  background: var(--verde-100);
+}
+
+.nome {
+  font-size: 12.5px;
+  color: var(--text);
+  font-weight: 500;
+}

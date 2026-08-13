@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Credenciais do agente de monitoramento de rede (agent/) — nunca commitar,
+# só agent/.env.example (sem valores reais) vai pro git.
+agent/.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

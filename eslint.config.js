@@ -5,7 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import eslintConfigPrettier from 'eslint-config-prettier'
 
 export default [
-  { ignores: ['dist'] },
+  // agent/ é um projeto Node separado (package.json/node_modules próprios,
+  // rodado fora do build da Vercel) — não faz parte deste lint.
+  { ignores: ['dist', 'agent'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -26,6 +28,14 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    },
+  },
+  // api/ roda como Vercel Serverless Function (Node.js), não no navegador —
+  // precisa dos globals de Node (Buffer, process...) em vez dos de browser.
+  {
+    files: ['api/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   eslintConfigPrettier,

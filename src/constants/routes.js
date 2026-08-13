@@ -8,6 +8,7 @@ export const ROUTES = {
   instaladores: '/instaladores',
   scripts: '/scripts',
   infraestrutura: '/infraestrutura',
+  monitoramento: '/monitoramento-rede',
   atividade: '/atividade',
   relatorios: '/relatorios',
 }

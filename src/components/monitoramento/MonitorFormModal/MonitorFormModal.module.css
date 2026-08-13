@@ -1,0 +1,18 @@
+.sectionDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0 14px;
+}
+
+.sectionLabel {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.fieldHint {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-faint);
+}
