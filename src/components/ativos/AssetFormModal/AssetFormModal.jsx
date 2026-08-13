@@ -9,9 +9,17 @@ import { FormGrid } from '../../ui/FormField/FormField'
 import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
 import AssetSpecFields from '../AssetSpecFields/AssetSpecFields'
+import VendaTipoField from '../../ui/VendaTipoField/VendaTipoField'
 import { CATEGORIES } from '../../../constants/categories'
 import { FIELD_GROUPS, ID_PREFIX } from '../../../constants/fieldGroups'
-import { getDepartamentos, getUnidades } from '../../../utils/units'
+import { getUnidades } from '../../../utils/units'
+import {
+  getDepartamentoOptions,
+  DEPARTAMENTO_VENDAS,
+  NOVO_ITEM,
+  resolveNovoValue,
+} from '../../../utils/departamentos'
+import { getResponsavelOptions } from '../../../utils/assetsFilter'
 import { unitDisplayName } from '../../../utils/formatters'
 import { nextIdFor } from '../../../utils/id'
 import { useToast } from '../../../hooks/useToast'
@@ -20,7 +28,6 @@ import modalStyles from '../../ui/Modal/Modal.module.css'
 import formFieldStyles from '../../ui/FormField/FormField.module.css'
 
 const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c, label: c }))
-const NOVO_DEPARTAMENTO = '__novo__'
 
 // Todas as chaves de spec técnico usadas por alguma categoria — usada pra
 // limpar campos da categoria anterior que não pertencem à nova categoria ao
@@ -40,12 +47,25 @@ const assetSchema = z
     unidade: z.string().trim().min(1, 'Selecione a unidade.'),
     departamento: z.string(),
     departamentoNovo: z.string(),
+    vendaTipo: z.string(),
+    usuario: z.string(),
+    usuarioNovo: z.string(),
   })
   .loose()
-  .refine((data) => data.departamento !== NOVO_DEPARTAMENTO || data.departamentoNovo.trim(), {
+  .refine((data) => data.departamento !== NOVO_ITEM || data.departamentoNovo.trim(), {
     message: 'Informe o novo departamento.',
     path: ['departamentoNovo'],
   })
+  .refine((data) => data.usuario !== NOVO_ITEM || data.usuarioNovo.trim(), {
+    message: 'Informe o nome do usuário.',
+    path: ['usuarioNovo'],
+  })
+  .refine(
+    (data) =>
+      resolveNovoValue(data.departamento, data.departamentoNovo) !== DEPARTAMENTO_VENDAS ||
+      data.vendaTipo.trim(),
+    { message: 'Selecione o tipo de vendedor.', path: ['vendaTipo'] },
+  )
 
 function buildSpecDefaults(categoria, asset) {
   const groups = FIELD_GROUPS[categoria] || []
@@ -61,7 +81,9 @@ function buildDefaultValues(asset, defaultUnidade) {
     unidade: asset?.unidade || defaultUnidade || '',
     departamento: asset?.departamento || '',
     departamentoNovo: '',
+    vendaTipo: asset?.vendaTipo || '',
     usuario: asset?.usuario || '',
+    usuarioNovo: '',
     posse: asset?.posse === 'Alugado' || asset?.posse === 'Comprado' ? asset.posse : '',
     dataAquisicao: asset?.dataAquisicao || '',
     garantiaAte: asset?.garantiaAte || '',
@@ -79,6 +101,7 @@ export default function AssetFormModal({
   open,
   asset,
   assets,
+  contatos,
   defaultUnidade,
   onClose,
   onSave,
@@ -109,16 +132,26 @@ export default function AssetFormModal({
 
   const categoria = watch('categoria')
   const departamento = watch('departamento')
+  const departamentoNovo = watch('departamentoNovo')
+  const usuario = watch('usuario')
   const posse = watch('posse')
   const specGroups = FIELD_GROUPS[categoria] || []
   const isImpressora = categoria === 'Impressora'
   const isAlugada = isImpressora && posse === 'Alugado'
+  // Nome efetivo do departamento pra decidir se mostra "Tipo de vendedor"
+  // durante a digitação — quando "+ Novo departamento..." está selecionado,
+  // `departamento` é só o sentinel NOVO_ITEM, então o nome de verdade vem
+  // de `departamentoNovo` (mesma resolução do onSubmit, ver resolveNovoValue).
+  const departamentoEfetivo = resolveNovoValue(departamento, departamentoNovo)
 
   const unidadeOptions = getUnidades(assets)
   if (asset?.unidade && !unidadeOptions.includes(asset.unidade)) unidadeOptions.push(asset.unidade)
-  const departamentoOptions = getDepartamentos(assets)
+  const departamentoOptions = getDepartamentoOptions(assets, contatos)
   if (asset?.departamento && !departamentoOptions.includes(asset.departamento))
     departamentoOptions.push(asset.departamento)
+  const responsavelOptions = getResponsavelOptions(assets, contatos)
+  if (asset?.usuario && !responsavelOptions.includes(asset.usuario))
+    responsavelOptions.push(asset.usuario)
 
   function handleCategoriaChange(newCategoria, onChange) {
     onChange(newCategoria)
@@ -158,10 +191,9 @@ export default function AssetFormModal({
   function onSubmit(values) {
     const id = values.id
     const unidade = values.unidade
-    const departamentoFinal =
-      values.departamento === NOVO_DEPARTAMENTO
-        ? values.departamentoNovo.trim()
-        : values.departamento.trim()
+    const departamentoFinal = resolveNovoValue(values.departamento, values.departamentoNovo)
+    const vendaTipoFinal = departamentoFinal === DEPARTAMENTO_VENDAS ? values.vendaTipo.trim() : ''
+    const usuarioFinal = resolveNovoValue(values.usuario, values.usuarioNovo)
     const spec = Object.fromEntries(
       Object.entries(values.spec || {}).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]),
     )
@@ -175,7 +207,8 @@ export default function AssetFormModal({
       id,
       unidade,
       departamento: departamentoFinal,
-      usuario: values.usuario.trim(),
+      vendaTipo: vendaTipoFinal,
+      usuario: usuarioFinal,
       etiqueta: values.etiqueta,
       dataAquisicao: values.dataAquisicao,
       garantiaAte: values.garantiaAte,
@@ -334,12 +367,12 @@ export default function AssetFormModal({
                       options={[
                         { value: '', label: 'Selecione o departamento' },
                         ...departamentoOptions.map((d) => ({ value: d, label: d })),
-                        { value: NOVO_DEPARTAMENTO, label: '+ Novo departamento...' },
+                        { value: NOVO_ITEM, label: '+ Novo departamento...' },
                       ]}
                     />
                   )}
                 />
-                {departamento === NOVO_DEPARTAMENTO && (
+                {departamento === NOVO_ITEM && (
                   <>
                     <Input
                       placeholder="Digite o novo departamento"
@@ -354,6 +387,13 @@ export default function AssetFormModal({
                   </>
                 )}
               </FormField>
+              {departamentoEfetivo === DEPARTAMENTO_VENDAS && (
+                <VendaTipoField
+                  control={control}
+                  id="f_vendaTipo"
+                  error={errors.vendaTipo?.message}
+                />
+              )}
             </FormGrid>
           </div>
 
@@ -361,7 +401,36 @@ export default function AssetFormModal({
             <div className={panelStyles.viewSectionTitle}>Responsável</div>
             <FormGrid>
               <FormField label="Usuário" full htmlFor="f_usuario">
-                <Input id="f_usuario" {...register('usuario')} />
+                <Controller
+                  control={control}
+                  name="usuario"
+                  render={({ field }) => (
+                    <Select
+                      id="f_usuario"
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={[
+                        { value: '', label: 'Selecione o usuário' },
+                        ...responsavelOptions.map((nome) => ({ value: nome, label: nome })),
+                        { value: NOVO_ITEM, label: '+ Novo usuário...' },
+                      ]}
+                    />
+                  )}
+                />
+                {usuario === NOVO_ITEM && (
+                  <>
+                    <Input
+                      placeholder="Digite o nome do usuário"
+                      style={{ marginTop: 8 }}
+                      {...register('usuarioNovo')}
+                    />
+                    {errors.usuarioNovo && (
+                      <span className={formFieldStyles.errorMessage} role="alert">
+                        {errors.usuarioNovo.message}
+                      </span>
+                    )}
+                  </>
+                )}
               </FormField>
             </FormGrid>
           </div>

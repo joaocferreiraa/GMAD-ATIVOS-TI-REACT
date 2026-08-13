@@ -8,6 +8,7 @@ const CSV_COLUMNS = [
   'categoria',
   'unidade',
   'departamento',
+  'vendaTipo',
   'usuario',
   'ad',
   'modelo',

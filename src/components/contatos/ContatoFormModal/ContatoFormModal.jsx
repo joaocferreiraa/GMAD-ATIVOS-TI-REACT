@@ -8,14 +8,18 @@ import FormField from '../../ui/FormField/FormField'
 import { FormGrid } from '../../ui/FormField/FormField'
 import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
+import VendaTipoField from '../../ui/VendaTipoField/VendaTipoField'
 import { getUnidades } from '../../../utils/units'
-import { getContatoDepartamentos } from '../../../utils/contatosFilter'
+import {
+  getDepartamentoOptions,
+  DEPARTAMENTO_VENDAS,
+  NOVO_ITEM,
+  resolveNovoValue,
+} from '../../../utils/departamentos'
 import { unitDisplayName } from '../../../utils/formatters'
 import { useToast } from '../../../hooks/useToast'
 import modalStyles from '../../ui/Modal/Modal.module.css'
 import formFieldStyles from '../../ui/FormField/FormField.module.css'
-
-const NOVO_DEPARTAMENTO = '__novo__'
 
 const contatoSchema = z
   .object({
@@ -23,12 +27,19 @@ const contatoSchema = z
     unidade: z.string().min(1, 'Selecione a unidade.'),
     departamento: z.string().min(1, 'Selecione o departamento.'),
     departamentoNovo: z.string(),
+    vendaTipo: z.string(),
   })
   .loose()
-  .refine((data) => data.departamento !== NOVO_DEPARTAMENTO || data.departamentoNovo.trim(), {
+  .refine((data) => data.departamento !== NOVO_ITEM || data.departamentoNovo.trim(), {
     message: 'Informe o novo departamento.',
     path: ['departamentoNovo'],
   })
+  .refine(
+    (data) =>
+      resolveNovoValue(data.departamento, data.departamentoNovo) !== DEPARTAMENTO_VENDAS ||
+      data.vendaTipo.trim(),
+    { message: 'Selecione o tipo de vendedor.', path: ['vendaTipo'] },
+  )
 
 function buildDefaultValues(contato) {
   return {
@@ -36,6 +47,7 @@ function buildDefaultValues(contato) {
     unidade: contato?.unidade || '',
     departamento: contato?.departamento || '',
     departamentoNovo: '',
+    vendaTipo: contato?.vendaTipo || '',
     celular: contato?.celular || '',
     telefone: contato?.telefone || '',
     ramal: contato?.ramal || '',
@@ -45,9 +57,10 @@ function buildDefaultValues(contato) {
 }
 
 // Formulário de cadastro/edição de colaborador (openContatoModal() do
-// sistema original). `contato` null = novo colaborador. A Unidade vem do
-// cadastro de Ativos (getUnidades(assets)), igual ao original; Departamento
-// vem só dos próprios colaboradores.
+// sistema original). `contato` null = novo colaborador. Unidade vem do
+// cadastro de Ativos (getUnidades); Departamento vem de getDepartamentoOptions
+// (união de Ativos + Contatos + extras), pra um departamento criado num
+// módulo aparecer como opção no outro também.
 export default function ContatoFormModal({
   open,
   contato,
@@ -79,24 +92,29 @@ export default function ContatoFormModal({
   }, [open, contato])
 
   const departamento = watch('departamento')
+  const departamentoNovo = watch('departamentoNovo')
+  // Nome efetivo do departamento pra decidir se mostra "Tipo de vendedor"
+  // durante a digitação — quando "+ Novo departamento..." está selecionado,
+  // `departamento` é só o sentinel NOVO_ITEM, então o nome de verdade vem
+  // de `departamentoNovo` (mesma resolução do onSubmit, ver resolveNovoValue).
+  const departamentoEfetivo = resolveNovoValue(departamento, departamentoNovo)
 
   const unidadeOptions = getUnidades(assets)
   if (contato?.unidade && !unidadeOptions.includes(contato.unidade))
     unidadeOptions.push(contato.unidade)
-  const departamentoOptions = getContatoDepartamentos(contatos)
+  const departamentoOptions = getDepartamentoOptions(assets, contatos)
   if (contato?.departamento && !departamentoOptions.includes(contato.departamento))
     departamentoOptions.push(contato.departamento)
 
   function onSubmit(values) {
-    const departamentoFinal =
-      values.departamento === NOVO_DEPARTAMENTO
-        ? values.departamentoNovo.trim()
-        : values.departamento.trim()
+    const departamentoFinal = resolveNovoValue(values.departamento, values.departamentoNovo)
+    const vendaTipoFinal = departamentoFinal === DEPARTAMENTO_VENDAS ? values.vendaTipo.trim() : ''
 
     const record = {
       nome: values.nome,
       unidade: values.unidade,
       departamento: departamentoFinal,
+      vendaTipo: vendaTipoFinal,
       isGestor: values.isGestor,
       celular: values.celular.trim(),
       telefone: values.telefone.trim(),
@@ -187,12 +205,12 @@ export default function ContatoFormModal({
                 options={[
                   { value: '', label: 'Selecione o departamento' },
                   ...departamentoOptions.map((d) => ({ value: d, label: d })),
-                  { value: NOVO_DEPARTAMENTO, label: '+ Novo departamento...' },
+                  { value: NOVO_ITEM, label: '+ Novo departamento...' },
                 ]}
               />
             )}
           />
-          {departamento === NOVO_DEPARTAMENTO && (
+          {departamento === NOVO_ITEM && (
             <>
               <Input
                 placeholder="Digite o novo departamento"
@@ -207,6 +225,9 @@ export default function ContatoFormModal({
             </>
           )}
         </FormField>
+        {departamentoEfetivo === DEPARTAMENTO_VENDAS && (
+          <VendaTipoField control={control} id="c_vendaTipo" error={errors.vendaTipo?.message} />
+        )}
         <FormField label="Celular corporativo" htmlFor="c_celular">
           <Input id="c_celular" placeholder="Ex: Samsung Galaxy A55" {...register('celular')} />
         </FormField>

@@ -1,6 +1,6 @@
 import { matchesUnitValue } from './units'
 import { assetWarrantyInfo } from './formatters'
-import { createSearchMatcher } from './textFilter'
+import { createSearchMatcher, dedupeCaseInsensitive } from './textFilter'
 
 // Lista de ativos filtrada e ordenada pela barra de filtros da tela de
 // Ativos (equivalente a filteredAssets() no sistema original). `filters`:
@@ -35,6 +35,7 @@ export function filterAssets(assets, filters) {
         a.imei1,
         a.imei2,
         a.departamento,
+        a.vendaTipo,
         a.pcVinculado,
         a.codModelo,
       ]),
@@ -66,4 +67,15 @@ export function filterAssets(assets, filters) {
 export function getUsuarios(scoped) {
   const set = new Set(scoped.map((a) => a.usuario).filter(Boolean))
   return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+
+// Opções pro campo "Usuário" do formulário de ativo (dropdown com "+ Novo
+// usuário...", mesmo padrão do campo Departamento): nomes já usados em
+// Ativos, mais os colaboradores cadastrados em Contatos.
+export function getResponsavelOptions(assets, contatos) {
+  const values = dedupeCaseInsensitive([
+    ...assets.map((a) => a.usuario),
+    ...contatos.map((c) => c.nome),
+  ])
+  return values.sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }
