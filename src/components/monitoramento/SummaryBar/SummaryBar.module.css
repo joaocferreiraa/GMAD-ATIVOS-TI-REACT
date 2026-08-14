@@ -17,16 +17,18 @@
   min-width: 96px;
 }
 
+/* Mesmo tamanho/peso do número de destaque do KpiStrip (Dashboard) — mesmo
+   papel (KPI de página), só num layout de faixa em vez de cards. */
 .value {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
   color: var(--text);
   line-height: 1.1;
 }
 
 .label {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text-muted);
 }
 

@@ -28,8 +28,11 @@
   background: var(--verde-100);
 }
 
+/* Mesmo tamanho/peso das pastilhas de LiveChartCard.module.css (mesmo papel:
+   alternar/filtrar entre itens relacionados), que por sua vez seguem o
+   padrão de .netTab em Infraestrutura. */
 .nome {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }

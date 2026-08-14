@@ -53,7 +53,7 @@ export default function RealtimeChart({
         <LineChart
           data={data}
           unidade={metricInfo.unidade}
-          emptyMessage="Nenhuma medição registrada neste período ainda — o histórico aparece aqui assim que o ponto for verificado (pelo agente local ou por um teste manual)."
+          emptyMessage="Nenhuma medição neste período ainda — aparece aqui assim que o ponto for verificado."
         />
       )}
     </div>

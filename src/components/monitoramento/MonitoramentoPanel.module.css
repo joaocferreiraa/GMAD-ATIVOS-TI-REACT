@@ -70,9 +70,13 @@
   border-bottom: none;
 }
 
+/* Mesmo tamanho do horário em ActivityList.module.css (feed de eventos
+   equivalente na aba Atividade) — menor que o texto do evento, não do
+   mesmo tamanho herdado de .eventRow. */
 .eventTime {
   flex-shrink: 0;
   font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--text-faint);
 }
 

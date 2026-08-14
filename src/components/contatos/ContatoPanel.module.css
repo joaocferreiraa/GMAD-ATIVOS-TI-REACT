@@ -23,6 +23,10 @@
   composes: viewSection from '../../styles/viewPanel.module.css';
 }
 
+.viewSectionTitle {
+  composes: viewSectionTitle from '../../styles/viewPanel.module.css';
+}
+
 .viewRows {
   composes: viewRows from '../../styles/viewPanel.module.css';
 }

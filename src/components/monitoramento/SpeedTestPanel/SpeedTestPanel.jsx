@@ -68,8 +68,7 @@ export default function SpeedTestPanel({ unidade }) {
         <div>
           <h3 className={styles.title}>Teste de velocidade</h3>
           <p className={styles.subtitle}>
-            Mede a conexão deste navegador agora, contra a borda da Vercel (não um servidor de
-            terceiros como um speedtest público) — download, upload, latência, jitter e packet loss
+            Mede a conexão deste navegador agora: download, upload, latência, jitter e packet loss
             reais.
           </p>
         </div>

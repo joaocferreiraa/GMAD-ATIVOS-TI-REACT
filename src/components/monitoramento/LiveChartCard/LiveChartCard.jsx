@@ -36,23 +36,34 @@ export default function LiveChartCard({ monitors }) {
     <div>
       {monitors.length > 1 && (
         <div className={styles.pillRow}>
-          {monitors.map((m) => (
-            <button
-              key={m.uid}
-              type="button"
-              className={`${styles.pill} ${m.uid === selected.uid ? styles.pillActive : ''}`}
-              onClick={() => setSelectedUid(m.uid)}
-            >
-              {m.nome}
-              <Badge variant={statusBadgeVariant(m.statusInfo?.status)}>
-                {STATUS_LABEL[m.statusInfo?.status ?? 'sem-dados']}
-              </Badge>
-            </button>
-          ))}
+          {monitors.map((m) => {
+            const status = m.statusInfo?.status ?? 'sem-dados'
+            return (
+              <button
+                key={m.uid}
+                type="button"
+                className={`${styles.pill} ${m.uid === selected.uid ? styles.pillActive : ''}`}
+                onClick={() => setSelectedUid(m.uid)}
+              >
+                {m.nome}
+                {/* "Sem dados" em toda pastilha (o normal antes da primeira
+                    medição) só repete o badge do topo da página sem
+                    acrescentar nada — só aparece quando há algo de fato pra
+                    dizer sobre o ponto. */}
+                {status !== 'sem-dados' && (
+                  <Badge variant={statusBadgeVariant(status)}>{STATUS_LABEL[status]}</Badge>
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
       <RealtimeChart
-        title={selected.nome}
+        // O nome do ponto já aparece na pastilha selecionada acima — repetir
+        // como título do gráfico logo abaixo é redundante. Com um único
+        // ponto (sem pastilhas, ver `monitors.length > 1`), aí sim o título
+        // é a única indicação de qual ponto é, então continua aparecendo.
+        title={monitors.length > 1 ? undefined : selected.nome}
         measurements={measurements}
         metric={metric}
         onMetricChange={setMetric}

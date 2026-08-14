@@ -5,6 +5,10 @@
   margin-bottom: 16px;
 }
 
+/* Mesmo tamanho/peso das pastilhas de rede em Infraestrutura (.netTab em
+   InfraAccordion.module.css) — mesmo papel (alternar entre itens
+   relacionados). Peso 600 fixo em vez de só na ativa: só a cor/fundo marcam
+   qual está selecionada, texto não "pisca" mais fino/mais grosso ao trocar. */
 .pill {
   display: flex;
   align-items: center;
@@ -14,7 +18,8 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   cursor: pointer;
-  font-size: 12.5px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
   transition:
     border-color 0.15s ease,
@@ -30,5 +35,4 @@
   border-color: var(--brand);
   background: var(--verde-100);
   color: var(--text);
-  font-weight: 600;
 }

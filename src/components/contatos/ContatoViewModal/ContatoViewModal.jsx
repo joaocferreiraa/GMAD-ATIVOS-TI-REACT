@@ -59,6 +59,7 @@ export default function ContatoViewModal({ open, contato, contatos, assets, onCl
       </div>
 
       <div className={panelStyles.viewSection}>
+        <div className={panelStyles.viewSectionTitle}>Informações do colaborador</div>
         <div className={panelStyles.viewRows}>
           <ViewRow label="Unidade" value={unitDisplayName(contato.unidade)} />
           <ViewRow label="Departamento" value={contato.departamento} />

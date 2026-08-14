@@ -118,10 +118,7 @@ export default function MonitoramentoRedePage() {
             ]}
           />
 
-          <Card
-            title="Monitoramento em tempo real"
-            subtitle="Métricas dos pontos monitorados, coletadas automaticamente pelo agente — atualiza sozinho conforme chegam novas medições, sem precisar recarregar a página."
-          >
+          <Card title="Monitoramento em tempo real" subtitle="Atualiza sozinho conforme chegam novas medições do agente.">
             <LiveChartCard monitors={data.allMonitors} />
           </Card>
 

@@ -20,7 +20,12 @@ export default function UnitStatusList({ units, selected, onSelect }) {
           onClick={() => onSelect(selected === u.unidade ? 'Todas' : u.unidade)}
         >
           <span className={styles.nome}>{unitDisplayName(u.unidade)}</span>
-          <Badge variant={statusBadgeVariant(u.status)}>{STATUS_LABEL[u.status]}</Badge>
+          {/* "Sem dados" em todo chip antes da primeira medição só repete o
+              indicador do topo da página — só mostra quando há algo de fato
+              pra dizer sobre a unidade. */}
+          {u.status !== 'sem-dados' && (
+            <Badge variant={statusBadgeVariant(u.status)}>{STATUS_LABEL[u.status]}</Badge>
+          )}
         </button>
       ))}
     </div>
