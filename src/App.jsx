@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthProvider'
 import { ThemeProvider } from './contexts/ThemeProvider'
 import { ToastProvider } from './contexts/ToastProvider'
+import { HoverTooltipProvider } from './contexts/HoverTooltipProvider'
 import ToastContainer from './components/ui/Toast/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { router } from './router/routes'
@@ -29,12 +30,14 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <ToastProvider>
-            <AuthProvider>
-              <RouterProvider router={router} />
-            </AuthProvider>
-            <ToastContainer />
-          </ToastProvider>
+          <HoverTooltipProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <RouterProvider router={router} />
+              </AuthProvider>
+              <ToastContainer />
+            </ToastProvider>
+          </HoverTooltipProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>

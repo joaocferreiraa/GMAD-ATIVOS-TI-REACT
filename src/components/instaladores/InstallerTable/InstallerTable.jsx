@@ -4,12 +4,14 @@ import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
 import { DownloadIcon } from '../../ui/Icon/icons'
 import { isHttpUrl } from '../../../utils/urlValidation'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { COLUMNS } from './columns'
 
 // Tabela de Instaladores (#installerTable do sistema original): clique na
 // linha abre o drawer de detalhes, botões de ação baixam/editam/excluem
 // diretamente.
 export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
+  const bindTooltip = useHoverTooltip()
   const columns = [
     ...COLUMNS,
     {
@@ -23,9 +25,9 @@ export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
               target="_blank"
               rel="noopener noreferrer"
               className={`${buttonStyles.btn} ${buttonStyles.ghost} ${buttonStyles.sm}`}
-              title="Baixar"
               aria-label="Baixar"
               onClick={(e) => e.stopPropagation()}
+              {...bindTooltip('Baixar')}
             >
               <DownloadIcon />
             </a>

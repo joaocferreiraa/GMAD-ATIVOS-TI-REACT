@@ -6,6 +6,7 @@ import { useContatos } from '../../hooks/data/useContatos'
 import { useAtivosData } from './useAtivosData'
 import { useToast } from '../../hooks/useToast'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
+import { useHoverTooltip } from '../../hooks/overlay/useHoverTooltip'
 import { exportAssetsCsv } from '../../services/ativos/assetsService'
 import { MADVILLE_GROUP, getDepartamentos, matchesUnitValue } from '../../utils/units'
 import { getUsuarios } from '../../utils/assetsFilter'
@@ -60,6 +61,7 @@ export default function AtivosPage() {
   const assetMutations = useAssetMutations()
   const { showToast } = useToast()
   const location = useLocation()
+  const bindTooltip = useHoverTooltip()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
 
@@ -156,7 +158,7 @@ export default function AtivosPage() {
           <p>Gerencie, filtre e edite os equipamentos de TI da empresa.</p>
         </div>
         <div className={styles.actionsRow}>
-          <Button size="sm" title="Buscar atualizações da equipe" onClick={handleRefresh}>
+          <Button size="sm" onClick={handleRefresh} {...bindTooltip('Buscar atualizações da equipe')}>
             <RefreshIcon /> Atualizar
           </Button>
           <Button size="sm" onClick={handleExport}>

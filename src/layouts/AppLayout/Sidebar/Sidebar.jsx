@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { nameFromEmail } from '../../../utils/formatters'
 import logo from '../../../assets/images/gmad-logo.png'
 import { NAV_ITEMS } from './navItems'
@@ -10,6 +11,7 @@ export default function Sidebar() {
   const { collapsed } = useSidebarState()
   const { user } = useAuth()
   const displayName = nameFromEmail(user?.email)
+  const bindTooltip = useHoverTooltip()
 
   return (
     <nav className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
@@ -30,19 +32,12 @@ export default function Sidebar() {
             to={to}
             end={end}
             className={({ isActive }) => `${styles.navButton} ${isActive ? styles.active : ''}`}
+            {...bindTooltip(label)}
           >
             <span className={styles.navIcon}>
               <Icon />
             </span>
             <span className={styles.label}>{label}</span>
-            {/* Tooltip próprio (não o title nativo do navegador — lento pra
-                aparecer e sem estilo) — mostra o nome completo tanto quando
-                o rótulo trunca (sidebar expandida, nomes longos como
-                "Monitoramento de Rede") quanto quando ela está recolhida
-                (só ícone). */}
-            <span className={styles.navTooltip} role="tooltip">
-              {label}
-            </span>
           </NavLink>
         ))}
       </div>

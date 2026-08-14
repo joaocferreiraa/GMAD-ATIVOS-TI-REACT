@@ -7,6 +7,7 @@ import { useNotifications } from '../../../hooks/useNotifications'
 import { useNavigateTo } from '../../../hooks/useNavigateTo'
 import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
 import { assetStatusVariant } from '../../../utils/statusBadge'
 import Badge from '../../../components/ui/Badge/Badge'
@@ -81,6 +82,7 @@ function NotificationsButton() {
   const items = useNotifications()
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
+  const bindTooltip = useHoverTooltip()
 
   function close() {
     setOpen(false)
@@ -95,10 +97,10 @@ function NotificationsButton() {
         type="button"
         className={styles.iconBtn}
         onClick={() => setOpen((current) => !current)}
-        title="Notificações"
         aria-label="Notificações"
         aria-haspopup="menu"
         aria-expanded={open}
+        {...bindTooltip('Notificações')}
       >
         <BellIcon width={16} height={16} />
         {items.length > 0 && (
@@ -150,6 +152,7 @@ export default function Topbar() {
   const { isDark, toggleTheme } = useTheme()
   const { collapsed, toggleSidebar } = useSidebarState()
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const bindTooltip = useHoverTooltip()
 
   const displayName = nameFromEmail(user?.email)
 
@@ -173,9 +176,9 @@ export default function Topbar() {
               type="button"
               className={styles.panelBtn}
               onClick={toggleSidebar}
-              title={collapsed ? 'Expandir menu' : 'Recolher menu'}
               aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
               aria-expanded={!collapsed}
+              {...bindTooltip(collapsed ? 'Expandir menu' : 'Recolher menu')}
             >
               <PanelIcon width={16} height={16} />
             </button>
@@ -185,8 +188,8 @@ export default function Topbar() {
               type="button"
               className={styles.iconBtn}
               onClick={toggleTheme}
-              title="Alternar tema"
               aria-label="Alternar tema"
+              {...bindTooltip('Alternar tema')}
             >
               {isDark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
             </button>
@@ -194,7 +197,7 @@ export default function Topbar() {
               type="button"
               className={styles.search}
               onClick={() => setPaletteOpen(true)}
-              title="Buscar (Ctrl+K)"
+              {...bindTooltip('Buscar (Ctrl+K)')}
             >
               <SearchIcon width={14} height={14} />
               <span className={styles.searchPlaceholder}>Buscar</span>
@@ -210,8 +213,8 @@ export default function Topbar() {
               type="button"
               className={styles.iconBtn}
               onClick={() => signOut()}
-              title="Sair"
               aria-label="Sair"
+              {...bindTooltip('Sair')}
             >
               <LogoutIcon width={16} height={16} />
             </button>

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
+import { useHoverTooltip } from '../../hooks/overlay/useHoverTooltip'
 import { ROUTES } from '../../constants/routes'
 import { EyeIcon, EyeOffIcon, LoginIcon, SpinnerIcon } from '../../components/ui/Icon/icons'
 import loginBackground from '../../assets/images/login-background.jpg'
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [authError, setAuthError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const bindTooltip = useHoverTooltip()
   // Estado próprio (não formState.isSubmitting do react-hook-form): esse
   // reverte assim que a função onSubmit termina, mesmo em caso de sucesso —
   // e a navegação pro painel só acontece depois, via useEffect reagindo a
@@ -146,8 +148,8 @@ export default function LoginPage() {
                 type="button"
                 className={styles.loginTogglePw}
                 onClick={() => setShowPassword((prev) => !prev)}
-                title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                {...bindTooltip(showPassword ? 'Ocultar senha' : 'Mostrar senha')}
               >
                 {showPassword ? <EyeOffIcon width={17} height={17} /> : <EyeIcon width={17} height={17} />}
               </button>

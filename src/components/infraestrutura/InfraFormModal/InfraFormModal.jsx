@@ -6,6 +6,7 @@ import FormField from '../../ui/FormField/FormField'
 import { FormGrid } from '../../ui/FormField/FormField'
 import Input from '../../ui/Input/Input'
 import { EyeIcon, EyeOffIcon } from '../../ui/Icon/icons'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import styles from './InfraFormModal.module.css'
 
 function buildDefaultValues(fields, values) {
@@ -20,6 +21,7 @@ export default function InfraFormModal({ open, title, subtitle, fields, values, 
   const { register, handleSubmit, reset } = useForm({
     defaultValues: buildDefaultValues(fields, values),
   })
+  const bindTooltip = useHoverTooltip()
 
   useEffect(() => {
     if (open) reset(buildDefaultValues(fields, values))
@@ -100,8 +102,8 @@ export default function InfraFormModal({ open, title, subtitle, fields, values, 
                   type="button"
                   className={styles.togglePw}
                   onClick={() => toggleVisible(f.key)}
-                  title={isVisible ? 'Ocultar' : 'Mostrar'}
                   aria-label={isVisible ? `Ocultar ${f.label}` : `Mostrar ${f.label}`}
+                  {...bindTooltip(isVisible ? 'Ocultar' : 'Mostrar')}
                 >
                   {isVisible ? (
                     <EyeOffIcon width={16} height={16} />

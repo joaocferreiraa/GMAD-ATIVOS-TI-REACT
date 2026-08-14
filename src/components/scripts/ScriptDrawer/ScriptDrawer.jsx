@@ -6,6 +6,7 @@ import TagChip from '../../ui/TagChip/TagChip'
 import CodeBlock from '../../ui/CodeBlock/CodeBlock'
 import { StarIcon, CopyIcon, EditIcon, TrashIcon } from '../../ui/Icon/icons'
 import { useToast } from '../../../hooks/useToast'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { fmtDate } from '../../../utils/formatters'
 import { scriptNew } from '../../../utils/scriptFilter'
 import panelStyles from '../ScriptPanel.module.css'
@@ -23,6 +24,7 @@ export default function ScriptDrawer({
   onToggleFavorite,
 }) {
   const { showToast } = useToast()
+  const bindTooltip = useHoverTooltip()
   if (!item) return null
 
   const isNew = scriptNew(item.dataCriacao)
@@ -43,8 +45,8 @@ export default function ScriptDrawer({
           <button
             type="button"
             className={`${panelStyles.favBtn} ${item.favorito ? panelStyles.active : ''}`}
-            title={item.favorito ? 'Remover dos favoritos' : 'Marcar como favorito'}
             onClick={() => onToggleFavorite(item.uid)}
+            {...bindTooltip(item.favorito ? 'Remover dos favoritos' : 'Marcar como favorito')}
           >
             <StarIcon />
           </button>

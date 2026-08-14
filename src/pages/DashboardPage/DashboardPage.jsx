@@ -56,11 +56,8 @@ export default function DashboardPage() {
           />
 
           <div className={styles.grid}>
-            <Card
-              title="Distribuição por categoria"
-              subtitle="Quantidade de ativos por tipo de equipamento"
-            >
-              <DonutChart {...dashboard.categoryChart} />
+            <Card title="Idade do parque" subtitle="Tempo desde a aquisição dos equipamentos">
+              <DonutChart {...dashboard.ageChart} />
             </Card>
             <Card
               attn
@@ -75,7 +72,7 @@ export default function DashboardPage() {
           <div className={styles.grid}>
             <Card
               title="Distribuição por unidade"
-              subtitle="Ativos cadastrados por unidade / local"
+              subtitle="Ativos cadastrados e valor investido por unidade / local"
             >
               <GroupSplit
                 madville={dashboard.groupSplit.madville}

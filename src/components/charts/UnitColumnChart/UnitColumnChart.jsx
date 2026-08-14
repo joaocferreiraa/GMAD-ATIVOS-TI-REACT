@@ -3,14 +3,14 @@ import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, LabelList, ResponsiveContai
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
 import styles from './UnitColumnChart.module.css'
 
-function ChartTooltip({ active, payload }) {
+function ChartTooltip({ active, payload, formatValue }) {
   if (!active || !payload?.length) return null
   const { label, value, color } = payload[0].payload
   return (
     <div className={styles.tooltip}>
       <span className={styles.tooltipDot} style={{ background: color }} />
       <span className={styles.tooltipLabel}>{label}</span>
-      <span className={styles.tooltipValue}>{value}</span>
+      <span className={styles.tooltipValue}>{formatValue(value)}</span>
     </div>
   )
 }
@@ -20,12 +20,16 @@ function ChartTooltip({ active, payload }) {
 // mouse ou clicar numa coluna (ou tocar, no mobile) fixa o foco, atualizando
 // o número em destaque no topo. `data`: [{label, value}]; `colors`: paleta
 // por índice (mesma ordem de `data`); `unitLabel`: sufixo do valor em
-// destaque (ex.: "ativos").
+// destaque (ex.: "ativos"); `formatValue`: como exibir cada valor (rótulo da
+// coluna, tooltip e destaque) sem afetar a altura real das barras, que
+// sempre usa o `value` numérico cru — default identidade, pra não mudar o
+// comportamento de quem já usa o componente sem passar essa prop.
 export default function UnitColumnChart({
   data,
   colors,
   unitLabel = 'total',
   emptyMessage = 'Sem dados suficientes.',
+  formatValue = (value) => value,
 }) {
   const [hoveredLabel, setHoveredLabel] = useState(null)
   const [pinnedLabel, setPinnedLabel] = useState(null)
@@ -52,7 +56,7 @@ export default function UnitColumnChart({
         {focus ? (
           <>
             <span className={styles.heroValue} style={{ color: focus.color }}>
-              {focus.value}
+              {formatValue(focus.value)}
             </span>
             <span className={styles.heroLabel}>
               {focus.label} · {Math.round((focus.value / total) * 100)}%
@@ -60,7 +64,7 @@ export default function UnitColumnChart({
           </>
         ) : (
           <>
-            <span className={styles.heroValue}>{total}</span>
+            <span className={styles.heroValue}>{formatValue(total)}</span>
             <span className={styles.heroLabel}>{unitLabel} no total</span>
           </>
         )}
@@ -77,7 +81,10 @@ export default function UnitColumnChart({
               tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
             />
             <YAxis hide domain={[0, (max) => Math.ceil(max * 1.2)]} />
-            <Tooltip cursor={{ fill: 'var(--surface-hover)' }} content={<ChartTooltip />} />
+            <Tooltip
+              cursor={{ fill: 'var(--surface-hover)' }}
+              content={<ChartTooltip formatValue={formatValue} />}
+            />
             <Bar
               dataKey="value"
               radius={[6, 6, 0, 0]}
@@ -98,6 +105,7 @@ export default function UnitColumnChart({
               <LabelList
                 dataKey="value"
                 position="top"
+                formatter={formatValue}
                 style={{
                   fill: 'var(--text)',
                   fontFamily: 'var(--font-mono)',

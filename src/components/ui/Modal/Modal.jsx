@@ -1,5 +1,6 @@
 import Overlay from './Overlay'
 import { CloseIcon } from '../Icon/icons'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import styles from './Modal.module.css'
 
 // Modal genérico centralizado (.modal do sistema original). Fecha ao clicar
@@ -15,6 +16,7 @@ export default function Modal({
   className = '',
   children,
 }) {
+  const bindTooltip = useHoverTooltip()
   return (
     <Overlay open={open} onClose={onClose}>
       <div
@@ -26,8 +28,8 @@ export default function Modal({
             type="button"
             className={styles.closeBtn}
             onClick={onClose}
-            title="Fechar"
             aria-label="Fechar"
+            {...bindTooltip('Fechar')}
           >
             <CloseIcon />
           </button>

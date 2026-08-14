@@ -6,15 +6,16 @@ import { buildAttentionList } from '../../utils/attention'
 import { BuildingIcon, DollarIcon, StockIcon } from '../../components/ui/Icon/icons'
 import { ROUTES } from '../../constants/routes'
 
-const DONUT_COLORS_CAT = [
+const DONUT_COLORS_STATUS = ['var(--ok)', 'var(--warn)', 'var(--danger)']
+const DONUT_COLORS_AGE = [
   'var(--verde-700)',
-  'var(--laranja)',
   'var(--verde-600)',
-  'var(--verde-800)',
+  'var(--laranja)',
   'var(--laranja-forte)',
   'var(--verde-900)',
+  'var(--text-faint)',
 ]
-const DONUT_COLORS_STATUS = ['var(--ok)', 'var(--warn)', 'var(--danger)']
+const AGE_BUCKETS = ['Até 1 ano', '1 a 2 anos', '2 a 3 anos', '3 a 5 anos', 'Mais de 5 anos', 'Sem data']
 const DONUT_COLORS_UNI = [
   'var(--verde-900)',
   'var(--laranja)',
@@ -46,6 +47,21 @@ function scopedByDashUnit(assets, dashUnidade) {
   return dashUnidade === 'Todas'
     ? assets
     : assets.filter((a) => matchesUnitValue(a.unidade, dashUnidade))
+}
+
+// Faixa de tempo desde a aquisição, pro gráfico "Idade do parque". Mesmo
+// parse de data usado em warrantyInfo() (formatters.js), pra tratar
+// "2024-03-15T00:00:00" de forma consistente com o resto do app.
+function ageBucket(dataAquisicao) {
+  if (!dataAquisicao) return 'Sem data'
+  const acquired = new Date(`${dataAquisicao}T00:00:00`)
+  if (Number.isNaN(acquired.getTime())) return 'Sem data'
+  const days = Math.floor((Date.now() - acquired.getTime()) / 86400000)
+  if (days < 365) return 'Até 1 ano'
+  if (days < 730) return '1 a 2 anos'
+  if (days < 1095) return '2 a 3 anos'
+  if (days < 1825) return '3 a 5 anos'
+  return 'Mais de 5 anos'
 }
 
 // Toda a lógica de agregação do Dashboard, separada da renderização.
@@ -171,24 +187,33 @@ export function useDashboardData(assets, dashUnidade) {
     // ---- Lista de atenção (até 8 itens) ----
     const attentionList = buildAttentionList(scoped)
 
-    // ---- Gráfico por categoria (respeita o filtro de unidade) ----
-    const categoryChart = {
-      data: CATEGORIES.map((c) => ({
-        label: CAT_LABEL_PLURAL[c],
-        value: scoped.filter((a) => a.categoria === c).length,
+    // ---- Gráfico por idade do parque (respeita o filtro de unidade) ----
+    // dataAquisicao nunca vira métrica em nenhum outro lugar do painel hoje
+    // — diferente da contagem por categoria, que já duplicava os tiles do
+    // KpiStrip logo acima.
+    const ageChart = {
+      data: AGE_BUCKETS.map((bucket) => ({
+        label: bucket,
+        value: scoped.filter((a) => ageBucket(a.dataAquisicao) === bucket).length,
       })),
-      colors: DONUT_COLORS_CAT,
+      colors: DONUT_COLORS_AGE,
       unitLabel: 'ativos',
     }
 
     // ---- Gráfico por unidade (sempre todas as unidades, sem o filtro) ----
+    // Valor investido em vez de contagem: a contagem por unidade já aparece
+    // nos cabeçalhos de "Distribuição por setor" logo abaixo, então essa
+    // mesma info aqui era redundante.
     const unitChart = {
       data: orderedBy(unidades, UNIT_SELECT_ORDER).map((u) => ({
         label: unitDisplayName(u),
-        value: assets.filter((a) => a.unidade === u).length,
+        value: assets
+          .filter((a) => a.unidade === u)
+          .reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0),
       })),
       colors: DONUT_COLORS_UNI,
-      unitLabel: 'ativos',
+      unitLabel: 'valor investido',
+      formatValue: (value) => fmtMoney(value, { maximumFractionDigits: 0 }),
     }
 
     const madvilleTotal = assets.filter((a) => isMadvilleUnit(a.unidade)).length
@@ -249,7 +274,7 @@ export function useDashboardData(assets, dashUnidade) {
       financeTiles,
       miniStats,
       attentionList,
-      categoryChart,
+      ageChart,
       unitChart,
       groupSplit,
       statusChart,

@@ -3,10 +3,12 @@ import SearchInput from '../../ui/SearchInput/SearchInput'
 import Select from '../../ui/Select/Select'
 import Button from '../../ui/Button/Button'
 import { StarIcon } from '../../ui/Icon/icons'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { SCRIPT_SORT_OPTIONS } from '../../../constants/scripts'
 
 // Barra de filtros da tela de Scripts (.toolbar do sistema original).
 export default function ScriptFilters({ filters, onChange, onClear }) {
+  const bindTooltip = useHoverTooltip()
   return (
     <Toolbar>
       <SearchInput
@@ -24,8 +26,8 @@ export default function ScriptFilters({ filters, onChange, onClear }) {
       <Button
         variant={filters.onlyFavorites ? 'primary' : 'ghost'}
         size="sm"
-        title="Mostrar somente favoritos"
         onClick={() => onChange({ onlyFavorites: !filters.onlyFavorites })}
+        {...bindTooltip('Mostrar somente favoritos')}
       >
         <StarIcon /> Favoritos
       </Button>

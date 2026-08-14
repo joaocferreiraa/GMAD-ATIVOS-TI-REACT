@@ -4,6 +4,7 @@ import Button from '../../ui/Button/Button'
 import buttonStyles from '../../ui/Button/Button.module.css'
 import { StarIcon, DownloadIcon } from '../../ui/Icon/icons'
 import { isHttpUrl } from '../../../utils/urlValidation'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import panelStyles from '../ScriptPanel.module.css'
 import { COLUMNS } from './columns'
 
@@ -18,6 +19,7 @@ export default function ScriptTable({
   onToggleFavorite,
   onDownload,
 }) {
+  const bindTooltip = useHoverTooltip()
   const columns = [
     ...COLUMNS,
     {
@@ -28,11 +30,11 @@ export default function ScriptTable({
           <button
             type="button"
             className={`${panelStyles.favBtn} ${s.favorito ? panelStyles.active : ''}`}
-            title={s.favorito ? 'Remover dos favoritos' : 'Marcar como favorito'}
             onClick={(e) => {
               e.stopPropagation()
               onToggleFavorite(s.uid)
             }}
+            {...bindTooltip(s.favorito ? 'Remover dos favoritos' : 'Marcar como favorito')}
           >
             <StarIcon />
           </button>
@@ -42,12 +44,12 @@ export default function ScriptTable({
               target="_blank"
               rel="noopener noreferrer"
               className={`${buttonStyles.btn} ${buttonStyles.ghost} ${buttonStyles.sm}`}
-              title="Baixar"
               aria-label="Baixar"
               onClick={(e) => {
                 e.stopPropagation()
                 onDownload(s.uid)
               }}
+              {...bindTooltip('Baixar')}
             >
               <DownloadIcon />
             </a>

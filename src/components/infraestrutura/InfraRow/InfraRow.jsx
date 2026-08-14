@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../../../hooks/useToast'
+import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { CopyIcon, EyeIcon, EyeOffIcon } from '../../ui/Icon/icons'
 import styles from './InfraRow.module.css'
 
@@ -8,6 +9,7 @@ import styles from './InfraRow.module.css'
 // para campos `masked` (senha), um botão de mostrar/ocultar.
 export default function InfraRow({ label, value, masked }) {
   const { showToast } = useToast()
+  const bindTooltip = useHoverTooltip()
   const [visible, setVisible] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -48,7 +50,7 @@ export default function InfraRow({ label, value, masked }) {
             type="button"
             className={styles.copyBtn}
             onClick={() => setVisible((v) => !v)}
-            title="Mostrar/ocultar senha"
+            {...bindTooltip('Mostrar/ocultar senha')}
           >
             {visible ? <EyeOffIcon /> : <EyeIcon />}
           </button>
@@ -58,7 +60,7 @@ export default function InfraRow({ label, value, masked }) {
             type="button"
             className={`${styles.copyBtn} ${copied ? styles.copied : ''}`}
             onClick={handleCopy}
-            title="Copiar"
+            {...bindTooltip('Copiar')}
           >
             <CopyIcon />
           </button>
