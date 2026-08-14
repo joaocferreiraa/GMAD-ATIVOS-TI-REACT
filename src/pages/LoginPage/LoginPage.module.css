@@ -22,12 +22,21 @@
   );
 }
 
+/* A imagem é a marca GMAD sobre um fundo verde chapado (não uma foto) —
+   antes cobria o painel inteiro (object-fit: cover), o que a deixava gigante
+   e "explodida". Agora fica contida numa caixa central bem menor, com uma
+   máscara radial que dissolve a borda quadrada do verde chapado no
+   gradiente do próprio .loginVisual por trás — sem isso, o quadrado da
+   imagem apareceria como um "adesivo" colado por cima do degradê. */
 .loginVisual img {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  margin: auto;
+  width: 53.5%;
+  height: 53.5%;
+  object-fit: contain;
+  -webkit-mask-image: radial-gradient(circle, #000 42%, transparent 72%);
+  mask-image: radial-gradient(circle, #000 42%, transparent 72%);
 }
 
 .loginVisual::after {
@@ -48,7 +57,9 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: flex-end;
+  text-align: center;
   padding: 68px 64px;
   color: #fff;
 }
@@ -246,21 +257,67 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.18s ease;
+  box-shadow: none;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* Hover só em dispositivos que realmente têm mouse — evita "hover preso"
+   depois de um toque em tablet/celular. Sutil de propósito: leve escurecida
+   + elevação de 1px, nada de brilho/gradiente. */
+@media (hover: hover) and (pointer: fine) {
+  .btnLogin:not([disabled]):hover {
+    background: var(--brand-strong);
+    box-shadow: 0 6px 16px -8px rgba(15, 56, 35, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .btnLogin:not([disabled]):hover .btnIcon {
+    transform: translateX(2px);
+  }
+}
+
+.btnLogin:active:not([disabled]) {
+  transform: translateY(1px);
   box-shadow: none;
 }
 
-.btnLogin:hover {
-  background: var(--brand-strong);
-}
-
-.btnLogin:active {
-  transform: translateY(1px);
+.btnLogin:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
 }
 
 .btnLogin[disabled] {
-  opacity: 0.7;
+  opacity: 0.85;
   cursor: not-allowed;
+}
+
+.btnIcon {
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.btnSpinner {
+  flex-shrink: 0;
+  animation: btnLoginSpin 0.8s linear infinite;
+}
+
+@keyframes btnLoginSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btnLogin,
+  .btnIcon {
+    transition: none;
+  }
 }
 
 .loginFoot {

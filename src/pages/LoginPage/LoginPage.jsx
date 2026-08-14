@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { ROUTES } from '../../constants/routes'
-import { EyeIcon, EyeOffIcon, LoginIcon } from '../../components/ui/Icon/icons'
+import { EyeIcon, EyeOffIcon, LoginIcon, SpinnerIcon } from '../../components/ui/Icon/icons'
 import loginBackground from '../../assets/images/login-background.jpg'
 import styles from './LoginPage.module.css'
 
@@ -24,15 +24,17 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [authError, setAuthError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  // Estado próprio (não formState.isSubmitting do react-hook-form): esse
+  // reverte assim que a função onSubmit termina, mesmo em caso de sucesso —
+  // e a navegação pro painel só acontece depois, via useEffect reagindo a
+  // isAuthenticated (que muda de forma assíncrona, fora do onSubmit). Sem
+  // um estado próprio, o botão piscaria de volta pra "Entrar" por um
+  // instante antes da tela trocar. Só reseta nos caminhos de erro.
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const remembered = localStorage.getItem(REMEMBER_KEY)
 
-  const {
-    register,
-    handleSubmit,
-    setFocus,
-    formState: { isSubmitting },
-  } = useForm({
+  const { register, handleSubmit, setFocus } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       usuario: remembered ?? '',
@@ -47,13 +49,16 @@ export default function LoginPage() {
 
   async function onSubmit(values) {
     setAuthError('')
+    setIsLoggingIn(true)
 
     if (!isSupabaseConfigured) {
       setAuthError('Configuração do Supabase ausente. Não é possível autenticar.')
+      setIsLoggingIn(false)
       return
     }
     if (!values.usuario.trim() || !values.senha) {
       setAuthError('Preencha usuário e senha.')
+      setIsLoggingIn(false)
       return
     }
 
@@ -61,6 +66,7 @@ export default function LoginPage() {
 
     if (error || !data?.user) {
       setAuthError('E-mail ou senha incorretos. Verifique e tente novamente.')
+      setIsLoggingIn(false)
       return
     }
 
@@ -69,6 +75,9 @@ export default function LoginPage() {
     } else {
       localStorage.removeItem(REMEMBER_KEY)
     }
+    // Sucesso: não reseta isLoggingIn aqui de propósito — o botão continua
+    // "Entrando..." até o useEffect (isAuthenticated) navegar pra fora
+    // desta tela, sem piscar de volta pra "Entrar" no meio do caminho.
   }
 
   const submit = handleSubmit(onSubmit)
@@ -76,9 +85,8 @@ export default function LoginPage() {
   return (
     <div className={styles.loginScreen}>
       <div className={styles.loginVisual}>
-        <img src={loginBackground} alt="Frota GMAD Madville" />
+        <img src={loginBackground} alt="Logo GMAD Grupo Madcompen" />
         <div className={styles.loginVisualContent}>
-          <h2>Cada equipamento tem um histórico — e um responsável cuidando dele.</h2>
           <p>Painel interno de controle de ativos de tecnologia.</p>
         </div>
       </div>
@@ -152,11 +160,16 @@ export default function LoginPage() {
           <button
             className={styles.btnLogin}
             type="button"
-            disabled={isSubmitting}
+            disabled={isLoggingIn}
+            aria-busy={isLoggingIn}
             onClick={submit}
           >
-            <LoginIcon width={17} height={17} />
-            Acessar o sistema
+            {isLoggingIn ? (
+              <SpinnerIcon className={styles.btnSpinner} width={15} height={15} />
+            ) : (
+              <LoginIcon className={styles.btnIcon} width={15} height={15} />
+            )}
+            {isLoggingIn ? 'Entrando...' : 'Entrar'}
           </button>
           <div className={styles.loginFoot}>
             Problemas para entrar? Fale com a <b>equipe de TI</b>.
