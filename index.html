@@ -34,12 +34,14 @@
     <script>
       ;(function () {
         try {
+          // Sem preferência salva (dispositivo novo / primeira visita):
+          // sempre abre no modo claro, mesmo que o sistema operacional
+          // esteja no escuro — a preferência do sistema só serve de
+          // sugestão pra várias pessoas, aqui o padrão é fixo. Depois que
+          // a pessoa troca o tema pelo botão da Topbar, essa escolha fica
+          // salva em gmad_theme e passa a valer sempre, em qualquer visita.
           var saved = localStorage.getItem('gmad_theme')
-          var theme =
-            saved ||
-            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light')
+          var theme = saved === 'dark' ? 'dark' : 'light'
           document.documentElement.setAttribute('data-theme', theme)
         } catch (e) {}
       })()

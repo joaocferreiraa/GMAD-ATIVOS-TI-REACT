@@ -17,7 +17,16 @@ export function HoverTooltipProvider({ children }) {
       showTooltip(event, label) {
         if (!label || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
         const rect = event.currentTarget.getBoundingClientRect()
-        setTooltip({ label, top: rect.top + rect.height / 2, left: rect.right + 8 })
+        // Abre pra direita por padrão, mas vira pra esquerda quando não há
+        // espaço — botões na quina direita (ex: "Sair" na Topbar) senão
+        // ficavam com o tooltip cortado pela borda da tela.
+        const openLeft = window.innerWidth - rect.right < 180
+        setTooltip({
+          label,
+          top: rect.top + rect.height / 2,
+          left: openLeft ? rect.left - 8 : rect.right + 8,
+          openLeft,
+        })
       },
       hideTooltip() {
         setTooltip(null)
@@ -31,7 +40,11 @@ export function HoverTooltipProvider({ children }) {
       {children}
       {tooltip &&
         createPortal(
-          <div className={styles.tooltip} role="tooltip" style={{ top: tooltip.top, left: tooltip.left }}>
+          <div
+            className={`${styles.tooltip} ${tooltip.openLeft ? styles.openLeft : ''}`}
+            role="tooltip"
+            style={{ top: tooltip.top, left: tooltip.left }}
+          >
             {tooltip.label}
           </div>,
           document.body,
