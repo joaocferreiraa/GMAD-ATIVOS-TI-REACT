@@ -8,7 +8,7 @@ import { unitDisplayName, fmtRelTime } from '../../../utils/formatters'
 import { STATUS_LABEL, statusBadgeVariant } from '../../../utils/networkStatus'
 import { useMonitorHistory } from '../../../hooks/data/useMedicoes'
 import { useAlertas } from '../../../hooks/data/useAlertas'
-import { HISTORICO_PERIODOS } from '../../../constants/monitoramento'
+import { HISTORICO_PERIODOS, ALERTS_PREVIEW_LIMIT } from '../../../constants/monitoramento'
 import panelStyles from '../MonitoramentoPanel.module.css'
 
 function fmtNum(value, unidade) {
@@ -31,7 +31,9 @@ export default function MonitorViewModal({ open, item, onClose, onEdit }) {
 
   if (!item) return null
 
-  const pointAlerts = (alerts || []).filter((a) => a.monitorUid === item.uid).slice(0, 8)
+  const pointAlerts = (alerts || [])
+    .filter((a) => a.monitorUid === item.uid)
+    .slice(0, ALERTS_PREVIEW_LIMIT)
 
   const disponibilidadePct =
     measurements && measurements.length

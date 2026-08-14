@@ -70,3 +70,16 @@
   color: var(--brand);
   cursor: pointer;
 }
+
+@media (max-width: 480px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  /* Checkbox + nome ficam juntos na 1ª linha (nome só encolhe, sem forçar
+     100% — senão o checkbox sozinho vira uma linha vazia). Host força a
+     2ª linha por conta própria; a tag (quando presente) cabe do lado. */
+  .rowHost {
+    flex-basis: 100%;
+  }
+}

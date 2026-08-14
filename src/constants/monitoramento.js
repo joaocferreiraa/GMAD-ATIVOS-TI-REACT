@@ -25,6 +25,12 @@ export const DEFAULT_THRESHOLDS = {
 
 export const DEFAULT_INTERVALO_SEGUNDOS = 30
 
+// Teto de itens em listas "recentes" de alertas — usado tanto na tela
+// principal (MonitoramentoRedePage) quanto na ficha de um ponto
+// (MonitorViewModal), pra ficarem sempre em sincronia sem duplicar o número
+// mágico nos dois lugares.
+export const ALERTS_PREVIEW_LIMIT = 8
+
 export const HISTORICO_PERIODOS = [
   { value: '15m', label: 'Últimos 15 minutos', minutes: 15 },
   { value: '30m', label: 'Últimos 30 minutos', minutes: 30 },

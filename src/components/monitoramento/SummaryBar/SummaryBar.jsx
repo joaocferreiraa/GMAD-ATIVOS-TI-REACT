@@ -1,7 +1,8 @@
 import styles from './SummaryBar.module.css'
 
 // Faixa de resumo discreta do Monitoramento de Rede — conexões monitoradas,
-// online/atenção/problemas e última verificação. Deliberadamente sem cards
+// online/atenção/problemas (a última verificação já aparece no indicador ao
+// lado do título da página, não repete aqui). Deliberadamente sem cards
 // grandes/gradiente: só números e rótulos, como o resto do painel.
 export default function SummaryBar({ items }) {
   return (

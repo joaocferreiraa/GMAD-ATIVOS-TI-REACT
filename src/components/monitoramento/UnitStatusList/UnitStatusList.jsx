@@ -5,8 +5,10 @@ import styles from './UnitStatusList.module.css'
 
 // Situação por unidade (pior status entre os pontos daquela unidade) — ver
 // seção 17 do pedido. Clicar filtra a tabela de pontos por aquela unidade.
+// Com 0 ou 1 unidade não agrega nada que a SummaryBar já não mostre (o
+// status da única unidade É o status geral), então não aparece.
 export default function UnitStatusList({ units, selected, onSelect }) {
-  if (!units.length) return null
+  if (units.length < 2) return null
 
   return (
     <div className={styles.list}>

@@ -6,6 +6,7 @@ import { useInfra } from '../../hooks/data/useInfra'
 import { useRecentMeasurements } from '../../hooks/data/useMedicoes'
 import { useAlertas } from '../../hooks/data/useAlertas'
 import { useMonitoramentoData } from './useMonitoramentoData'
+import { ALERTS_PREVIEW_LIMIT } from '../../constants/monitoramento'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import { fmtRelTime } from '../../utils/formatters'
 import Button from '../../components/ui/Button/Button'
@@ -48,7 +49,10 @@ export default function MonitoramentoRedePage() {
   const list = monitores ?? []
   const assetList = assets ?? []
   const measurementsList = recentMeasurements ?? []
-  const alertsList = alerts ?? []
+  // A busca já limita a 200 (ver useAlertas/getAlerts), mas a tela principal
+  // só precisa dos mais recentes pra não virar uma lista que cresce sem fim
+  // — mesmo teto usado na ficha de um ponto (ver MonitorViewModal).
+  const alertsList = (alerts ?? []).slice(0, ALERTS_PREVIEW_LIMIT)
 
   const data = useMonitoramentoData(list, assetList, measurementsList, filters)
   const panel = useCrudPanelState({
@@ -107,24 +111,20 @@ export default function MonitoramentoRedePage() {
 
       {!isLoading && !isError && (
         <>
+          {/* "Última verificação" já aparece no indicador ao lado do título
+              (styles.liveIndicator) — não repete aqui como um quinto item. */}
           <SummaryBar
             items={[
               { label: 'Conexões monitoradas', value: data.summary.total },
               { label: 'Online', value: data.summary.online, tone: 'ok' },
               { label: 'Atenção', value: data.summary.atencao, tone: 'warn' },
               { label: 'Problemas', value: data.summary.problemas, tone: 'danger' },
-              {
-                label: 'Última verificação',
-                value: data.summary.ultimaVerificacao
-                  ? fmtRelTime(data.summary.ultimaVerificacao)
-                  : '—',
-              },
             ]}
           />
 
           <Card
-            title="Velocidade da conexão em tempo real"
-            subtitle="Atualiza sozinho conforme novas medições chegam — sem precisar recarregar a página"
+            title="Monitoramento em tempo real"
+            subtitle="Métricas dos pontos monitorados, coletadas automaticamente pelo agente — atualiza sozinho conforme chegam novas medições, sem precisar recarregar a página."
           >
             <LiveChartCard monitors={data.allMonitors} />
           </Card>
@@ -167,7 +167,7 @@ export default function MonitoramentoRedePage() {
 
           <Card
             title="Alertas recentes"
-            subtitle="Eventos gerados quando um ponto sai dos limites configurados"
+            subtitle="Últimos eventos gerados quando um ponto saiu dos limites configurados"
           >
             <AlertsPanel alerts={alertsList} monitorNameByUid={monitorNameByUid} />
           </Card>

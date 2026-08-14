@@ -46,3 +46,21 @@
   color: var(--text-faint);
   font-family: var(--font-mono);
 }
+
+@media (max-width: 480px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .content {
+    min-width: 60%;
+  }
+
+  .content span {
+    white-space: normal;
+  }
+
+  .time {
+    margin-left: auto;
+  }
+}
