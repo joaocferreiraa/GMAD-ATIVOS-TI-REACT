@@ -55,12 +55,6 @@
   margin: 20px 0 16px;
 }
 
-.actionsButtons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
 .state {
   padding: 40px 0;
   text-align: center;
