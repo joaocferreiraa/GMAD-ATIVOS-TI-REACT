@@ -7,6 +7,7 @@ import ProtectedRoute from './ProtectedRoute'
 import LoginPage from '../pages/LoginPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import RouteFallback from './RouteFallback'
+import RouteErrorBoundary from './RouteErrorBoundary'
 
 // Páginas atrás do login carregam sob demanda (React.lazy) em vez de entrar
 // no bundle inicial — LoginPage/NotFoundPage continuam estáticas por serem
@@ -35,28 +36,36 @@ function lazyPage(Component) {
 
 export const router = createBrowserRouter([
   {
-    element: <AuthLayout />,
-    children: [{ path: ROUTES.login, element: <LoginPage /> }],
-  },
-  {
-    element: <ProtectedRoute />,
+    // errorElement na raiz: pega qualquer erro não tratado de qualquer rota
+    // abaixo (nenhuma delas define o próprio errorElement), incluindo falha
+    // de import() dinâmico das páginas lazy — ver RouteErrorBoundary.
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
-        element: <AppLayout />,
+        element: <AuthLayout />,
+        children: [{ path: ROUTES.login, element: <LoginPage /> }],
+      },
+      {
+        element: <ProtectedRoute />,
         children: [
-          { path: ROUTES.dashboard, element: lazyPage(DashboardPage) },
-          { path: ROUTES.ativos, element: lazyPage(AtivosPage) },
-          { path: ROUTES.estoque, element: lazyPage(EstoquePage) },
-          { path: ROUTES.contatos, element: lazyPage(ContatosPage) },
-          { path: ROUTES.instaladores, element: lazyPage(InstaladoresPage) },
-          { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },
-          { path: ROUTES.infraestrutura, element: lazyPage(InfraestruturaPage) },
-          { path: ROUTES.monitoramento, element: lazyPage(MonitoramentoRedePage) },
-          { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
-          { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
+          {
+            element: <AppLayout />,
+            children: [
+              { path: ROUTES.dashboard, element: lazyPage(DashboardPage) },
+              { path: ROUTES.ativos, element: lazyPage(AtivosPage) },
+              { path: ROUTES.estoque, element: lazyPage(EstoquePage) },
+              { path: ROUTES.contatos, element: lazyPage(ContatosPage) },
+              { path: ROUTES.instaladores, element: lazyPage(InstaladoresPage) },
+              { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },
+              { path: ROUTES.infraestrutura, element: lazyPage(InfraestruturaPage) },
+              { path: ROUTES.monitoramento, element: lazyPage(MonitoramentoRedePage) },
+              { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
+              { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
+            ],
+          },
         ],
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  { path: '*', element: <NotFoundPage /> },
 ])
