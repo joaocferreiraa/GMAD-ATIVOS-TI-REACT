@@ -174,7 +174,11 @@ export default function LoginPage() {
             {isLoggingIn ? 'Entrando...' : 'Entrar'}
           </button>
           <div className={styles.loginFoot}>
-            Problemas para entrar? Fale com a <b>equipe de TI</b>.
+            Problemas para entrar? Fale com a{' '}
+            <a href="mailto:suporte.ti@madville.com.br" className={styles.loginFootLink}>
+              <b>equipe de TI</b>
+            </a>
+            .
           </div>
         </div>
       </div>

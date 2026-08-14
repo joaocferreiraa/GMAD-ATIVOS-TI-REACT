@@ -335,6 +335,14 @@
   font-weight: 700;
 }
 
+.loginFootLink {
+  text-decoration: none;
+}
+
+.loginFootLink:hover {
+  text-decoration: underline;
+}
+
 @media (min-width: 900px) {
   .loginVisual {
     display: block;
