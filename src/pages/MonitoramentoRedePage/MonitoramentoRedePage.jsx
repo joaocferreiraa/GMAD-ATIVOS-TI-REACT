@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMonitores } from '../../hooks/data/useMonitores'
 import { useMonitorMutations } from '../../hooks/data/useMonitorMutations'
 import { useAssets } from '../../hooks/data/useAssets'
+import { useInfra } from '../../hooks/data/useInfra'
 import { useRecentMeasurements } from '../../hooks/data/useMedicoes'
 import { useAlertas } from '../../hooks/data/useAlertas'
 import { useMonitoramentoData } from './useMonitoramentoData'
@@ -19,6 +20,7 @@ import MonitorFilters from '../../components/monitoramento/MonitorFilters/Monito
 import MonitorTable from '../../components/monitoramento/MonitorTable/MonitorTable'
 import MonitorFormModal from '../../components/monitoramento/MonitorFormModal/MonitorFormModal'
 import MonitorViewModal from '../../components/monitoramento/MonitorViewModal/MonitorViewModal'
+import ImportInfraModal from '../../components/monitoramento/ImportInfraModal/ImportInfraModal'
 import SpeedTestPanel from '../../components/monitoramento/SpeedTestPanel/SpeedTestPanel'
 import AlertsPanel from '../../components/monitoramento/AlertsPanel/AlertsPanel'
 import styles from './MonitoramentoRedePage.module.css'
@@ -32,6 +34,7 @@ const DEFAULT_FILTERS = {
 export default function MonitoramentoRedePage() {
   const { data: monitores, isLoading, isError } = useMonitores()
   const { data: assets } = useAssets()
+  const { data: infra } = useInfra()
   const monitorMutations = useMonitorMutations()
   // Janela de 60min é suficiente pra status atual + detecção de oscilação
   // (ver utils/networkStatus.js); o histórico de período maior é buscado
@@ -40,6 +43,7 @@ export default function MonitoramentoRedePage() {
   const { data: alerts } = useAlertas({})
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [importOpen, setImportOpen] = useState(false)
 
   const list = monitores ?? []
   const assetList = assets ?? []
@@ -142,9 +146,12 @@ export default function MonitoramentoRedePage() {
               onChange={updateFilters}
               onClear={handleClearFilters}
             />
-            <Button variant="primary" onClick={panel.openNew}>
-              + Novo ponto
-            </Button>
+            <div className={styles.actionsButtons}>
+              <Button onClick={() => setImportOpen(true)}>Importar da Infraestrutura</Button>
+              <Button variant="primary" onClick={panel.openNew}>
+                + Novo ponto
+              </Button>
+            </div>
           </div>
 
           {isLoadingMeasurements && !measurementsList.length ? (
@@ -181,6 +188,14 @@ export default function MonitoramentoRedePage() {
         onClose={panel.closeForm}
         onSave={panel.handleSaveForm}
         onDelete={panel.handleDeleteFromForm}
+      />
+
+      <ImportInfraModal
+        open={importOpen}
+        infra={infra}
+        monitores={list}
+        onClose={() => setImportOpen(false)}
+        onImportOne={(record) => monitorMutations.createMonitor.mutateAsync(record)}
       />
 
       <ConfirmDialog
