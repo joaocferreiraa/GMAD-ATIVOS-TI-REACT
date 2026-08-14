@@ -47,12 +47,19 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 210px;
+  max-height: 320px;
   z-index: 70;
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   box-shadow: 0 8px 20px -8px rgba(15, 30, 20, 0.16);
   padding: 6px;
+  overflow-y: auto;
+}
+
+.menu.menuUp {
+  top: auto;
+  bottom: calc(100% + 8px);
 }
 
 .item {

@@ -32,7 +32,22 @@ export function useRealtimeInvalidate(table, queryKey, { event = 'INSERT', filte
         () => queryClient.invalidateQueries({ queryKey }),
       )
       .subscribe()
+
+    // iOS fecha o WebSocket quando o app vai pra background (tela bloqueada,
+    // troca de app) — mudanças no Postgres feitas nesse intervalo não são
+    // reenviadas quando a conexão volta (postgres_changes não faz replay).
+    // Forçar a invalidação ao voltar o foco garante dado fresco mesmo que a
+    // reconexão do socket em si (já automática no supabase-js) tenha perdido
+    // eventos no meio do caminho.
+    function handleVisible() {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries({ queryKey })
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisible)
+
     return () => {
+      document.removeEventListener('visibilitychange', handleVisible)
       supabase.removeChannel(channel)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

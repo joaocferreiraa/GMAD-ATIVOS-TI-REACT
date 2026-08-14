@@ -554,7 +554,13 @@ export default function AssetFormModal({
                     <Input id="f_garantiaAte" type="date" {...register('garantiaAte')} />
                   </FormField>
                   <FormField label="Preço de compra (R$)" htmlFor="f_preco" error={errors.preco?.message}>
-                    <Input id="f_preco" type="number" step="0.01" {...register('preco')} />
+                    <Input
+                      id="f_preco"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      {...register('preco')}
+                    />
                   </FormField>
                 </>
               )}

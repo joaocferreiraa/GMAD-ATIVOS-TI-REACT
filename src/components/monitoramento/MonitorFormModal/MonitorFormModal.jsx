@@ -175,6 +175,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_intervalo"
             type="number"
+            inputMode="numeric"
             min={5}
             step={5}
             {...register('intervaloSegundos')}
@@ -195,6 +196,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_latenciaMaxima"
             type="number"
+            inputMode="numeric"
             min={0}
             step={1}
             {...register('latenciaMaximaMs')}
@@ -204,6 +206,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_packetLossMaximo"
             type="number"
+            inputMode="decimal"
             min={0}
             max={100}
             step={0.5}
@@ -214,6 +217,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_downloadMinimo"
             type="number"
+            inputMode="numeric"
             min={0}
             step={1}
             {...register('downloadMinimoMbps')}
@@ -224,6 +228,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_uploadMinimo"
             type="number"
+            inputMode="numeric"
             min={0}
             step={1}
             {...register('uploadMinimoMbps')}
@@ -234,6 +239,7 @@ export default function MonitorFormModal({ open, item, assets, onClose, onSave, 
           <Input
             id="m_falhasConsecutivas"
             type="number"
+            inputMode="numeric"
             min={1}
             step={1}
             {...register('falhasConsecutivasLimite')}

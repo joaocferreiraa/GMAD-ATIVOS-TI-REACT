@@ -401,11 +401,12 @@
   .heroNav {
     position: static;
     height: auto;
+    padding-top: var(--safe-top);
   }
 
   .heroNavInner {
     height: auto;
-    padding: 14px 24px;
+    padding: 14px calc(24px + var(--safe-right)) 14px calc(24px + var(--safe-left));
   }
 
   .search {

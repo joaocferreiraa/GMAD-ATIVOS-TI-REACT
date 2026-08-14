@@ -87,7 +87,8 @@
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  padding: 32px;
+  padding: calc(32px + var(--safe-top)) calc(32px + var(--safe-right)) calc(32px + var(--safe-bottom))
+    calc(32px + var(--safe-left));
   position: relative;
 }
 
@@ -342,7 +343,15 @@
 
 @media (max-width: 760px) {
   .loginFormSide {
-    padding: 20px;
+    padding: calc(20px + var(--safe-top)) calc(20px + var(--safe-right)) calc(20px + var(--safe-bottom))
+      calc(20px + var(--safe-left));
+  }
+
+  /* iOS Safari faz zoom automático da página ao focar um input com
+     font-size abaixo de 16px — este formulário não usa o componente Input
+     compartilhado, então precisa do mesmo ajuste aplicado à parte. */
+  .loginField input {
+    font-size: 16px;
   }
 }
 

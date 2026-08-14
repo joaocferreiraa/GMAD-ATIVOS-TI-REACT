@@ -2,8 +2,8 @@
 
 .wrap {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: calc(20px + var(--safe-bottom));
+  right: calc(20px + var(--safe-right));
   display: flex;
   flex-direction: column;
   gap: 8px;

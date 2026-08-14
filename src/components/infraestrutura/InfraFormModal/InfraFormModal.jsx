@@ -82,7 +82,7 @@ export default function InfraFormModal({ open, title, subtitle, fields, values, 
           if (!f.masked) {
             return (
               <FormField key={f.key} label={f.label} full={f.wide} htmlFor={`f_${f.key}`}>
-                <Input id={`f_${f.key}`} {...register(f.key)} />
+                <Input id={`f_${f.key}`} inputMode={f.inputMode} {...register(f.key)} />
               </FormField>
             )
           }

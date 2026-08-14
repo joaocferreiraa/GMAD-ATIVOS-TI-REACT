@@ -278,10 +278,23 @@ export default function ContatoFormModal({
           <Input id="c_celular" placeholder="Ex: Samsung Galaxy A55" {...register('celular')} />
         </FormField>
         <FormField label="Telefone" htmlFor="c_telefone">
-          <Input id="c_telefone" placeholder="Ex: (41) 99999-9999" {...register('telefone')} />
+          <Input
+            id="c_telefone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="Ex: (41) 99999-9999"
+            {...register('telefone')}
+          />
         </FormField>
         <FormField label="Ramal" htmlFor="c_ramal">
-          <Input id="c_ramal" placeholder="Ex: 1234" {...register('ramal')} />
+          <Input
+            id="c_ramal"
+            inputMode="numeric"
+            autoComplete="tel-extension"
+            placeholder="Ex: 1234"
+            {...register('ramal')}
+          />
         </FormField>
         <FormField
           label="E-mail corporativo"
@@ -292,6 +305,8 @@ export default function ContatoFormModal({
           <Input
             id="c_email"
             type="email"
+            inputMode="email"
+            autoComplete="email"
             placeholder="Ex: joao@gmad.com.br"
             {...register('email')}
           />

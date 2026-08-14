@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState } from 'react'
+import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { ChevronDownIcon, CheckIcon } from '../Icon/icons'
@@ -20,7 +20,9 @@ export default function Select({
 }) {
   const [open, setOpen] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const [dropUp, setDropUp] = useState(false)
   const rootRef = useRef(null)
+  const panelRef = useRef(null)
   const typeBufferRef = useRef('')
   const typeTimerRef = useRef(null)
   const generatedId = useId()
@@ -29,9 +31,25 @@ export default function Select({
   const selectedIndex = useMemo(() => options.findIndex((o) => o.value === value), [options, value])
   const currentLabel = selectedIndex >= 0 ? options[selectedIndex].label : placeholder
 
+  // Decide, depois que o painel já está no DOM (e antes do paint), se cabe
+  // embaixo do trigger — em formulários longos no iPhone com o teclado
+  // aberto, o espaço abaixo costuma ser menor que os 260px de max-height do
+  // painel, então ele precisa abrir pra cima em vez de ser cortado.
+  useLayoutEffect(() => {
+    if (!open) return
+    const trigger = rootRef.current
+    const panel = panelRef.current
+    if (!trigger || !panel) return
+    const triggerRect = trigger.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - triggerRect.bottom
+    const spaceAbove = triggerRect.top
+    setDropUp(spaceBelow < panel.offsetHeight && spaceAbove > spaceBelow)
+  }, [open])
+
   function close() {
     setOpen(false)
     setHighlightedIndex(-1)
+    setDropUp(false)
   }
 
   useClickOutside(rootRef, open, close)
@@ -114,7 +132,12 @@ export default function Select({
       </button>
 
       {open && (
-        <div id={panelId} className={styles.panel} role="listbox">
+        <div
+          ref={panelRef}
+          id={panelId}
+          className={`${styles.panel} ${dropUp ? styles.panelUp : ''}`}
+          role="listbox"
+        >
           {options.length === 0 && <div className={styles.empty}>Nenhuma opção</div>}
           {options.map((option, index) => {
             const isSelected = index === selectedIndex

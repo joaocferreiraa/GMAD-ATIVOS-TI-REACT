@@ -30,6 +30,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   transition:
     margin-left 0.28s ease,
     max-width 0.28s ease;
@@ -39,5 +40,8 @@
   .content {
     margin-left: 0;
     padding-top: 26px;
+    padding-left: calc(24px + var(--safe-left));
+    padding-right: calc(24px + var(--safe-right));
+    padding-bottom: var(--safe-bottom);
   }
 }

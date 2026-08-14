@@ -9,7 +9,7 @@
   border-left: 1px solid var(--border-strong);
   border-radius: 0;
   box-shadow: -16px 0 32px -14px rgba(15, 30, 20, 0.2);
-  padding: 28px;
+  padding: 28px calc(28px + var(--safe-right)) calc(28px + var(--safe-bottom)) 28px;
   overflow-y: auto;
   animation: drawerIn 0.22s ease both;
   margin: 0;

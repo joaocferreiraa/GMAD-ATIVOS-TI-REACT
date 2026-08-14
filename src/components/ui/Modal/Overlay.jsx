@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom'
 import { useEffect, useRef } from 'react'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
+import { useLockBodyScroll } from '../../../hooks/overlay/useLockBodyScroll'
 import styles from './Overlay.module.css'
 
 const FOCUSABLE_SELECTOR =
@@ -13,6 +14,7 @@ const FOCUSABLE_SELECTOR =
 // pra não alterar o layout de nenhum consumidor.
 export default function Overlay({ open, onClose, drawer = false, className = '', children }) {
   useEscapeKey(open, onClose)
+  useLockBodyScroll(open)
   const overlayRef = useRef(null)
 
   useEffect(() => {

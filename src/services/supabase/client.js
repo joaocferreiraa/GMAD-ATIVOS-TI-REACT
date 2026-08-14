@@ -10,4 +10,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase =
-  supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          // Sem fluxo de OAuth/magic link neste app (só e-mail+senha, ver
+          // authService.js) — desligar evita que o SDK tente interpretar a
+          // URL a cada carregamento, o que é só overhead sem uso aqui.
+          detectSessionInUrl: false,
+        },
+      })
+    : null

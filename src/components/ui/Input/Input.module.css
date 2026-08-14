@@ -34,3 +34,13 @@
   resize: vertical;
   min-height: 110px;
 }
+
+/* iOS Safari faz zoom automático da página ao focar qualquer campo com
+   font-size abaixo de 16px — abaixo do breakpoint mobile isso é obrigatório
+   em todo input/textarea real, mesmo custando um pouco de densidade visual. */
+@media (max-width: 860px) {
+  .input,
+  .textarea {
+    font-size: 16px;
+  }
+}

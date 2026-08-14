@@ -159,7 +159,14 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
           htmlFor="s_quantidade"
           error={errors.quantidade?.message}
         >
-          <Input id="s_quantidade" type="number" min={0} step={1} {...register('quantidade')} />
+          <Input
+            id="s_quantidade"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            step={1}
+            {...register('quantidade')}
+          />
         </FormField>
         <FormField label="Unidade / Local de armazenamento" htmlFor="s_unidade">
           <Controller

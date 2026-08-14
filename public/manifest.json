@@ -1,0 +1,19 @@
+{
+  "name": "Painel de TI GMAD",
+  "short_name": "TI GMAD",
+  "description": "Painel interno de controle de ativos de TI da GMAD Madville.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#154c2e",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

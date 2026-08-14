@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta
       name="description"
       content="Painel interno de controle de ativos de TI da GMAD Madville — cadastro, contatos, estoque, instaladores, scripts e infraestrutura."
@@ -11,6 +14,12 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1a1a1d" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="TI GMAD" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Painel de TI GMAD" />
     <meta
@@ -34,9 +43,77 @@
         } catch (e) {}
       })()
     </script>
+    <style>
+      /* Cobre o intervalo entre abrir o app (ícone na tela de início) e o
+         React montar — sem isso, esse instante é uma tela em branco.
+         Cores literais (não var(--token)) de propósito: precisa renderizar
+         antes de qualquer CSS externo carregar, então não pode depender de
+         tokens.css. React.render substitui todo o conteúdo de #root, então
+         essa marcação some sozinha assim que o app monta — nada de JS extra
+         pra removê-la. */
+      #splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #ffffff;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      :root[data-theme='dark'] #splash {
+        background: #0a0b0d;
+      }
+
+      #splash strong {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #154c2e;
+      }
+
+      :root[data-theme='dark'] #splash strong {
+        color: #22c55e;
+      }
+
+      #splash .spin {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 3px solid rgba(21, 76, 46, 0.18);
+        border-top-color: #154c2e;
+        animation: splashSpin 0.8s linear infinite;
+      }
+
+      :root[data-theme='dark'] #splash .spin {
+        border-color: rgba(34, 197, 94, 0.22);
+        border-top-color: #22c55e;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #splash .spin {
+          animation: none;
+        }
+      }
+
+      @keyframes splashSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="splash" aria-hidden="true">
+        <div class="spin"></div>
+        <strong>TI GMAD</strong>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

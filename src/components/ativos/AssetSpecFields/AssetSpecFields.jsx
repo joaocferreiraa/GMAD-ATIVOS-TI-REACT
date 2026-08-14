@@ -32,6 +32,7 @@ export default function AssetSpecFields({ groups, control, register }) {
             <Input
               id={`spec_${group.key}`}
               type={group.type || 'text'}
+              inputMode={group.inputMode}
               maxLength={200}
               {...register(`spec.${group.key}`)}
             />

@@ -30,7 +30,11 @@ body {
 }
 
 #root {
+  /* dvh acompanha a barra de endereço dinâmica do Safari mobile; vh sozinho
+     conta a barra como se estivesse sempre visível, cortando/deixando vão de
+     conteúdo ao rolar. Navegadores sem suporte a dvh ignoram a 2ª linha. */
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button:focus-visible,
