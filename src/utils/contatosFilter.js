@@ -71,6 +71,7 @@ export function filterContatos(colaboradores, assets, filters) {
         c.nome,
         c.departamento,
         c.vendaTipo,
+        c.almoxarifadoArea,
         unitDisplayName(c.unidade),
         c.telefone,
         c.email,

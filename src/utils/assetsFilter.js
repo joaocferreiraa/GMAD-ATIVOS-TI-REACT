@@ -36,6 +36,7 @@ export function filterAssets(assets, filters) {
         a.imei2,
         a.departamento,
         a.vendaTipo,
+        a.almoxarifadoArea,
         a.pcVinculado,
         a.codModelo,
       ]),

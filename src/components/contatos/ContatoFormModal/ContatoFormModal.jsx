@@ -9,10 +9,13 @@ import { FormGrid } from '../../ui/FormField/FormField'
 import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
 import VendaTipoField from '../../ui/VendaTipoField/VendaTipoField'
+import AlmoxarifadoAreaField from '../../ui/AlmoxarifadoAreaField/AlmoxarifadoAreaField'
 import { getUnidades } from '../../../utils/units'
 import {
   getDepartamentoOptions,
+  getAlmoxarifadoAreaOptions,
   DEPARTAMENTO_VENDAS,
+  DEPARTAMENTO_ALMOXARIFADO,
   NOVO_ITEM,
   resolveNovoValue,
 } from '../../../utils/departamentos'
@@ -28,6 +31,8 @@ const contatoSchema = z
     departamento: z.string().min(1, 'Selecione o departamento.'),
     departamentoNovo: z.string(),
     vendaTipo: z.string(),
+    almoxarifadoArea: z.string(),
+    almoxarifadoAreaNovo: z.string(),
     // Opcional (string vazia = "não informado"), mas quando preenchido
     // precisa ser um e-mail de verdade — a checagem nativa do
     // type="email" do input é fácil de contornar (colar, autofill) e não
@@ -51,6 +56,16 @@ const contatoSchema = z
       data.vendaTipo.trim(),
     { message: 'Selecione o tipo de vendedor.', path: ['vendaTipo'] },
   )
+  .refine(
+    (data) =>
+      resolveNovoValue(data.departamento, data.departamentoNovo) !== DEPARTAMENTO_ALMOXARIFADO ||
+      data.almoxarifadoArea.trim(),
+    { message: 'Selecione a área do almoxarifado.', path: ['almoxarifadoArea'] },
+  )
+  .refine((data) => data.almoxarifadoArea !== NOVO_ITEM || data.almoxarifadoAreaNovo.trim(), {
+    message: 'Informe a nova área.',
+    path: ['almoxarifadoAreaNovo'],
+  })
 
 function buildDefaultValues(contato) {
   return {
@@ -59,6 +74,8 @@ function buildDefaultValues(contato) {
     departamento: contato?.departamento || '',
     departamentoNovo: '',
     vendaTipo: contato?.vendaTipo || '',
+    almoxarifadoArea: contato?.almoxarifadoArea || '',
+    almoxarifadoAreaNovo: '',
     celular: contato?.celular || '',
     telefone: contato?.telefone || '',
     ramal: contato?.ramal || '',
@@ -116,16 +133,24 @@ export default function ContatoFormModal({
   const departamentoOptions = getDepartamentoOptions(assets, contatos)
   if (contato?.departamento && !departamentoOptions.includes(contato.departamento))
     departamentoOptions.push(contato.departamento)
+  const almoxarifadoAreaOptions = getAlmoxarifadoAreaOptions(assets, contatos)
+  if (contato?.almoxarifadoArea && !almoxarifadoAreaOptions.includes(contato.almoxarifadoArea))
+    almoxarifadoAreaOptions.push(contato.almoxarifadoArea)
 
   function onSubmit(values) {
     const departamentoFinal = resolveNovoValue(values.departamento, values.departamentoNovo)
     const vendaTipoFinal = departamentoFinal === DEPARTAMENTO_VENDAS ? values.vendaTipo.trim() : ''
+    const almoxarifadoAreaFinal =
+      departamentoFinal === DEPARTAMENTO_ALMOXARIFADO
+        ? resolveNovoValue(values.almoxarifadoArea, values.almoxarifadoAreaNovo)
+        : ''
 
     const record = {
       nome: values.nome,
       unidade: values.unidade,
       departamento: departamentoFinal,
       vendaTipo: vendaTipoFinal,
+      almoxarifadoArea: almoxarifadoAreaFinal,
       isGestor: values.isGestor,
       celular: values.celular.trim(),
       telefone: values.telefone.trim(),
@@ -238,6 +263,16 @@ export default function ContatoFormModal({
         </FormField>
         {departamentoEfetivo === DEPARTAMENTO_VENDAS && (
           <VendaTipoField control={control} id="c_vendaTipo" error={errors.vendaTipo?.message} />
+        )}
+        {departamentoEfetivo === DEPARTAMENTO_ALMOXARIFADO && (
+          <AlmoxarifadoAreaField
+            control={control}
+            register={register}
+            watch={watch}
+            errors={errors}
+            id="c_almoxarifadoArea"
+            options={almoxarifadoAreaOptions}
+          />
         )}
         <FormField label="Celular corporativo" htmlFor="c_celular">
           <Input id="c_celular" placeholder="Ex: Samsung Galaxy A55" {...register('celular')} />

@@ -7,7 +7,7 @@ import { CAT_ICON } from '../../../constants/categories'
 import { StockIcon } from '../../ui/Icon/icons'
 import { fmtDate, fmtMoney, unitDisplayName, assetWarrantyInfo } from '../../../utils/formatters'
 import { assetStatusVariant, warrantyVariant } from '../../../utils/statusBadge'
-import { DEPARTAMENTO_VENDAS } from '../../../utils/departamentos'
+import { DEPARTAMENTO_VENDAS, DEPARTAMENTO_ALMOXARIFADO } from '../../../utils/departamentos'
 import panelStyles from '../AssetPanel.module.css'
 
 // Ficha de visualização de um ativo (.view-panel do sistema original) —
@@ -89,6 +89,9 @@ export default function AssetViewModal({ open, asset, onClose, onEdit }) {
               <ViewRow label="Departamento" value={asset.departamento} />
               {asset.departamento === DEPARTAMENTO_VENDAS && asset.vendaTipo && (
                 <ViewRow label="Tipo de vendedor" value={asset.vendaTipo} />
+              )}
+              {asset.departamento === DEPARTAMENTO_ALMOXARIFADO && asset.almoxarifadoArea && (
+                <ViewRow label="Área do almoxarifado" value={asset.almoxarifadoArea} />
               )}
               <ViewRow label="Usuário" value={asset.usuario} />
             </div>

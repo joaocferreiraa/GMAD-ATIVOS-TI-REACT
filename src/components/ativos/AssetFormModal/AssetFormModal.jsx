@@ -10,12 +10,15 @@ import Input from '../../ui/Input/Input'
 import Select from '../../ui/Select/Select'
 import AssetSpecFields from '../AssetSpecFields/AssetSpecFields'
 import VendaTipoField from '../../ui/VendaTipoField/VendaTipoField'
+import AlmoxarifadoAreaField from '../../ui/AlmoxarifadoAreaField/AlmoxarifadoAreaField'
 import { CATEGORIES } from '../../../constants/categories'
 import { FIELD_GROUPS } from '../../../constants/fieldGroups'
 import { getUnidades } from '../../../utils/units'
 import {
   getDepartamentoOptions,
+  getAlmoxarifadoAreaOptions,
   DEPARTAMENTO_VENDAS,
+  DEPARTAMENTO_ALMOXARIFADO,
   NOVO_ITEM,
   resolveNovoValue,
 } from '../../../utils/departamentos'
@@ -61,6 +64,8 @@ const assetSchema = z
     departamento: z.string(),
     departamentoNovo: z.string(),
     vendaTipo: z.string(),
+    almoxarifadoArea: z.string(),
+    almoxarifadoAreaNovo: z.string(),
     usuario: z.string(),
     usuarioNovo: z.string(),
     preco: nonNegativeMoney,
@@ -81,6 +86,16 @@ const assetSchema = z
       data.vendaTipo.trim(),
     { message: 'Selecione o tipo de vendedor.', path: ['vendaTipo'] },
   )
+  .refine(
+    (data) =>
+      resolveNovoValue(data.departamento, data.departamentoNovo) !== DEPARTAMENTO_ALMOXARIFADO ||
+      data.almoxarifadoArea.trim(),
+    { message: 'Selecione a área do almoxarifado.', path: ['almoxarifadoArea'] },
+  )
+  .refine((data) => data.almoxarifadoArea !== NOVO_ITEM || data.almoxarifadoAreaNovo.trim(), {
+    message: 'Informe a nova área.',
+    path: ['almoxarifadoAreaNovo'],
+  })
 
 function buildSpecDefaults(categoria, asset) {
   const groups = FIELD_GROUPS[categoria] || []
@@ -97,6 +112,8 @@ function buildDefaultValues(asset, defaultUnidade) {
     departamento: asset?.departamento || '',
     departamentoNovo: '',
     vendaTipo: asset?.vendaTipo || '',
+    almoxarifadoArea: asset?.almoxarifadoArea || '',
+    almoxarifadoAreaNovo: '',
     usuario: asset?.usuario || '',
     usuarioNovo: '',
     posse: asset?.posse === 'Alugado' || asset?.posse === 'Comprado' ? asset.posse : '',
@@ -177,6 +194,9 @@ export default function AssetFormModal({
   const responsavelOptions = getResponsavelOptions(assets, contatos)
   if (asset?.usuario && !responsavelOptions.includes(asset.usuario))
     responsavelOptions.push(asset.usuario)
+  const almoxarifadoAreaOptions = getAlmoxarifadoAreaOptions(assets, contatos)
+  if (asset?.almoxarifadoArea && !almoxarifadoAreaOptions.includes(asset.almoxarifadoArea))
+    almoxarifadoAreaOptions.push(asset.almoxarifadoArea)
 
   function handleCategoriaChange(newCategoria, onChange) {
     onChange(newCategoria)
@@ -230,6 +250,10 @@ export default function AssetFormModal({
     const unidade = values.unidade
     const departamentoFinal = resolveNovoValue(values.departamento, values.departamentoNovo)
     const vendaTipoFinal = departamentoFinal === DEPARTAMENTO_VENDAS ? values.vendaTipo.trim() : ''
+    const almoxarifadoAreaFinal =
+      departamentoFinal === DEPARTAMENTO_ALMOXARIFADO
+        ? resolveNovoValue(values.almoxarifadoArea, values.almoxarifadoAreaNovo)
+        : ''
     const usuarioFinal = resolveNovoValue(values.usuario, values.usuarioNovo)
     const spec = Object.fromEntries(
       Object.entries(values.spec || {}).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]),
@@ -245,6 +269,7 @@ export default function AssetFormModal({
       unidade,
       departamento: departamentoFinal,
       vendaTipo: vendaTipoFinal,
+      almoxarifadoArea: almoxarifadoAreaFinal,
       usuario: usuarioFinal,
       etiqueta: values.etiqueta,
       dataAquisicao: values.dataAquisicao,
@@ -430,6 +455,16 @@ export default function AssetFormModal({
                   control={control}
                   id="f_vendaTipo"
                   error={errors.vendaTipo?.message}
+                />
+              )}
+              {departamentoEfetivo === DEPARTAMENTO_ALMOXARIFADO && (
+                <AlmoxarifadoAreaField
+                  control={control}
+                  register={register}
+                  watch={watch}
+                  errors={errors}
+                  id="f_almoxarifadoArea"
+                  options={almoxarifadoAreaOptions}
                 />
               )}
             </FormGrid>

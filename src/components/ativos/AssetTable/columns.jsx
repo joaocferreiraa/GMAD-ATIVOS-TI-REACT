@@ -160,7 +160,9 @@ export const COLUMNS = {
       render: (a) => (
         <div className={tableStyles.cellStack}>
           <b>{a.modelo || '—'}</b>
-          {a.tipoImpressao && <span>{a.tipoImpressao}</span>}
+          {(a.tipoImpressao || a.finalidade) && (
+            <span>{[a.tipoImpressao, a.finalidade].filter(Boolean).join(' · ')}</span>
+          )}
         </div>
       ),
     },

@@ -33,6 +33,11 @@ export const FIELD_GROUPS = {
   Impressora: [
     { key: 'modelo', label: 'Fabricante / Modelo' },
     { key: 'tipoImpressao', label: 'Tipo', options: ['Laser', 'Jato de tinta', 'Térmica'] },
+    {
+      key: 'finalidade',
+      label: 'Finalidade',
+      options: ['Documentos', 'Etiqueta', 'Cupom Fiscal'],
+    },
     { key: 'conexao', label: 'Conexão', options: ['USB', 'Rede', 'Wi-Fi'] },
     { key: 'ip', label: 'IP (se em rede)' },
     { key: 'suprimento', label: 'Suprimento', options: ['Toner', 'Cartucho', 'Cartucho colorido'] },

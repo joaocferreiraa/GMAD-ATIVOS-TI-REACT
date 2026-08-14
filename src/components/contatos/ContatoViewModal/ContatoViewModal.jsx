@@ -3,7 +3,7 @@ import Badge from '../../ui/Badge/Badge'
 import Button from '../../ui/Button/Button'
 import { unitDisplayName } from '../../../utils/formatters'
 import { contatoCelularInfo, contatoDeptGestorMap } from '../../../utils/contatosFilter'
-import { DEPARTAMENTO_VENDAS } from '../../../utils/departamentos'
+import { DEPARTAMENTO_VENDAS, DEPARTAMENTO_ALMOXARIFADO } from '../../../utils/departamentos'
 import { useNavigateTo } from '../../../hooks/useNavigateTo'
 import { ROUTES } from '../../../constants/routes'
 import panelStyles from '../ContatoPanel.module.css'
@@ -65,6 +65,9 @@ export default function ContatoViewModal({ open, contato, contatos, assets, onCl
           <ViewRow label="Departamento" value={contato.departamento} />
           {contato.departamento === DEPARTAMENTO_VENDAS && contato.vendaTipo && (
             <ViewRow label="Tipo de vendedor" value={contato.vendaTipo} />
+          )}
+          {contato.departamento === DEPARTAMENTO_ALMOXARIFADO && contato.almoxarifadoArea && (
+            <ViewRow label="Área do almoxarifado" value={contato.almoxarifadoArea} />
           )}
           {gestorDoDepto && (
             <ViewRow

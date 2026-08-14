@@ -10,6 +10,14 @@ import { dedupeCaseInsensitive } from './textFilter'
 export const DEPARTAMENTO_VENDAS = 'Vendas'
 export const VENDA_TIPOS = ['Interno(a)', 'Externo(a)', 'Consumidor Final']
 
+// Mesmo padrão do Vendas/vendaTipo acima, mas pra Almoxarifado: além do
+// departamento em si, Ativos e Contatos ligados a Almoxarifado também
+// guardam de qual área é (ver `almoxarifadoArea` em
+// AssetFormModal/ContatoFormModal). Campo condicional — só faz sentido
+// quando departamento === DEPARTAMENTO_ALMOXARIFADO.
+export const DEPARTAMENTO_ALMOXARIFADO = 'Almoxarifado'
+export const AREAS_ALMOXARIFADO = ['SAC', 'Romaneio']
+
 // Departamentos "extras": nomes criados intencionalmente antes de qualquer
 // ativo/colaborador usá-los, pra ficarem disponíveis como opção nos
 // formulários assim que alguém for cadastrar algo naquele departamento.
@@ -23,6 +31,7 @@ const EXTRA_DEPARTAMENTOS = [
   'Bem Estar',
   'Caixa',
   DEPARTAMENTO_VENDAS,
+  DEPARTAMENTO_ALMOXARIFADO,
 ]
 
 // União dos departamentos em uso em Ativos e Contatos com os extras acima —
@@ -40,6 +49,19 @@ export function getDepartamentoOptions(assets, contatos) {
     ...getDepartamentos(assets),
     ...getContatoDepartamentos(contatos),
     ...EXTRA_DEPARTAMENTOS,
+  ])
+  return values.sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+
+// Mesma ideia de getDepartamentoOptions, mas pra área do Almoxarifado: união
+// das áreas fixas (AREAS_ALMOXARIFADO) com as que já foram digitadas via
+// "+ Nova área..." em algum Ativo/Contato, pra uma área criada num módulo
+// aparecer como opção no outro também.
+export function getAlmoxarifadoAreaOptions(assets, contatos) {
+  const values = dedupeCaseInsensitive([
+    ...assets.map((a) => a.almoxarifadoArea),
+    ...contatos.map((c) => c.almoxarifadoArea),
+    ...AREAS_ALMOXARIFADO,
   ])
   return values.sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }
