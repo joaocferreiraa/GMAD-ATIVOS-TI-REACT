@@ -40,7 +40,7 @@ export default function ScriptTable({
             <a
               href={s.urlDownload}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className={`${buttonStyles.btn} ${buttonStyles.ghost} ${buttonStyles.sm}`}
               title="Baixar"
               aria-label="Baixar"

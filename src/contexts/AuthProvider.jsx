@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { isAuthRetryableFetchError } from '@supabase/supabase-js'
 import { supabase } from '../services/supabase/client'
 import {
   getSession,
@@ -51,7 +52,16 @@ export function AuthProvider({ children }) {
       if (document.visibilityState !== 'visible') return
       refreshUser().then(({ data, error }) => {
         if (error) {
-          signOutRequest()
+          // Erro de rede/indisponibilidade passageira do Supabase (Wi-Fi
+          // engasgou, serviço fora do ar por um instante) NÃO significa que
+          // a sessão é inválida — só não deu pra confirmar agora. Só desloga
+          // quando o erro veio mesmo da API dizendo que a sessão não vale
+          // mais (ex: usuário removido, token inválido) — senão, alguém no
+          // meio de um formulário que só voltou o foco pra aba perderia o
+          // que não salvou por causa de uma falha de rede momentânea.
+          if (!isAuthRetryableFetchError(error)) {
+            signOutRequest()
+          }
           return
         }
         if (!data.user) return

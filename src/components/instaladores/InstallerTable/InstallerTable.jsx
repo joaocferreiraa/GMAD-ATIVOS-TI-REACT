@@ -21,7 +21,7 @@ export default function InstallerTable({ rows, onView, onEdit, onDelete }) {
             <a
               href={i.urlDownload}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className={`${buttonStyles.btn} ${buttonStyles.ghost} ${buttonStyles.sm}`}
               title="Baixar"
               aria-label="Baixar"

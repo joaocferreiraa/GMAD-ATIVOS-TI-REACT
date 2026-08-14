@@ -1,6 +1,24 @@
 import { execFileSync } from 'node:child_process'
-import { defineConfig } from 'vite'
+import { defineConfig, createLogger } from 'vite'
 import react from '@vitejs/plugin-react'
+
+// Silencia só o aviso "A PostCSS plugin did not pass the `from` option to
+// postcss.parse" — é interno do próprio pipeline de CSS do Vite (processa
+// os .module.css do projeto), não vem de nenhum plugin/config nosso (não há
+// postcss.config.js aqui) e não indica erro real; só polui o terminal a
+// cada `npm run dev`. Esse aviso específico sai via logger.warnOnce (plugin
+// interno UrlRewritePostcssPlugin do próprio Vite, dist/node/chunks/node.js)
+// — não via logger.warn — então as duas precisam ser filtradas, senão só
+// filtrar `warn` deixa esse passar. Qualquer outro aviso continua normal.
+const logger = createLogger()
+function filtered(original) {
+  return (msg, options) => {
+    if (msg.includes('did not pass the `from` option to `postcss.parse`')) return
+    original(msg, options)
+  }
+}
+logger.warn = filtered(logger.warn)
+logger.warnOnce = filtered(logger.warnOnce)
 
 // Número de versão e data do commit atual, embutidos no bundle em build time
 // (Vercel clona o repo antes de buildar, então isso reflete o último push a
@@ -24,6 +42,7 @@ const buildInfo = getBuildInfo()
 
 // https://vite.dev/config/
 export default defineConfig({
+  customLogger: logger,
   plugins: [react()],
   define: {
     'import.meta.env.VITE_BUILD_NUMBER': JSON.stringify(buildInfo.number),

@@ -118,7 +118,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
     >
       <FormGrid>
         <FormField label="Nome do programa" required htmlFor="i_nome" error={errors.nome?.message}>
-          <Input id="i_nome" placeholder="Ex: AnyDesk" {...register('nome')} />
+          <Input id="i_nome" placeholder="Ex: AnyDesk" maxLength={150} {...register('nome')} />
         </FormField>
         <FormField label="Categoria" required htmlFor="i_categoria">
           <Controller
@@ -135,7 +135,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
           />
         </FormField>
         <FormField label="Versão" htmlFor="i_versao">
-          <Input id="i_versao" placeholder="Ex: 8.1.2" {...register('versao')} />
+          <Input id="i_versao" placeholder="Ex: 8.1.2" maxLength={40} {...register('versao')} />
         </FormField>
         <FormField label="Arquitetura" htmlFor="i_arquitetura">
           <Controller
@@ -152,12 +152,13 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
           />
         </FormField>
         <FormField label="Tamanho" htmlFor="i_tamanho">
-          <Input id="i_tamanho" placeholder="Ex: 45MB" {...register('tamanho')} />
+          <Input id="i_tamanho" placeholder="Ex: 45MB" maxLength={40} {...register('tamanho')} />
         </FormField>
         <FormField label="Desenvolvedor" htmlFor="i_desenvolvedor">
           <Input
             id="i_desenvolvedor"
             placeholder="Ex: AnyDesk Software GmbH"
+            maxLength={150}
             {...register('desenvolvedor')}
           />
         </FormField>
@@ -172,6 +173,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
           <Input
             id="i_urlDownload"
             placeholder="URL do arquivo (Supabase Storage, rede interna...)"
+            maxLength={2000}
             {...register('urlDownload')}
           />
         </FormField>
@@ -179,6 +181,7 @@ export default function InstallerFormModal({ open, item, onClose, onSave, onDele
           <Input
             id="i_observacoes"
             placeholder="Ex: usar apenas a versão MSI para instalação silenciosa"
+            maxLength={1000}
             {...register('observacoes')}
           />
         </FormField>

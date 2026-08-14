@@ -28,6 +28,17 @@ const contatoSchema = z
     departamento: z.string().min(1, 'Selecione o departamento.'),
     departamentoNovo: z.string(),
     vendaTipo: z.string(),
+    // Opcional (string vazia = "não informado"), mas quando preenchido
+    // precisa ser um e-mail de verdade — a checagem nativa do
+    // type="email" do input é fácil de contornar (colar, autofill) e não
+    // bloqueia o formulário sozinha (nenhum modal do sistema usa <form>
+    // de verdade, ver Modal.jsx).
+    email: z
+      .string()
+      .trim()
+      .refine((v) => v === '' || z.email().safeParse(v).success, {
+        message: 'Informe um e-mail válido.',
+      }),
   })
   .loose()
   .refine((data) => data.departamento !== NOVO_ITEM || data.departamentoNovo.trim(), {
@@ -237,7 +248,12 @@ export default function ContatoFormModal({
         <FormField label="Ramal" htmlFor="c_ramal">
           <Input id="c_ramal" placeholder="Ex: 1234" {...register('ramal')} />
         </FormField>
-        <FormField label="E-mail corporativo" full htmlFor="c_email">
+        <FormField
+          label="E-mail corporativo"
+          full
+          htmlFor="c_email"
+          error={errors.email?.message}
+        >
           <Input
             id="c_email"
             type="email"

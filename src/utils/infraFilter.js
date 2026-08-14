@@ -1,5 +1,12 @@
 import { CONSTRUSHOW_FIELDS, INFRA_UNIT_NAMES, WIFI_FIELDS } from '../constants/infra'
 
+// Campos de Wi-Fi usados na BUSCA — todos exceto os mascarados (`senha`).
+// Incluir a senha aqui deixava a busca funcionar como um "oráculo": digitar
+// um trecho da senha e ver se o card continua na lista revelava se aquele
+// trecho está certo, sem precisar clicar no botão de mostrar. `WIFI_FIELDS`
+// em si continua intocado — ainda é usado pra EXIBIR todos os campos.
+const WIFI_SEARCHABLE_FIELDS = WIFI_FIELDS.filter((f) => !f.masked)
+
 function infraNorm(s) {
   return String(s || '').toLowerCase()
 }
@@ -56,6 +63,6 @@ export function groupWifi(list, search) {
         !q ||
         titleMatches ||
         infraNorm(unidade).includes(q) ||
-        items.some(({ w }) => infraFieldsMatch(WIFI_FIELDS, w, q)),
+        items.some(({ w }) => infraFieldsMatch(WIFI_SEARCHABLE_FIELDS, w, q)),
     )
 }

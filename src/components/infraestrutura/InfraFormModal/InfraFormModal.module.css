@@ -1,0 +1,32 @@
+.maskedWrap {
+  position: relative;
+}
+
+.maskedInput {
+  padding-right: 42px;
+}
+
+.togglePw {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.togglePw:hover {
+  background: var(--surface-hover);
+  color: var(--text-muted);
+}

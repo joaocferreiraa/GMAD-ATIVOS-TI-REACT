@@ -20,7 +20,15 @@ const STATUS_OPTIONS = STOCK_STATUS_OPTIONS.map((s) => ({ value: s, label: s }))
 const stockSchema = z
   .object({
     item: z.string().trim().min(1, 'Informe o nome do item.'),
-    quantidade: z.coerce.string().trim().min(1, 'Informe a quantidade.'),
+    // Só dígitos (sem "-", sem ".") — quantidade em estoque não pode ser
+    // negativa nem fracionária. O `min={0}`/`type="number"` do campo não
+    // bastam sozinhos: nenhum modal do sistema usa <form> de verdade (ver
+    // Modal.jsx), então a validação nativa do HTML nunca dispara.
+    quantidade: z
+      .coerce.string()
+      .trim()
+      .min(1, 'Informe a quantidade.')
+      .refine((v) => /^\d+$/.test(v), 'Informe um número inteiro igual ou maior que zero.'),
   })
   .loose()
 
@@ -130,12 +138,18 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
           />
         </FormField>
         <FormField label="Nome do item" required htmlFor="s_item" error={errors.item?.message}>
-          <Input id="s_item" placeholder="Ex: Memória RAM 8GB DDR4" {...register('item')} />
+          <Input
+            id="s_item"
+            placeholder="Ex: Memória RAM 8GB DDR4"
+            maxLength={150}
+            {...register('item')}
+          />
         </FormField>
         <FormField label="Marca / Modelo" htmlFor="s_marcaModelo">
           <Input
             id="s_marcaModelo"
             placeholder="Ex: Kingston KVR26N19S8"
+            maxLength={150}
             {...register('marcaModelo')}
           />
         </FormField>
@@ -182,6 +196,7 @@ export default function StockFormModal({ open, item, assets, onClose, onSave, on
           <Input
             id="s_observacoes"
             placeholder="Ex: reservado para troca no NTB-0012"
+            maxLength={1000}
             {...register('observacoes')}
           />
         </FormField>

@@ -81,7 +81,7 @@ export default function InstallerDrawer({ open, item, onClose, onEdit }) {
             <a
               href={item.urlDownload}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className={`${buttonStyles.btn} ${buttonStyles.primary} ${buttonStyles.sm}`}
             >
               <DownloadIcon /> Baixar

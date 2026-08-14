@@ -7,11 +7,19 @@
 // grava `disponivel: false` e nada de latência/perda de pacotes.
 import 'dotenv/config'
 import { createClient } from '@supabase/supabase-js'
-import { exec } from 'node:child_process'
+import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import os from 'node:os'
 
-const execAsync = promisify(exec)
+// execFile (não exec): manda o binário `ping` rodar direto, sem passar por
+// um shell. `host` vem do cadastro do painel (campo de texto livre, sem
+// validação de formato) — com exec()/uma string de comando, alguém
+// cadastrando um host tipo "127.0.0.1 & comando-malicioso" executaria esse
+// comando na máquina do agente. Com execFile() + array de argumentos, o
+// host vira SEMPRE um único argumento literal pro `ping`, nunca é
+// interpretado por um shell — na pior hipótese o `ping` falha por não
+// achar esse "host", tratado normalmente pelo catch abaixo.
+const execFileAsync = promisify(execFile)
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
@@ -98,10 +106,10 @@ function parseUnixPing(stdout) {
 // falhar ou a saída não puder ser interpretada, devolve indisponível.
 async function pingHost(host) {
   const isWindows = os.platform() === 'win32'
-  const cmd = isWindows ? `ping -n ${PING_COUNT} ${host}` : `ping -c ${PING_COUNT} ${host}`
+  const args = isWindows ? ['-n', String(PING_COUNT), host] : ['-c', String(PING_COUNT), host]
   const parse = isWindows ? parseWindowsPing : parseUnixPing
   try {
-    const { stdout } = await execAsync(cmd, { timeout: 15000 })
+    const { stdout } = await execFileAsync('ping', args, { timeout: 15000 })
     return parse(stdout)
   } catch (err) {
     // ping retorna código de saída != 0 quando há perda de pacotes — ainda

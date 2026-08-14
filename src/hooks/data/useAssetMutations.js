@@ -8,6 +8,12 @@ const useCrud = createCrudMutations({
   saveFn: saveAssets,
   uidParam: 'assetUid',
   withAudit: true,
+  // O ID (hostname/tag) é usado em busca, tabela, CSV e relatórios — dois
+  // ativos com o mesmo ID (ex: duas pessoas cadastrando quase ao mesmo
+  // tempo, cada uma vendo a lista de antes da outra salvar) confundiria
+  // qual é qual em todos esses lugares.
+  uniqueField: 'id',
+  duplicateMessage: (id) => `Já existe um ativo com o ID "${id}". Escolha outro identificador.`,
   createLogMessage: (record) => `Cadastrou o ativo ${record.id} (${record.categoria})`,
   updateLogMessage: (record) => `Editou o ativo ${record.id} (${record.categoria})`,
   deleteLogMessage: (asset) => `Excluiu o ativo ${asset.id} (${asset.categoria})`,

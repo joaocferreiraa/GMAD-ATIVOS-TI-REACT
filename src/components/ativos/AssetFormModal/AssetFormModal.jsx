@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -11,7 +11,7 @@ import Select from '../../ui/Select/Select'
 import AssetSpecFields from '../AssetSpecFields/AssetSpecFields'
 import VendaTipoField from '../../ui/VendaTipoField/VendaTipoField'
 import { CATEGORIES } from '../../../constants/categories'
-import { FIELD_GROUPS, ID_PREFIX } from '../../../constants/fieldGroups'
+import { FIELD_GROUPS } from '../../../constants/fieldGroups'
 import { getUnidades } from '../../../utils/units'
 import {
   getDepartamentoOptions,
@@ -37,6 +37,19 @@ const ALL_SPEC_KEYS = Array.from(
   new Set(Object.values(FIELD_GROUPS).flatMap((group) => group.map((f) => f.key))),
 )
 
+// Preço/aluguel são opcionais (string vazia = "não informado"), mas quando
+// preenchidos precisam ser um número válido e não-negativo — o
+// `type="number"` do campo não basta sozinho: nenhum modal do sistema usa
+// <form> de verdade (ver Modal.jsx), então a validação nativa do HTML nunca
+// dispara, e um valor negativo digitado distorceria o "Total investido" do
+// Dashboard (soma parseFloat(a.preco) sem checar sinal).
+const nonNegativeMoney = z
+  .string()
+  .trim()
+  .refine((v) => v === '' || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+    message: 'Informe um valor igual ou maior que zero.',
+  })
+
 // Só os campos indispensáveis pro registro fazer sentido (mesmos exigidos
 // pela checagem manual anterior); `.loose()` mantém os demais campos do
 // formulário (spec, departamento, usuário, ...) intocados na saída.
@@ -50,6 +63,8 @@ const assetSchema = z
     vendaTipo: z.string(),
     usuario: z.string(),
     usuarioNovo: z.string(),
+    preco: nonNegativeMoney,
+    valorAluguel: nonNegativeMoney,
   })
   .loose()
   .refine((data) => data.departamento !== NOVO_ITEM || data.departamentoNovo.trim(), {
@@ -110,6 +125,13 @@ export default function AssetFormModal({
   const isEdit = !!asset
   const { showToast } = useToast()
   const [shake, setShake] = useState(false)
+  // Guarda o último ID que o PRÓPRIO componente gerou (não um valor
+  // recalculado) — é isso que permite reconhecer "esse ID foi automático"
+  // com certeza, em vez de tentar adivinhar pela categoria/unidade
+  // anteriores (que quebra se a unidade mudou entre um auto-preenchimento e
+  // outro, ver handleUnidadeChange). `null` = nada foi auto-gerado ainda
+  // nesta sessão do formulário.
+  const lastAutoId = useRef(null)
 
   const {
     control,
@@ -126,7 +148,10 @@ export default function AssetFormModal({
   })
 
   useEffect(() => {
-    if (open) reset(buildDefaultValues(asset, defaultUnidade))
+    if (open) {
+      reset(buildDefaultValues(asset, defaultUnidade))
+      lastAutoId.current = null
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, asset])
 
@@ -163,9 +188,19 @@ export default function AssetFormModal({
     }
     if (!isEdit) {
       const currentId = getValues('id')
-      const looksAuto = !currentId || Object.values(ID_PREFIX).some((p) => currentId.startsWith(p))
       const unidadeVal = getValues('unidade')
-      if (looksAuto && unidadeVal) setValue('id', nextIdFor(assets, newCategoria, unidadeVal))
+      // "Parece automático" = é exatamente o último ID que o próprio
+      // componente gerou (lastAutoId), não um valor recalculado — assim
+      // continua reconhecendo como automático mesmo que a unidade tenha
+      // mudado depois do preenchimento (ver handleUnidadeChange), e nunca
+      // confunde com um ID digitado à mão só porque começa com um prefixo
+      // de categoria válido (ex: "TV-RECEPCAO" pra uma Televisão).
+      const looksAuto = !currentId || currentId === lastAutoId.current
+      if (looksAuto && unidadeVal) {
+        const newId = nextIdFor(assets, newCategoria, unidadeVal)
+        setValue('id', newId)
+        lastAutoId.current = newId
+      }
     }
   }
 
@@ -184,7 +219,9 @@ export default function AssetFormModal({
   function handleUnidadeChange(newUnidade, onChange) {
     onChange(newUnidade)
     if (!isEdit && !getValues('id')) {
-      setValue('id', nextIdFor(assets, getValues('categoria'), newUnidade))
+      const newId = nextIdFor(assets, getValues('categoria'), newUnidade)
+      setValue('id', newId)
+      lastAutoId.current = newId
     }
   }
 
@@ -305,7 +342,7 @@ export default function AssetFormModal({
                 htmlFor="f_id"
                 error={errors.id?.message}
               >
-                <Input id="f_id" placeholder="Ex: DSK-0028" {...register('id')} />
+                <Input id="f_id" placeholder="Ex: DSK-0028" maxLength={60} {...register('id')} />
               </FormField>
               <FormField label="Etiqueta física" htmlFor="f_etiqueta">
                 <Controller
@@ -377,6 +414,7 @@ export default function AssetFormModal({
                     <Input
                       placeholder="Digite o novo departamento"
                       style={{ marginTop: 8 }}
+                      maxLength={100}
                       {...register('departamentoNovo')}
                     />
                     {errors.departamentoNovo && (
@@ -422,6 +460,7 @@ export default function AssetFormModal({
                     <Input
                       placeholder="Digite o nome do usuário"
                       style={{ marginTop: 8 }}
+                      maxLength={150}
                       {...register('usuarioNovo')}
                     />
                     {errors.usuarioNovo && (
@@ -460,7 +499,11 @@ export default function AssetFormModal({
               )}
               {isAlugada ? (
                 <>
-                  <FormField label="Valor do aluguel (R$)" htmlFor="f_valorAluguel">
+                  <FormField
+                    label="Valor do aluguel (R$)"
+                    htmlFor="f_valorAluguel"
+                    error={errors.valorAluguel?.message}
+                  >
                     <Input id="f_valorAluguel" type="number" step="0.01" {...register('valorAluguel')} />
                   </FormField>
                   <FormField label="Renovação do contrato" htmlFor="f_renovacaoAluguel">
@@ -475,7 +518,7 @@ export default function AssetFormModal({
                   <FormField label="Garantia até" htmlFor="f_garantiaAte">
                     <Input id="f_garantiaAte" type="date" {...register('garantiaAte')} />
                   </FormField>
-                  <FormField label="Preço de compra (R$)" htmlFor="f_preco">
+                  <FormField label="Preço de compra (R$)" htmlFor="f_preco" error={errors.preco?.message}>
                     <Input id="f_preco" type="number" step="0.01" {...register('preco')} />
                   </FormField>
                 </>

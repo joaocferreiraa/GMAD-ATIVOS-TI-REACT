@@ -29,6 +29,16 @@ export function createCrudMutations({
   updateSuccessMessage,
   deleteSuccessMessage,
   extraCreateFields,
+  // Campo que precisa ser único entre os registros (ex: 'id' em Ativos —
+  // hostname/tag usado em busca, tabela, CSV e relatórios). Opcional: só
+  // módulos que realmente têm um campo assim passam isso; os demais
+  // continuam sem nenhuma checagem extra. A comparação usa SEMPRE a lista
+  // recém-buscada (getFreshOrToast), não o cache local que sugeriu o
+  // valor — é isso que fecha a corrida entre duas sessões criando um
+  // registro com o mesmo valor quase ao mesmo tempo, cada uma vendo os
+  // dados de antes da outra salvar.
+  uniqueField,
+  duplicateMessage = (value) => `Já existe um registro com "${value}" — use outro valor.`,
   useExtraMutations = () => null,
 }) {
   return function useCrudMutations() {
@@ -46,7 +56,7 @@ export function createCrudMutations({
         await saveFn(next, expectedUpdatedAt)
       } catch (e) {
         if (e instanceof KvConflictError) {
-          const { value: latest } = await getFreshFn()
+          const { value: latest } = await getFreshOrToast()
           applyLocally(latest)
           showToast(
             'Alguém alterou esses dados enquanto você editava — a tela foi atualizada com a versão mais recente. Confira e repita a ação se necessário.',
@@ -58,9 +68,36 @@ export function createCrudMutations({
       }
     }
 
+    // getFreshFn() (a leitura que toda mutação faz ANTES de aplicar a
+    // mudança) não tinha tratamento de erro nenhum — se caísse (sessão
+    // expirada, sem rede), a mutação falhava sem toast, sem mensagem, sem
+    // nada visível (não há onError em lugar nenhum do app). Mesma mensagem
+    // de falha que persist() já usa pro mesmo tipo de problema, só que na
+    // ponta de leitura em vez da de gravação — e relança pra quem chamou
+    // saber que a operação não aconteceu (ex: o modal não deve fechar).
+    async function getFreshOrToast() {
+      try {
+        return await getFreshFn()
+      } catch (e) {
+        showToast('Falha ao carregar os dados atuais. Verifique sua conexão com o Supabase.', 'danger')
+        throw e
+      }
+    }
+
+    // Só relevante quando `uniqueField` foi passado. `excludeUid`: ao editar,
+    // o próprio registro não conta como duplicata dele mesmo.
+    function findDuplicate(list, value, excludeUid) {
+      if (!uniqueField || value === undefined || value === '') return undefined
+      return list.find((item) => item.uid !== excludeUid && item[uniqueField] === value)
+    }
+
     const create = useMutation({
       mutationFn: async (record) => {
-        const { value: list, updatedAt } = await getFreshFn()
+        const { value: list, updatedAt } = await getFreshOrToast()
+        if (findDuplicate(list, record[uniqueField])) {
+          showToast(duplicateMessage(record[uniqueField]), 'danger')
+          throw new Error(`Valor duplicado em "${uniqueField}"`)
+        }
         const newRecord = {
           ...record,
           uid: uid(),
@@ -80,7 +117,19 @@ export function createCrudMutations({
       mutationFn: async (payload) => {
         const targetUid = payload[uidParam]
         const { record } = payload
-        const { value: list, updatedAt } = await getFreshFn()
+        const { value: list, updatedAt } = await getFreshOrToast()
+        // Só barra quando o valor único está REALMENTE mudando. Como essa
+        // checagem não existia antes, dados de produção podem já ter
+        // duplicatas antigas — sem essa condição, editar QUALQUER campo
+        // (mesmo sem tocar no valor único) de um desses registros ficaria
+        // bloqueado pra sempre, sem forma de corrigir pela própria tela.
+        const targetItem = list.find((item) => item.uid === targetUid)
+        const uniqueValueChanged =
+          uniqueField && targetItem && record[uniqueField] !== targetItem[uniqueField]
+        if (uniqueValueChanged && findDuplicate(list, record[uniqueField], targetUid)) {
+          showToast(duplicateMessage(record[uniqueField]), 'danger')
+          throw new Error(`Valor duplicado em "${uniqueField}"`)
+        }
         const patch = withAudit
           ? { ...record, atualizadoEm: new Date().toISOString(), atualizadoPor: autor }
           : { ...record }
@@ -95,7 +144,7 @@ export function createCrudMutations({
 
     const remove = useMutation({
       mutationFn: async (item) => {
-        const { value: list, updatedAt } = await getFreshFn()
+        const { value: list, updatedAt } = await getFreshOrToast()
         const next = list.filter((i) => i.uid !== item.uid)
         applyLocally(next)
         await pushLog(deleteLogMessage(item), autor)
@@ -106,8 +155,15 @@ export function createCrudMutations({
 
     // Mutações extras específicas de um domínio (ex: favoritar/registrar
     // download em Scripts) que não fazem parte do padrão CRUD comum — mesmas
-    // `applyLocally`/`persist`/`getFreshFn`, sem log de atividade nem toast.
-    const extra = useExtraMutations({ queryClient, queryKey, applyLocally, persist, getFreshFn })
+    // `applyLocally`/`persist`/`getFreshFn` (já com o toast de falha de
+    // leitura), sem log de atividade nem toast de sucesso.
+    const extra = useExtraMutations({
+      queryClient,
+      queryKey,
+      applyLocally,
+      persist,
+      getFreshFn: getFreshOrToast,
+    })
 
     return { create, update, remove, ...extra }
   }

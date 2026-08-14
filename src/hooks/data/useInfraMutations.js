@@ -27,7 +27,7 @@ export function useInfraMutations() {
       await saveInfra(next, expectedUpdatedAt)
     } catch (e) {
       if (e instanceof KvConflictError) {
-        const { value: latest } = await getInfraWithMeta()
+        const { value: latest } = await getFreshOrToast()
         applyLocally(latest)
         showToast(
           'Alguém alterou esses dados enquanto você editava — a tela foi atualizada com a versão mais recente. Confira e repita a ação se necessário.',
@@ -39,9 +39,23 @@ export function useInfraMutations() {
     }
   }
 
+  // getInfraWithMeta() (a leitura que toda mutação faz ANTES de aplicar a
+  // mudança) não tinha tratamento de erro — se caísse (sessão expirada, sem
+  // rede), a mutação falhava sem toast, sem mensagem nenhuma visível (não
+  // há onError em lugar nenhum do app). Mesmo texto que persist() já usa
+  // pro mesmo tipo de problema, só que na ponta de leitura.
+  async function getFreshOrToast() {
+    try {
+      return await getInfraWithMeta()
+    } catch (e) {
+      showToast('Falha ao carregar os dados atuais. Verifique sua conexão com o Supabase.', 'danger')
+      throw e
+    }
+  }
+
   const updateConstrushow = useMutation({
     mutationFn: async ({ idx, record }) => {
-      const { value: current, updatedAt } = await getInfraWithMeta()
+      const { value: current, updatedAt } = await getFreshOrToast()
       const unidade = current.construshow[idx].unidade
       const next = {
         ...current,
@@ -56,7 +70,7 @@ export function useInfraMutations() {
 
   const updateWifi = useMutation({
     mutationFn: async ({ idx, record }) => {
-      const { value: current, updatedAt } = await getInfraWithMeta()
+      const { value: current, updatedAt } = await getFreshOrToast()
       const unidade = current.wifi[idx].unidade
       const next = {
         ...current,
@@ -71,7 +85,7 @@ export function useInfraMutations() {
 
   const addWifiNetwork = useMutation({
     mutationFn: async (unidade) => {
-      const { value: current, updatedAt } = await getInfraWithMeta()
+      const { value: current, updatedAt } = await getFreshOrToast()
       const count = current.wifi.filter((w) => w.unidade === unidade).length
       const newRecord = {
         unidade,
