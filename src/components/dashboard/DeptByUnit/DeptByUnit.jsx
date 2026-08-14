@@ -13,9 +13,15 @@ const DEPT_COLORS = [
 
 // Distribuição por setor em cada unidade (.dept-by-unit) — um bloco por
 // unidade, sempre com todos os ativos (não respeita o filtro do dashboard,
-// igual ao sistema original).
-export default function DeptByUnit({ units }) {
-  if (!units.length) return <EmptyHint>Nenhuma unidade cadastrada ainda.</EmptyHint>
+// igual ao sistema original). Reaproveitado também pra "Colaboradores por
+// departamento" (dados de Contatos em vez de Ativos) — daí os textos vazios
+// configuráveis em vez de hardcoded.
+export default function DeptByUnit({
+  units,
+  emptyMessage = 'Nenhuma unidade cadastrada ainda.',
+  itemEmptyMessage = 'Sem ativos cadastrados.',
+}) {
+  if (!units.length) return <EmptyHint>{emptyMessage}</EmptyHint>
 
   return (
     <div className={styles.grid}>
@@ -27,7 +33,7 @@ export default function DeptByUnit({ units }) {
           {unit.bars.length ? (
             <BarChart data={unit.bars} colors={DEPT_COLORS} compact showTotal={false} />
           ) : (
-            <EmptyHint>Sem ativos cadastrados.</EmptyHint>
+            <EmptyHint>{itemEmptyMessage}</EmptyHint>
           )}
         </div>
       ))}

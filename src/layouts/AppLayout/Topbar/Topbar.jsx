@@ -95,7 +95,7 @@ function NotificationsButton() {
     <div ref={rootRef} className={styles.notifRoot}>
       <button
         type="button"
-        className={styles.iconBtn}
+        className={`${styles.iconBtn} ${styles.iconBtnAccent}`}
         onClick={() => setOpen((current) => !current)}
         aria-label="Notificações"
         aria-haspopup="menu"
@@ -186,7 +186,7 @@ export default function Topbar() {
           <div className={styles.navRight}>
             <button
               type="button"
-              className={styles.iconBtn}
+              className={`${styles.iconBtn} ${styles.iconBtnAccent}`}
               onClick={toggleTheme}
               aria-label="Alternar tema"
               {...bindTooltip('Alternar tema')}
@@ -211,7 +211,7 @@ export default function Topbar() {
             </div>
             <button
               type="button"
-              className={styles.iconBtn}
+              className={`${styles.iconBtn} ${styles.iconBtnAccent}`}
               onClick={() => signOut()}
               aria-label="Sair"
               {...bindTooltip('Sair')}

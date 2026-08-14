@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAssets } from '../../hooks/data/useAssets'
+import { useContatos } from '../../hooks/data/useContatos'
 import { useNavigateTo } from '../../hooks/useNavigateTo'
 import { useDashboardData } from './useDashboardData'
 import Card from '../../components/ui/Card/Card'
@@ -10,17 +11,33 @@ import KpiStrip from '../../components/dashboard/KpiStrip/KpiStrip'
 import MiniStats from '../../components/dashboard/MiniStats/MiniStats'
 import AttentionList from '../../components/dashboard/AttentionList/AttentionList'
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
+import CompletionMeter from '../../components/dashboard/CompletionMeter/CompletionMeter'
 import DonutChart from '../../components/charts/DonutChart/DonutChart'
-import UnitColumnChart from '../../components/charts/UnitColumnChart/UnitColumnChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
+import StackedBarChart from '../../components/charts/StackedBarChart/StackedBarChart'
 import styles from './DashboardPage.module.css'
+
+// Paleta pro StackedBarChart de colaboradores por departamento — mais ampla
+// que as outras (6 cores) porque o número de departamentos reais costuma
+// passar disso; repetição de cor é esperada, o hover sempre mostra o nome
+// exato do departamento.
+const DEPARTMENT_COLORS = [
+  'var(--verde-700)',
+  'var(--laranja)',
+  'var(--verde-600)',
+  'var(--verde-900)',
+  'var(--laranja-forte)',
+  'var(--verde-800)',
+  'var(--madeira)',
+]
 
 export default function DashboardPage() {
   const { data: assets, isLoading, isError } = useAssets()
+  const { data: contatos } = useContatos()
   const [dashUnidade, setDashUnidade] = useState('Todas')
   const navigateTo = useNavigateTo()
 
-  const dashboard = useDashboardData(assets ?? [], dashUnidade)
+  const dashboard = useDashboardData(assets ?? [], contatos ?? [], dashUnidade)
 
   return (
     <div>
@@ -56,8 +73,13 @@ export default function DashboardPage() {
           />
 
           <div className={styles.grid}>
-            <Card title="Idade do parque" subtitle="Tempo desde a aquisição dos equipamentos">
-              <DonutChart {...dashboard.ageChart} />
+            <Card title="Idade do parque" subtitle="Cadastro de data de aquisição dos equipamentos">
+              <CompletionMeter
+                label="dos ativos com data de aquisição cadastrada"
+                filled={dashboard.ageCompleteness.filled}
+                total={dashboard.ageCompleteness.total}
+                missingLabel="ainda sem data cadastrada"
+              />
             </Card>
             <Card
               attn
@@ -72,15 +94,16 @@ export default function DashboardPage() {
           <div className={styles.grid}>
             <Card
               title="Distribuição por unidade"
-              subtitle="Ativos cadastrados e valor investido por unidade / local"
+              subtitle="Colaboradores cadastrados por departamento, por unidade / local"
             >
               <GroupSplit
                 madville={dashboard.groupSplit.madville}
                 outras={dashboard.groupSplit.outras}
               />
-              <UnitColumnChart
-                {...dashboard.unitChart}
-                emptyMessage="Nenhuma unidade cadastrada ainda."
+              <StackedBarChart
+                units={dashboard.colaboradoresByDept}
+                colors={DEPARTMENT_COLORS}
+                emptyMessage="Nenhum colaborador cadastrado ainda."
               />
             </Card>
             <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">

@@ -7,23 +7,6 @@ import { BuildingIcon, DollarIcon, StockIcon } from '../../components/ui/Icon/ic
 import { ROUTES } from '../../constants/routes'
 
 const DONUT_COLORS_STATUS = ['var(--ok)', 'var(--warn)', 'var(--danger)']
-const DONUT_COLORS_AGE = [
-  'var(--verde-700)',
-  'var(--verde-600)',
-  'var(--laranja)',
-  'var(--laranja-forte)',
-  'var(--verde-900)',
-  'var(--text-faint)',
-]
-const AGE_BUCKETS = ['Até 1 ano', '1 a 2 anos', '2 a 3 anos', '3 a 5 anos', 'Mais de 5 anos', 'Sem data']
-const DONUT_COLORS_UNI = [
-  'var(--verde-900)',
-  'var(--laranja)',
-  'var(--verde-600)',
-  'var(--verde-700)',
-  'var(--laranja-forte)',
-  'var(--verde-800)',
-]
 
 const UNIT_SELECT_ORDER = [
   'Madville (Loja)',
@@ -49,25 +32,17 @@ function scopedByDashUnit(assets, dashUnidade) {
     : assets.filter((a) => matchesUnitValue(a.unidade, dashUnidade))
 }
 
-// Faixa de tempo desde a aquisição, pro gráfico "Idade do parque". Mesmo
-// parse de data usado em warrantyInfo() (formatters.js), pra tratar
+// Mesmo parse de data usado em warrantyInfo() (formatters.js), pra tratar
 // "2024-03-15T00:00:00" de forma consistente com o resto do app.
-function ageBucket(dataAquisicao) {
-  if (!dataAquisicao) return 'Sem data'
-  const acquired = new Date(`${dataAquisicao}T00:00:00`)
-  if (Number.isNaN(acquired.getTime())) return 'Sem data'
-  const days = Math.floor((Date.now() - acquired.getTime()) / 86400000)
-  if (days < 365) return 'Até 1 ano'
-  if (days < 730) return '1 a 2 anos'
-  if (days < 1095) return '2 a 3 anos'
-  if (days < 1825) return '3 a 5 anos'
-  return 'Mais de 5 anos'
+function hasValidDate(iso) {
+  return Boolean(iso) && !Number.isNaN(new Date(`${iso}T00:00:00`).getTime())
 }
 
 // Toda a lógica de agregação do Dashboard, separada da renderização.
-// Recebe a lista de ativos (React Query) e a unidade selecionada no filtro,
-// devolve dados já prontos para os componentes apresentacionais consumirem.
-export function useDashboardData(assets, dashUnidade) {
+// Recebe a lista de ativos e de contatos (React Query) e a unidade
+// selecionada no filtro, devolve dados já prontos para os componentes
+// apresentacionais consumirem.
+export function useDashboardData(assets, contatos, dashUnidade) {
   return useMemo(() => {
     const scoped = scopedByDashUnit(assets, dashUnidade)
     const unidades = getUnidades(assets)
@@ -187,44 +162,31 @@ export function useDashboardData(assets, dashUnidade) {
     // ---- Lista de atenção (até 8 itens) ----
     const attentionList = buildAttentionList(scoped)
 
-    // ---- Gráfico por idade do parque (respeita o filtro de unidade) ----
-    // dataAquisicao nunca vira métrica em nenhum outro lugar do painel hoje
-    // — diferente da contagem por categoria, que já duplicava os tiles do
-    // KpiStrip logo acima.
-    const ageChart = {
-      data: AGE_BUCKETS.map((bucket) => ({
-        label: bucket,
-        value: scoped.filter((a) => ageBucket(a.dataAquisicao) === bucket).length,
-      })),
-      colors: DONUT_COLORS_AGE,
-      unitLabel: 'ativos',
+    // ---- Completude do cadastro de data de aquisição (respeita o filtro de
+    // unidade) ---- dataAquisicao nunca vira métrica em nenhum outro lugar
+    // do painel hoje — diferente da contagem por categoria, que já
+    // duplicava os tiles do KpiStrip logo acima. Boa parte do parque ainda
+    // não tem essa data cadastrada, então uma distribuição por faixa etária
+    // ficaria dominada por "sem data" — mostra o quanto falta preencher em
+    // vez disso, o que é acionável (e cresce sozinho conforme a equipe
+    // preenche o campo em Ativos).
+    const ageCompleteness = {
+      filled: scoped.filter((a) => hasValidDate(a.dataAquisicao)).length,
+      total: scoped.length,
     }
 
-    // ---- Gráfico por unidade (sempre todas as unidades, sem o filtro) ----
-    // Valor investido em vez de contagem: a contagem por unidade já aparece
-    // nos cabeçalhos de "Distribuição por setor" logo abaixo, então essa
-    // mesma info aqui era redundante.
-    const unitChart = {
-      data: orderedBy(unidades, UNIT_SELECT_ORDER).map((u) => ({
-        label: unitDisplayName(u),
-        value: assets
-          .filter((a) => a.unidade === u)
-          .reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0),
-      })),
-      colors: DONUT_COLORS_UNI,
-      unitLabel: 'valor investido',
-      formatValue: (value) => fmtMoney(value, { maximumFractionDigits: 0 }),
-    }
-
-    const madvilleTotal = assets.filter((a) => isMadvilleUnit(a.unidade)).length
-    const outrasTotal = assets.filter((a) => a.unidade && !isMadvilleUnit(a.unidade)).length
+    // Colaboradores (Contatos), não ativos — uma pessoa pode ter vários
+    // ativos cadastrados no nome dela, o que infla uma contagem baseada em
+    // Ativos e não reflete o tamanho real do time por unidade.
+    const madvilleColaboradores = contatos.filter((c) => isMadvilleUnit(c.unidade)).length
+    const outrasColaboradores = contatos.filter((c) => c.unidade && !isMadvilleUnit(c.unidade)).length
     const madvilleUnitCount = unidades.filter(isMadvilleUnit).length
     const groupSplit = {
       madville: {
-        value: madvilleTotal,
+        value: madvilleColaboradores,
         label: `GMAD Madville · ${madvilleUnitCount} unidade(s) própria(s)`,
       },
-      outras: { value: outrasTotal, label: 'GMAD Curitiba' },
+      outras: { value: outrasColaboradores, label: 'GMAD Curitiba' },
     }
 
     // ---- Gráfico por status (respeita o filtro de unidade) ----
@@ -254,6 +216,24 @@ export function useDashboardData(assets, dashUnidade) {
       return { unit: u, label: unitDisplayName(u), total: unitScoped.length, bars: counts }
     })
 
+    // ---- Colaboradores por departamento (Contatos, não Ativos — nunca
+    // cruzado com o Dashboard antes; sempre todas as unidades, mesmo padrão
+    // de "Distribuição por setor" acima) ----
+    const colaboradoresByDept = orderedBy(unidades, UNIT_SELECT_ORDER).map((u) => {
+      const unitContatos = contatos.filter((c) => c.unidade === u)
+      const depts = Array.from(
+        new Set(unitContatos.map((c) => c.departamento).filter(Boolean)),
+      ).sort()
+      const counts = depts.map((d) => ({
+        label: d,
+        value: unitContatos.filter((c) => c.departamento === d).length,
+      }))
+      const semDept = unitContatos.filter((c) => !c.departamento).length
+      if (semDept) counts.push({ label: 'Sem departamento', value: semDept })
+      counts.sort((a, b) => b.value - a.value)
+      return { unit: u, label: unitDisplayName(u), total: unitContatos.length, bars: counts }
+    })
+
     // ---- Dropdown de unidade ----
     const unitDropdownItems = [
       { value: 'Todas', label: 'Todas as unidades' },
@@ -274,13 +254,13 @@ export function useDashboardData(assets, dashUnidade) {
       financeTiles,
       miniStats,
       attentionList,
-      ageChart,
-      unitChart,
+      ageCompleteness,
       groupSplit,
       statusChart,
       deptByUnit,
+      colaboradoresByDept,
       unitDropdownItems,
       unitDropdownLabel,
     }
-  }, [assets, dashUnidade])
+  }, [assets, contatos, dashUnidade])
 }
