@@ -29,13 +29,20 @@ export default function Sidebar() {
             key={to}
             to={to}
             end={end}
-            title={label}
             className={({ isActive }) => `${styles.navButton} ${isActive ? styles.active : ''}`}
           >
             <span className={styles.navIcon}>
               <Icon />
             </span>
             <span className={styles.label}>{label}</span>
+            {/* Tooltip próprio (não o title nativo do navegador — lento pra
+                aparecer e sem estilo) — mostra o nome completo tanto quando
+                o rótulo trunca (sidebar expandida, nomes longos como
+                "Monitoramento de Rede") quanto quando ela está recolhida
+                (só ícone). */}
+            <span className={styles.navTooltip} role="tooltip">
+              {label}
+            </span>
           </NavLink>
         ))}
       </div>
