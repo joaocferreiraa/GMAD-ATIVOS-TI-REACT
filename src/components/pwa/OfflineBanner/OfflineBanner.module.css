@@ -1,0 +1,16 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  padding: 8px 16px;
+  padding-top: calc(8px + var(--safe-top));
+  background: var(--warn-bg);
+  color: var(--warn);
+  border-bottom: 1px solid rgba(217, 133, 15, 0.3);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}

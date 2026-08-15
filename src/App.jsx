@@ -5,6 +5,8 @@ import { ThemeProvider } from './contexts/ThemeProvider'
 import { ToastProvider } from './contexts/ToastProvider'
 import { HoverTooltipProvider } from './contexts/HoverTooltipProvider'
 import ToastContainer from './components/ui/Toast/ToastContainer'
+import OfflineBanner from './components/pwa/OfflineBanner/OfflineBanner'
+import InstallPrompt from './components/pwa/InstallPrompt/InstallPrompt'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { router } from './router/routes'
 
@@ -36,6 +38,8 @@ export default function App() {
                 <RouterProvider router={router} />
               </AuthProvider>
               <ToastContainer />
+              <OfflineBanner />
+              <InstallPrompt />
             </ToastProvider>
           </HoverTooltipProvider>
         </ThemeProvider>

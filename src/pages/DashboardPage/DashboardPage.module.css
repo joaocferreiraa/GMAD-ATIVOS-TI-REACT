@@ -1,5 +1,28 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.section-heading, .dash-grid). */
 
+.greeting {
+  margin-bottom: 22px;
+}
+
+.greeting h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.greetingName {
+  color: var(--brand);
+}
+
+@media (max-width: 480px) {
+  .greeting h1 {
+    font-size: 22px;
+  }
+}
+
 .heading {
   display: flex;
   justify-content: space-between;

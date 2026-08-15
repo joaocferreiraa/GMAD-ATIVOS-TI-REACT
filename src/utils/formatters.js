@@ -1,5 +1,12 @@
+import { findNameOverride } from './nameOverrides'
+
 // Deriva um nome de exibição a partir do e-mail de login (ex.: "joao.ferreira@madville.com.br" → "Joao Ferreira").
+// Sem acento — o e-mail sozinho não carrega essa informação. Nomes com
+// acento conhecido têm correção manual em nameOverrides.js.
 export function nameFromEmail(email) {
+  const override = findNameOverride(email)
+  if (override) return override.full
+
   const local = (email || '').split('@')[0]
   const nice = local
     .split(/[.\-_]+/)
@@ -7,6 +14,15 @@ export function nameFromEmail(email) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
   return nice || email || 'Alguém da equipe'
+}
+
+// Nome pra saudação do dashboard: normalmente só o primeiro nome, mas usa o
+// nome completo quando o e-mail está marcado em nameOverrides.js como
+// colidindo com o primeiro nome de outro usuário (ver comentário lá).
+export function greetingName(email) {
+  const override = findNameOverride(email)
+  if (override) return override.short
+  return nameFromEmail(email).split(' ')[0]
 }
 
 // Iniciais para o avatar do usuário (até 2 letras).
@@ -17,6 +33,16 @@ export function initials(name) {
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
     .join('')
+}
+
+// Saudação conforme o horário local do navegador — mesmo comportamento de
+// fmtRelTime(): calculada no momento da renderização, sem atualização
+// automática em segundo plano.
+export function greetingForHour(date = new Date()) {
+  const hour = date.getHours()
+  if (hour >= 5 && hour < 12) return 'Bom dia'
+  if (hour >= 12 && hour < 18) return 'Boa tarde'
+  return 'Boa noite'
 }
 
 // Data no formato brasileiro a partir de um ISO "yyyy-mm-dd".

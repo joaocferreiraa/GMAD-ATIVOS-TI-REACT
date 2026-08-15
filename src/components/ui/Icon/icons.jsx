@@ -42,6 +42,45 @@ export function AssetsIcon(props) {
   )
 }
 
+export function PackageIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </IconBase>
+  )
+}
+
+export function UserIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </IconBase>
+  )
+}
+
+export function DatabaseIcon(props) {
+  return (
+    <IconBase {...props}>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14a9 3 0 0 0 18 0V5" />
+      <path d="M3 12a9 3 0 0 0 18 0" />
+    </IconBase>
+  )
+}
+
+export function ShareIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 15V4" />
+      <path d="m8 8 4-4 4 4" />
+      <path d="M4 13v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
+    </IconBase>
+  )
+}
+
 export function ContactsIcon(props) {
   return (
     <IconBase {...props}>
@@ -88,6 +127,16 @@ export function ScriptsIcon(props) {
     <IconBase {...props}>
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
+    </IconBase>
+  )
+}
+
+export function HammerIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9" />
+      <path d="M17.64 15 22 10.64" />
+      <path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91" />
     </IconBase>
   )
 }

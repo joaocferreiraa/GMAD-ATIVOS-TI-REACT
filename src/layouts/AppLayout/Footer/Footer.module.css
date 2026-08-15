@@ -7,10 +7,17 @@
 .bottomBar {
   width: 100vw;
   margin-top: 68px;
-  margin-left: min(
-    calc(-1 * (var(--sidebar-w) + 24px)),
-    calc(-1 * (var(--sidebar-w) + 24px) - (100vw - (var(--sidebar-w) + var(--app-max-w))) / 2)
-  );
+  margin-left: calc(-1 * (var(--sidebar-w) + 24px));
+}
+
+@media (max-width: 860px) {
+  .bottomBar {
+    /* .content zera margin-left nesse breakpoint (ver AppLayout.module.css)
+       — --sidebar-w continua valendo 216px aqui (só cai pra 72px a partir de
+       861px), então a fórmula acima sangraria a barra pra fora da tela.
+       Cancela só o padding lateral do mobile, que é o recuo real. */
+    margin-left: calc(-1 * (24px + var(--safe-left)));
+  }
 }
 
 .bottomBarInner {

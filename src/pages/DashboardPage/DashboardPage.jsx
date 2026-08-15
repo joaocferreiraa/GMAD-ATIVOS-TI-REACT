@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useContatos } from '../../hooks/data/useContatos'
+import { useAuth } from '../../hooks/auth/useAuth'
 import { useNavigateTo } from '../../hooks/useNavigateTo'
 import { useDashboardData } from './useDashboardData'
+import { greetingName, greetingForHour } from '../../utils/formatters'
 import Card from '../../components/ui/Card/Card'
 import Dropdown from '../../components/ui/Dropdown/Dropdown'
 import Loading from '../../components/ui/Loading/Loading'
@@ -34,13 +36,32 @@ const DEPARTMENT_COLORS = [
 export default function DashboardPage() {
   const { data: assets, isLoading, isError } = useAssets()
   const { data: contatos } = useContatos()
+  const { user } = useAuth()
   const [dashUnidade, setDashUnidade] = useState('Todas')
   const navigateTo = useNavigateTo()
 
   const dashboard = useDashboardData(assets ?? [], contatos ?? [], dashUnidade)
+  const firstName = greetingName(user?.email)
+
+  // Reavalia o horário a cada minuto — sem isso a saudação só trocaria de
+  // período (Bom dia/Boa tarde/Boa noite) no próximo re-render disparado por
+  // outra coisa (troca de filtro, foco na aba etc.), podendo ficar
+  // desatualizada se a tela ficar parada no fuso do usuário.
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <div>
+      <div className={styles.greeting}>
+        <h1>
+          {greetingForHour(now)}, <span className={styles.greetingName}>{firstName}</span>! Vamos
+          manter tudo sob controle.
+        </h1>
+      </div>
+
       <div className={styles.heading}>
         <div>
           <h2>Visão geral</h2>

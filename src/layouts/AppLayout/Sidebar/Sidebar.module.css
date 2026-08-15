@@ -134,6 +134,47 @@
     max-width 0.28s ease;
 }
 
+.navGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupHead {
+  flex: 1 1 auto;
+}
+
+.groupHead .label {
+  flex: 1 1 auto;
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  transition: transform 0.18s ease;
+}
+
+.chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.groupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+  padding-left: 28px;
+}
+
 .greeting {
   margin-top: auto;
   padding: 14px 12px 2px;

@@ -2,13 +2,11 @@
 
 .shell {
   --sidebar-w: 216px;
-  --app-max-w: 1320px;
 }
 
 @media (min-width: 861px) {
   .shell.sidebarCollapsed {
     --sidebar-w: 72px;
-    --app-max-w: 1520px;
   }
 }
 
@@ -17,12 +15,7 @@
 }
 
 .content {
-  max-width: var(--app-max-w);
-  margin: 0 auto;
-  margin-left: max(
-    var(--sidebar-w),
-    calc(var(--sidebar-w) + (100vw - var(--sidebar-w) - var(--app-max-w)) / 2)
-  );
+  margin-left: var(--sidebar-w);
   padding: 26px 24px 0;
   position: relative;
   z-index: 1;
@@ -31,9 +24,7 @@
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  transition:
-    margin-left 0.28s ease,
-    max-width 0.28s ease;
+  transition: margin-left 0.28s ease;
 }
 
 @media (max-width: 860px) {
