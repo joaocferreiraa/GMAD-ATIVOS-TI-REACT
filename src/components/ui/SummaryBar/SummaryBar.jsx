@@ -1,9 +1,12 @@
 import styles from './SummaryBar.module.css'
 
-// Faixa de resumo discreta do Monitoramento de Rede — conexões monitoradas,
-// online/atenção/problemas (a última verificação já aparece no indicador ao
-// lado do título da página, não repete aqui). Deliberadamente sem cards
-// grandes/gradiente: só números e rótulos, como o resto do painel.
+// Faixa de resumo discreta no topo de uma página — só números e rótulos,
+// deliberadamente sem cards grandes/gradiente. Usada pelo Monitoramento de
+// Rede (online/atenção/problemas) e pela Central de Chamados (fila por
+// estado + alertas de SLA).
+//
+// `items`: [{ label, value, tone? }] — tone 'ok' | 'warn' | 'danger' colore
+// só o número, para o alerta saltar sem poluir a faixa inteira.
 export default function SummaryBar({ items }) {
   return (
     <div className={styles.bar}>

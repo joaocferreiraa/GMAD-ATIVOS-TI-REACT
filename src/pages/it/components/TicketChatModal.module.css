@@ -1,0 +1,53 @@
+/* Painel lateral de conversa do chamado — a tela de uso diário do helpdesk.
+ *
+ * Na lateral (e não centralizado) porque a fila continua visível ao lado:
+ * dá pra ler a conversa sem perder de vista o resto dos chamados. Os dados
+ * cadastrais (setor, local, prazo) são consulta pontual e ficam no
+ * "Ver detalhes". */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Cabeçalho fixo: número + título, e a linha de status/prioridade/SLA. */
+.head {
+  flex-shrink: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  /* Espaço pro botão de fechar do Drawer, que é absoluto no canto. */
+  padding-right: 44px;
+  overflow-wrap: anywhere;
+}
+
+.headMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.headSla {
+  margin-left: auto;
+}
+
+/* A conversa é o que cresce e rola. */
+.chatArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+  overflow: hidden;
+}

@@ -4,12 +4,23 @@ import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import styles from './Drawer.module.css'
 
 // Painel lateral deslizante (.drawer-panel do sistema original — usado para
-// os detalhes de Instaladores/Scripts). `wide` usa a largura maior (.drawer-panel--wide).
-export default function Drawer({ open, onClose, wide = false, showCloseButton = true, children }) {
+// os detalhes de Instaladores/Scripts). `wide` usa a largura maior
+// (.drawer-panel--wide); `flush` desliga a rolagem do painel para o conteúdo
+// gerenciar a própria (cabeçalho fixo + área rolável).
+export default function Drawer({
+  open,
+  onClose,
+  wide = false,
+  flush = false,
+  showCloseButton = true,
+  children,
+}) {
   const bindTooltip = useHoverTooltip()
   return (
     <Overlay open={open} onClose={onClose} drawer>
-      <div className={`${styles.panel} ${wide ? styles.wide : ''}`}>
+      <div
+        className={`${styles.panel} ${wide ? styles.wide : ''} ${flush ? styles.flush : ''}`}
+      >
         {showCloseButton && (
           <button
             type="button"

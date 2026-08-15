@@ -1,0 +1,327 @@
+/* Mesmas regras de heading/grid do DashboardPage — as duas telas são
+   painéis de indicadores e devem ler igual. */
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.heading h2 {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.heading p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  column-gap: 20px;
+  row-gap: 20px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.state {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Abas internas do card "Resumo de chamados" — ficam no cabeçalho do card,
+   por isso são menores que as abas de página (ui/Tabs). */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.cardHead h3 {
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 600;
+  margin: 0 0 3px;
+  color: var(--text);
+}
+
+.cardHead p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.miniTabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.miniTab {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.miniTab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.miniTabActive {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
+
+.miniTabActive:hover {
+  background: var(--brand-strong);
+  color: #fff;
+}
+
+/* Legenda do gráfico de evolução — o LineChart do site é de série única e
+   não tem legenda própria; aqui são duas séries. */
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Lista de chamados recentes. */
+.recentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 8px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.recentItem:last-child {
+  border-bottom: none;
+}
+
+.recentItem:hover {
+  background: var(--surface-hover);
+}
+
+.recentNumber {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.recentTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recentRequester {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+@media (max-width: 760px) {
+  .recentRequester {
+    display: none;
+  }
+}
+
+/* Faixa de KPIs — mesma estrutura do KpiStrip do dashboard principal
+   (ui/dashboard/KpiStrip), sem o popover de detalhe, que aqui não tem
+   informação extra pra mostrar. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 18px 20px;
+  min-width: 0;
+}
+
+.tileIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.neutral {
+  background: var(--verde-100);
+  color: var(--brand);
+}
+
+.warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.tileValue {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.tileLabel {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tooltip do gráfico de evolução — mesmo visual do tooltip dos demais
+   gráficos do site (ver charts/LineChart.module.css). */
+.chartTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-soft);
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.chartTooltipDay {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.chartTooltipRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+}
+
+.chartTooltipRow b {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+/* Barra de indicadores de SLA/satisfação, abaixo da faixa de KPIs. */
+.metaRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.metaValue {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.metaValueDanger {
+  color: var(--danger);
+}
+
+.metaSub {
+  font-size: 11.5px;
+  color: var(--text-faint);
+}

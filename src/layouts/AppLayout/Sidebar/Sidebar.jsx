@@ -29,8 +29,12 @@ export default function Sidebar() {
   // assim navegar pra outro grupo auto-expande ele sem precisar de efeito.
   const [openOverrides, setOpenOverrides] = useState({})
 
+  // Só um grupo aberto por vez: abrir um fecha o anterior, o que mantém a
+  // barra curta o bastante pra não precisar de rolagem. Fechar o grupo atual
+  // grava `false` explicitamente — sem isso ele voltaria a abrir sozinho
+  // quando a rota ativa está dentro dele (ver `open` abaixo).
   function toggleGroup(key, currentlyOpen) {
-    setOpenOverrides((prev) => ({ ...prev, [key]: !currentlyOpen }))
+    setOpenOverrides(currentlyOpen ? { [key]: false } : { [key]: true })
   }
 
   // No modo recolhido só cabe ícone, sem sub-menu — clicar num grupo expande
@@ -38,9 +42,13 @@ export default function Sidebar() {
   // clicado desaparece nessa troca (vira o cabeçalho do acordeão) sem disparar
   // mouseleave, então o tooltip precisa ser fechado à mão pra não ficar
   // flutuando na tela.
+  //
+  // Substitui os overrides em vez de acumular sobre os anteriores: mantendo
+  // `prev`, cada grupo aberto por aqui ficava marcado como aberto pra sempre,
+  // e depois de alguns cliques a barra reabria com todos expandidos de uma vez.
   function openGroupExpanded(key) {
     hideTooltip()
-    setOpenOverrides((prev) => ({ ...prev, [key]: true }))
+    setOpenOverrides({ [key]: true })
     toggleSidebar()
   }
 

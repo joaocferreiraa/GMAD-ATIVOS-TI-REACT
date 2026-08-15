@@ -504,6 +504,43 @@ export function NetworkMonitorIcon(props) {
   )
 }
 
+// Ticket destacável — o símbolo padrão de helpdesk (GLPI, Zendesk, Jira
+// Service Desk usam variações dele). Substitui o sino no grupo Chamados,
+// que lia como "notificações" e não como chamado de suporte.
+export function TicketIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-6z" />
+      <line x1="13" y1="7" x2="13" y2="9" />
+      <line x1="13" y1="15" x2="13" y2="17" />
+    </IconBase>
+  )
+}
+
+// Caixa de ferramentas — mais literal que a marreta (HammerIcon) pra um
+// grupo que reúne instaladores e scripts.
+export function ToolboxIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="2" y1="13" x2="22" y2="13" />
+      <line x1="10" y1="13" x2="10" y2="15" />
+      <line x1="14" y1="13" x2="14" y2="15" />
+    </IconBase>
+  )
+}
+
+// Balão de conversa — a Central de chamados é onde a conversa com o
+// solicitante acontece (comentários, respostas via WhatsApp).
+export function ConversationIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z" />
+    </IconBase>
+  )
+}
+
 export function PlusIcon(props) {
   return (
     <IconBase {...props}>

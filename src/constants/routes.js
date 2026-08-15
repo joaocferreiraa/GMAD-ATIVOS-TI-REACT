@@ -11,4 +11,6 @@ export const ROUTES = {
   monitoramento: '/monitoramento-rede',
   atividade: '/atividade',
   relatorios: '/relatorios',
+  chamados: '/chamados',
+  chamadosDashboard: '/chamados/painel',
 }

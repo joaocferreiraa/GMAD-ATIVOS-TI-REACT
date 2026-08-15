@@ -1,12 +1,18 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (#app / .app). */
 
+/* 244px: largura mínima pra "Monitoramento de Rede" (o rótulo mais longo do
+   menu) caber inteiro num subitem, que é o pior caso — além do padding da
+   barra, os subitens têm 28px de recuo e 18px+10px de ícone/gap. */
 .shell {
-  --sidebar-w: 216px;
+  --sidebar-w: 244px;
 }
 
+/* 64px: só ícones (18px) centralizados. Menor que os 72px anteriores porque
+   sem rótulo a barra não precisa da mesma folga — o ganho vai pro conteúdo,
+   e os ícones ficam visivelmente centralizados em vez de soltos. */
 @media (min-width: 861px) {
   .shell.sidebarCollapsed {
-    --sidebar-w: 72px;
+    --sidebar-w: 64px;
   }
 }
 

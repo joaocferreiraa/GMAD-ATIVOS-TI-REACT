@@ -33,8 +33,14 @@
   display: block;
 }
 
+/* Recolhida, quem limita a logo é a LARGURA, não a altura: o logotipo é
+   horizontal, então 24px de altura dariam uma largura maior que a barra e
+   ela vazaria pra fora do centro. Com max-width a altura acompanha
+   proporcionalmente e a marca fica centralizada como os ícones. */
 .sidebar.collapsed .brandLogo {
-  height: 24px;
+  height: auto;
+  width: 100%;
+  max-width: 44px;
 }
 
 .brandSub {
@@ -81,7 +87,7 @@
   color: var(--text-muted);
   padding: 9px 12px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 500;
   font-family: var(--font-body);
   cursor: pointer;
@@ -122,10 +128,13 @@
   color: var(--brand);
 }
 
+/* max-width alto o bastante pra não cortar nenhum rótulo atual: quem limita
+   é a largura da barra. Continua sendo um teto (e não `none`) porque a
+   transição pra 0 no modo recolhido precisa de um valor concreto. */
 .label {
   display: inline-block;
   opacity: 1;
-  max-width: 160px;
+  max-width: 200px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -172,7 +181,7 @@
   flex-direction: column;
   gap: 3px;
   margin-top: 2px;
-  padding-left: 28px;
+  padding-left: 20px;
 }
 
 .greeting {
@@ -184,13 +193,26 @@
   color: var(--text-faint);
 }
 
+/* No modo recolhido a barra encolhe pra 64px: o padding lateral de 14px
+   viraria quase toda a largura, então cai pra 8px e todo o conteúdo
+   (logo, ícones, chevron) fica centralizado. */
+.sidebar.collapsed {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 .sidebar.collapsed .top {
   justify-content: center;
+  padding: 0;
 }
 
 .sidebar.collapsed .navButton {
   justify-content: center;
   padding: 10px 0;
+  /* O .label recolhido tem max-width 0 mas continua sendo um item flex, e o
+     gap de 10px do .navButton segue valendo entre ele e o ícone — o que
+     empurraria o ícone ~5px pra esquerda do centro. */
+  gap: 0;
 }
 
 .sidebar.collapsed .label {

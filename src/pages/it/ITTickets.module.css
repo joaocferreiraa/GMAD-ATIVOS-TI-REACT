@@ -1,0 +1,79 @@
+/* Mesmas regras de heading/actionsRow das demais páginas
+   (ver ContatosPage.module.css / AtivosPage.module.css). */
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.heading h2 {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.heading p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Rótulo "Somente meus" — alinhado com os controles da Toolbar. */
+.checkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Célula do título: nome + selo de origem, com reticências quando longo. */
+.titleCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 340px;
+}
+
+.titleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.ticketNumber {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.empty {
+  color: var(--text-faint);
+}
+
+@media (max-width: 760px) {
+  .titleCell {
+    max-width: none;
+    justify-content: flex-end;
+  }
+}

@@ -13,4 +13,6 @@ export const queryKeys = {
   // itens ao array, ex: [...queryKeys.medicoes, monitorUid, periodo].
   medicoes: ['monitoramento', 'medicoes'],
   alertas: ['monitoramento', 'alertas'],
+  chamados: ['chamados'],
+  chamadoTimeline: ['chamados', 'timeline'], // + ticketId
 }

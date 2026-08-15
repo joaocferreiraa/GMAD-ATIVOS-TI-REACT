@@ -43,7 +43,7 @@
 
   /* -- layout do app shell (sidebar + topbar fixos) -- */
   --header-h: 60px;
-  --sidebar-w: 216px;
+  --sidebar-w: 244px;
 
   /* -- safe-area (notch / Dynamic Island / home indicator no iOS) --
      resolve a 0px em navegadores sem suporte a env(), então é seguro usar

@@ -25,6 +25,8 @@ const InfraestruturaPage = lazy(() => import('../pages/InfraestruturaPage'))
 const MonitoramentoRedePage = lazy(() => import('../pages/MonitoramentoRedePage'))
 const AtividadePage = lazy(() => import('../pages/AtividadePage'))
 const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
+const ChamadosPage = lazy(() => import('../pages/it/ITTickets'))
+const ChamadosDashboardPage = lazy(() => import('../pages/it/ITDashboard'))
 
 function lazyPage(Component) {
   return (
@@ -61,6 +63,8 @@ export const router = createBrowserRouter([
               { path: ROUTES.monitoramento, element: lazyPage(MonitoramentoRedePage) },
               { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
               { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
+              { path: ROUTES.chamados, element: lazyPage(ChamadosPage) },
+              { path: ROUTES.chamadosDashboard, element: lazyPage(ChamadosDashboardPage) },
             ],
           },
         ],

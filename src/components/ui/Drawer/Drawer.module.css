@@ -43,6 +43,13 @@
   max-width: 560px;
 }
 
+/* Para conteúdo que gerencia a própria rolagem (ex.: uma conversa com
+   cabeçalho fixo e só a thread rolando). Sem isso o painel inteiro rola e
+   o cabeçalho sobe junto. */
+.flush {
+  overflow-y: hidden;
+}
+
 .closeBtn {
   position: absolute;
   top: 20px;
