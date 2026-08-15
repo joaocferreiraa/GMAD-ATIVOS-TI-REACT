@@ -26,13 +26,13 @@ export default function Sidebar() {
       {!collapsed && <div className={styles.sectionLabel}>Navegação</div>}
 
       <div className={styles.nav}>
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {NAV_ITEMS.map(({ to, label, icon: Icon, end, truncates }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             className={({ isActive }) => `${styles.navButton} ${isActive ? styles.active : ''}`}
-            {...bindTooltip(label)}
+            {...(collapsed || truncates ? bindTooltip(label) : {})}
           >
             <span className={styles.navIcon}>
               <Icon />

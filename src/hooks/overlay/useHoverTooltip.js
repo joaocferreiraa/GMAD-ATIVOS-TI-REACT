@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react'
 import { HoverTooltipContext } from '../../contexts/HoverTooltipContext'
+import { isFocusTooltipSuppressed } from './focusTooltipSuppression'
 
 // bindTooltip('Editar') devolve os handlers pra spread num elemento —
 // substitui title="Editar" pelo tooltip compartilhado (ver
@@ -16,7 +17,12 @@ export function useHoverTooltip() {
         return {
           onMouseEnter: (event) => showTooltip(event, label),
           onMouseLeave: hideTooltip,
-          onFocus: (event) => showTooltip(event, label),
+          // Ignora o foco disparado pelo Overlay (autofoco ao abrir, restaurar
+          // foco ao fechar) — ver focusTooltipSuppression. Só mostra em foco
+          // real do usuário (Tab).
+          onFocus: (event) => {
+            if (!isFocusTooltipSuppressed()) showTooltip(event, label)
+          },
           onBlur: hideTooltip,
         }
       },

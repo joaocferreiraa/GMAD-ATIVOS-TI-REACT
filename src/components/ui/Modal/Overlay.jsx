@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom'
 import { useEffect, useRef } from 'react'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { useLockBodyScroll } from '../../../hooks/overlay/useLockBodyScroll'
+import { focusWithoutTooltip } from '../../../hooks/overlay/focusTooltipSuppression'
 import styles from './Overlay.module.css'
 
 const FOCUSABLE_SELECTOR =
@@ -23,7 +24,7 @@ export default function Overlay({ open, onClose, drawer = false, className = '',
     const previouslyFocused = document.activeElement
     const node = overlayRef.current
     const focusable = node?.querySelectorAll(FOCUSABLE_SELECTOR)
-    ;(focusable?.[0] ?? node)?.focus()
+    focusWithoutTooltip(focusable?.[0] ?? node)
 
     function handleKeyDown(event) {
       if (event.key !== 'Tab' || !node) return
@@ -43,7 +44,7 @@ export default function Overlay({ open, onClose, drawer = false, className = '',
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
+      if (previouslyFocused instanceof HTMLElement) focusWithoutTooltip(previouslyFocused)
     }
   }, [open])
 

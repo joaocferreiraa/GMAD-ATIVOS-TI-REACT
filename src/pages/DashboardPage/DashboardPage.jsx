@@ -73,13 +73,8 @@ export default function DashboardPage() {
           />
 
           <div className={styles.grid}>
-            <Card title="Idade do parque" subtitle="Cadastro de data de aquisição dos equipamentos">
-              <CompletionMeter
-                label="dos ativos com data de aquisição cadastrada"
-                filled={dashboard.ageCompleteness.filled}
-                total={dashboard.ageCompleteness.total}
-                missingLabel="ainda sem data cadastrada"
-              />
+            <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">
+              <DonutChart key={dashUnidade} {...dashboard.statusChart} />
             </Card>
             <Card
               attn
@@ -106,8 +101,13 @@ export default function DashboardPage() {
                 emptyMessage="Nenhum colaborador cadastrado ainda."
               />
             </Card>
-            <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">
-              <DonutChart key={dashUnidade} {...dashboard.statusChart} />
+            <Card title="Idade do parque" subtitle="Cadastro de data de aquisição dos equipamentos">
+              <CompletionMeter
+                label="dos ativos com data de aquisição cadastrada"
+                filled={dashboard.ageCompleteness.filled}
+                total={dashboard.ageCompleteness.total}
+                missingLabel="ainda sem data cadastrada"
+              />
             </Card>
           </div>
 
