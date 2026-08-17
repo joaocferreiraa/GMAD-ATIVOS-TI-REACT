@@ -9,6 +9,10 @@ export const ROUTES = {
   scripts: '/scripts',
   infraestrutura: '/infraestrutura',
   monitoramento: '/monitoramento-rede',
+  monitoramentoPainel: '/monitoramento-rede/painel',
+  // Modo TV: mesmo painel, sem a casca do app (sidebar/topbar/rodapé), pra
+  // ficar aberto num monitor de parede.
+  tv: '/tv',
   atividade: '/atividade',
   relatorios: '/relatorios',
   chamados: '/chamados',

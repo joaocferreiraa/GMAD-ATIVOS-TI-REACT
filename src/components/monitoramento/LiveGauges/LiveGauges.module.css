@@ -1,0 +1,22 @@
+.row {
+  display: grid;
+  /* Grade em vez de flex: os três gauges ficam com a MESMA largura, então
+     os mostradores alinham entre si (com flex, um rótulo mais longo
+     empurrava o vizinho e desalinhava os arcos). Abaixo de ~3x240px a
+     grade quebra sozinha pra 2 e depois 1 coluna. */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px 16px;
+  justify-items: center;
+  padding: 6px 0 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+@media (max-width: 560px) {
+  .row {
+    /* Num celular, dois gauges lado a lado ficariam pequenos demais pra
+       ler a escala numerada — uma coluna, em tamanho cheio. */
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}

@@ -1,0 +1,364 @@
+/* Modo TV: ocupa a viewport inteira, sem a casca do app. Escala maior que
+   o painel normal porque a distância de leitura é de metros, não de um
+   braço. Segue o tema (claro/escuro) escolhido pelo usuário, como o resto
+   do site. */
+/* Modo TV é SEMPRE escuro, independente do tema escolhido no site: a tela
+   fica ligada 24/7 num monitor de parede, onde fundo claro cansa a vista e
+   ilumina a sala à noite. Os tokens abaixo sobrescrevem os globais só
+   dentro desta página, então os componentes reaproveitados (GaugeChart,
+   MultiLineChart, UsageBar) já saem na paleta escura sem precisar de
+   variante própria.
+
+   Paleta escolhida pra alto contraste a distância: fundo bem escuro
+   (quase preto) e valores em cores saturadas, que é o que sobrevive ao
+   brilho e ao ângulo de visão de uma TV. */
+.tv {
+  --bg: #0d0f13;
+  --surface: #161a20;
+  --surface-hover: #1d222a;
+  --border: #2a3038;
+  --border-strong: #3a424d;
+  --text: #f0f2f5;
+  --text-muted: #a8b1bd;
+  --text-faint: #6f7885;
+  --ok: #3fd07f;
+  --warn: #ffb340;
+  --danger: #ff5f65;
+  --ok-bg: #0f2a1c;
+  --warn-bg: #2e2412;
+  --danger-bg: #2f1518;
+  --brand: #3fd07f;
+  /* Trilho do gauge um pouco mais claro que a borda: no escuro, o arco de
+     fundo precisa se distinguir do painel sem competir com o valor. */
+  --gauge-track: #262d36;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  padding: 22px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* A página inteira é escura mesmo com o site no tema claro — sem isso,
+     as bordas da viewport mostrariam o fundo claro do body. */
+  color-scheme: dark;
+}
+
+/* Com gauges + 4 gráficos + painéis, o conteúdo pode passar da altura da
+   TV dependendo de quantos pontos existem. Rolar é melhor que espremer
+   (texto minúsculo não se lê de longe) ou cortar em silêncio. Numa TV
+   1080p com poucos pontos, tudo cabe sem rolagem. */
+.gaugeRow,
+.chartRow,
+.bottomRow {
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.headLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  height: 42px;
+  width: auto;
+  /* Sem filtro de cor: a logo é verde e laranja (cores da marca) e tem
+     fundo transparente, então já se lê bem sobre o painel escuro.
+     Inverter ou embranquecer descaracterizaria a marca. */
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.liveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.liveDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.liveStale {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.liveStale .liveDot {
+  background: var(--danger);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.headRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.clock {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.date {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+/* Estado normal: uma pastilha discreta. Ocupa pouco espaço porque "está
+   tudo bem" é a informação menos urgente da tela — o que precisa saltar é
+   a exceção (ver .statusBanner). */
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+/* Faixa de status geral — a linha que precisa ser legível do outro lado
+   da sala. Só aparece quando há problema. */
+.statusBanner {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  border: 2px solid;
+}
+
+.bannerAlert {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+}
+
+.bannerBig {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.bannerAlert .bannerBig {
+  color: var(--danger);
+}
+
+.bannerSub {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+/* Coleta parada: a tela inteira ganha uma borda de alerta, pra quem passa
+   pela sala perceber sem precisar ler nada. */
+.stale {
+  box-shadow: inset 0 0 0 4px var(--danger);
+}
+
+.gaugeRow {
+  display: grid;
+  /* Colunas iguais que se dividem pela largura: com 3 pontos numa TV Full
+     HD cada gauge fica com ~600px, bem maior que os 260px fixos de antes.
+     `minmax(0, 1fr)` (não `auto`) impede que um rótulo longo estufe a
+     coluna e desalinhe os mostradores entre si. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 8px 20px;
+  justify-items: center;
+  align-items: start;
+}
+
+
+.gaugeCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.gaugeStatus {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.gaugeOffline {
+  /* Ponto sem resposta ganha destaque próprio: numa parede, o que está
+     errado precisa saltar sem exigir leitura. */
+  border: 2px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--danger-bg);
+  padding: 6px 8px;
+}
+
+.offlineTag {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--danger);
+  letter-spacing: 0.04em;
+}
+
+/* Gráficos de tendência: 2 por linha em tela cheia (4 no total, formando
+   duas faixas), 1 por linha em telas estreitas. minmax garante que nenhum
+   fique estreito a ponto de virar um risco ilegível de longe. */
+.chartRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 14px;
+  /* Os dois gráficos de rede ocupam o espaço que sobrou entre os
+     velocímetros e os alertas — numa TV, área vazia é desperdício de
+     informação. */
+  flex: 1;
+  min-height: 240px;
+}
+
+.chartRow .panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.bottomRow {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.panelTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.allGood {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 17px;
+  color: var(--ok);
+  text-align: center;
+  font-weight: 600;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alertRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+}
+
+.sev {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sevDanger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.sevWarn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.alertBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.alertBody b {
+  font-size: 15px;
+}
+
+.alertBody span {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.alertTime {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
+  }
+}

@@ -24,6 +24,28 @@
   font-size: 13px;
 }
 
+.headingActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.painelLink {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+.painelLink:hover {
+  color: var(--text);
+  border-color: var(--brand);
+}
+
 .liveIndicator {
   display: inline-flex;
   align-items: center;

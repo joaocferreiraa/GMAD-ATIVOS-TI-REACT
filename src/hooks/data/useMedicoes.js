@@ -1,12 +1,25 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  getBucketedMeasurements,
   getMeasurementsForMonitor,
   getRecentMeasurements,
   insertMeasurement,
 } from '../../services/monitoramento/measurementsService'
 import { useRealtimeInvalidate } from './useRealtimeInvalidate'
 import { queryKeys } from '../../constants/queryKeys'
+
+// Tamanho do intervalo de agregação a partir da duração da janela, pra quem
+// só tem `minutes` em mãos (useMonitorHistory) e não a chave do período.
+// Espelha BUCKET_SEGUNDOS_POR_PERIODO: até 1h não agrega (cada ping
+// importa); acima disso, agrega o suficiente pra manter ~100-360 pontos.
+function bucketFor(minutes) {
+  if (!minutes || minutes <= 60) return null
+  if (minutes <= 360) return 300 // 6h  -> 5 min
+  if (minutes <= 1440) return 900 // 24h -> 15 min
+  if (minutes <= 10080) return 3600 // 7d  -> 1 hora
+  return 14400 // 30d -> 4 horas
+}
 
 // Função comum (não-hook) pra isolar a chamada impura (Date.now()) — o
 // React Compiler analisa a pureza de hooks/componentes e barra Date.now()
@@ -40,16 +53,65 @@ function useSinceIso(minutes) {
 // período (ou reabrir a tela) recalcula o início da janela.
 export function useMonitorHistory(monitorUid, minutes) {
   const sinceIso = useSinceIso(minutes)
-  const queryKey = [...queryKeys.medicoes, monitorUid, sinceIso]
+  // Períodos longos vêm agregados do banco. Sem isso, o `limit` de
+  // getMeasurementsForMonitor (2000 linhas) cortava o período
+  // SILENCIOSAMENTE: com ping a cada 30s, "últimos 30 dias" mostrava só as
+  // ~16 primeiras horas, com o eixo alegando 30 dias. Agregado, o volume
+  // depende do tamanho do intervalo, não do período pedido.
+  const bucketSegundos = bucketFor(minutes)
+  const queryKey = [...queryKeys.medicoes, monitorUid, sinceIso, bucketSegundos]
 
-  useRealtimeInvalidate(monitorUid ? 'network_measurements' : null, queryKey, {
+  // Em período agregado, cada medição nova mexeria no máximo no último
+  // bucket — refazer a agregação inteira a cada ping custa mais do que
+  // vale. Períodos curtos (que é onde "tempo real" importa) seguem ao vivo.
+  useRealtimeInvalidate(monitorUid && !bucketSegundos ? 'network_measurements' : null, queryKey, {
     filter: `monitor_uid=eq.${monitorUid}`,
   })
 
   return useQuery({
     queryKey,
-    queryFn: () => getMeasurementsForMonitor(monitorUid, sinceIso),
+    queryFn: () =>
+      bucketSegundos
+        ? getBucketedMeasurements(sinceIso, bucketSegundos, [monitorUid])
+        : getMeasurementsForMonitor(monitorUid, sinceIso),
     enabled: !!monitorUid && !!sinceIso,
+  })
+}
+
+// Histórico agregado por intervalo, de VÁRIOS pontos de uma vez — alimenta
+// o gráfico comparativo e o painel de gráficos. `bucketSegundos` null cai
+// pra medições cruas (períodos curtos, ver BUCKET_SEGUNDOS_POR_PERIODO);
+// caso contrário agrega no banco, devolvendo um número de pontos que não
+// cresce com o período pedido.
+//
+// `uids` é um array — passado direto na queryKey, o React Query já compara
+// arrays por valor (não por identidade), então uma lista recriada a cada
+// render com o mesmo conteúdo não refaz a busca.
+export function useBucketedHistory(uids, minutes, bucketSegundos) {
+  const sinceIso = useSinceIso(minutes)
+  const uidList = uids?.length ? uids : null
+  const queryKey = [...queryKeys.medicoes, 'buckets', uidList, sinceIso, bucketSegundos]
+
+  // Só assina Realtime em período curto/sem agregação: numa janela de 30
+  // dias, cada ping novo mudaria no máximo o último bucket de 4h — refazer
+  // a agregação inteira a cada medição custaria muito mais do que o
+  // pouquíssimo que a tela ganharia. Períodos curtos continuam ao vivo.
+  useRealtimeInvalidate(bucketSegundos ? null : 'network_measurements', queryKey)
+
+  return useQuery({
+    queryKey,
+    queryFn: () =>
+      bucketSegundos
+        ? getBucketedMeasurements(sinceIso, bucketSegundos, uidList)
+        : getRecentMeasurements(sinceIso).then((rows) =>
+            // getRecentMeasurements vem do mais novo pro mais antigo e traz
+            // todos os pontos; os gráficos esperam ordem crescente e só os
+            // pontos pedidos.
+            rows
+              .filter((r) => r.monitorUid && (!uidList || uidList.includes(r.monitorUid)))
+              .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+          ),
+    enabled: !!sinceIso && !!uidList,
   })
 }
 

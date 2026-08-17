@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Badge from '../../ui/Badge/Badge'
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
 import RealtimeChart from '../RealtimeChart/RealtimeChart'
+import LiveGauges from '../LiveGauges/LiveGauges'
 import { useMonitorHistory } from '../../../hooks/data/useMedicoes'
 import { HISTORICO_PERIODOS } from '../../../constants/monitoramento'
 import { STATUS_LABEL, statusBadgeVariant } from '../../../utils/networkStatus'
@@ -58,6 +59,10 @@ export default function LiveChartCard({ monitors }) {
           })}
         </div>
       )}
+      {/* Leitura atual em velocímetro, acima da evolução — o "agora" de
+          relance; o gráfico logo abaixo dá o histórico da janela. */}
+      <LiveGauges monitor={selected} measurements={measurements} />
+
       <RealtimeChart
         // O nome do ponto já aparece na pastilha selecionada acima — repetir
         // como título do gráfico logo abaixo é redundante. Com um único

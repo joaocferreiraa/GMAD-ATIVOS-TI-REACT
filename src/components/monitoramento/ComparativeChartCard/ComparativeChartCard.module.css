@@ -1,0 +1,98 @@
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    opacity 0.15s;
+}
+
+.pill:hover {
+  border-color: var(--border-strong);
+}
+
+.pillOff {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.pillDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.loading {
+  color: var(--text-faint);
+  font-size: 12.5px;
+}
+
+.statsWrap {
+  margin-top: 14px;
+  /* Em tela estreita a tabela rola sozinha em vez de estourar a largura
+     da página (mesma regra do resto das tabelas do site). */
+  overflow-x: auto;
+}
+
+.statsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.statsTable th {
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-faint);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.statsTable th:first-child,
+.statsTable td:first-child {
+  text-align: left;
+}
+
+.statsTable td {
+  text-align: right;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.statsTable td:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+  font-family: inherit;
+}
+
+.statsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.aggNote {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}

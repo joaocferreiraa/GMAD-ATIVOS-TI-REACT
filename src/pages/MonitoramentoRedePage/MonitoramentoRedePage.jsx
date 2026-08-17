@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTES } from '../../constants/routes'
 import { useMonitores } from '../../hooks/data/useMonitores'
 import { useMonitorMutations } from '../../hooks/data/useMonitorMutations'
 import { useAssets } from '../../hooks/data/useAssets'
@@ -15,6 +17,8 @@ import Alert from '../../components/ui/Alert/Alert'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
 import SummaryBar from '../../components/ui/SummaryBar/SummaryBar'
 import LiveChartCard from '../../components/monitoramento/LiveChartCard/LiveChartCard'
+import ComparativeChartCard from '../../components/monitoramento/ComparativeChartCard/ComparativeChartCard'
+import MetricsGridCard from '../../components/monitoramento/MetricsGridCard/MetricsGridCard'
 import UnitStatusList from '../../components/monitoramento/UnitStatusList/UnitStatusList'
 import MonitorFilters from '../../components/monitoramento/MonitorFilters/MonitorFilters'
 import MonitorTable from '../../components/monitoramento/MonitorTable/MonitorTable'
@@ -89,11 +93,16 @@ export default function MonitoramentoRedePage() {
           <h2>Monitoramento de Rede</h2>
           <p>Acompanhe a qualidade e estabilidade das conexões monitoradas.</p>
         </div>
-        <div className={styles.liveIndicator}>
-          <span className={styles.liveDot} />
-          {data.summary.ultimaVerificacao
-            ? `Última atualização: ${fmtRelTime(data.summary.ultimaVerificacao)}`
-            : 'Aguardando primeira medição'}
+        <div className={styles.headingActions}>
+          <Link to={ROUTES.monitoramentoPainel} className={styles.painelLink}>
+            Painel de Infraestrutura →
+          </Link>
+          <div className={styles.liveIndicator}>
+            <span className={styles.liveDot} />
+            {data.summary.ultimaVerificacao
+              ? `Última atualização: ${fmtRelTime(data.summary.ultimaVerificacao)}`
+              : 'Aguardando primeira medição'}
+          </div>
         </div>
       </div>
 
@@ -120,6 +129,20 @@ export default function MonitoramentoRedePage() {
 
           <Card title="Monitoramento em tempo real" subtitle="Atualiza sozinho conforme chegam novas medições do agente.">
             <LiveChartCard monitors={data.allMonitors} />
+          </Card>
+
+          <Card
+            title="Comparativo entre pontos"
+            subtitle="Todos os pontos no mesmo gráfico. Arraste para dar zoom; clique nas pastilhas para mostrar ou ocultar um ponto."
+          >
+            <ComparativeChartCard monitors={data.allMonitors} />
+          </Card>
+
+          <Card
+            title="Painel de métricas"
+            subtitle="Latência, perda de pacotes e disponibilidade lado a lado, no mesmo período."
+          >
+            <MetricsGridCard monitors={data.allMonitors} />
           </Card>
 
           <Card>

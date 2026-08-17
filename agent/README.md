@@ -61,35 +61,196 @@ O agente:
 
 Pare com `Ctrl+C`.
 
-## 4. Rodar em segundo plano / como serviço
+## 4. Instalar num servidor Windows (passo a passo)
 
-Pra deixar rodando de forma permanente (recomendado em produção), use um
-gerenciador de processos. Duas opções simples:
+Roteiro completo pra colocar o agente rodando 24/7 num Windows Server.
+Todos os caminhos abaixo usam `C:\gmad-monitor` como exemplo — troque pelo
+que você preferir.
 
-**Windows (Agendador de Tarefas)**: crie uma tarefa que execute
-`node C:\caminho\para\agent\index.js` ao iniciar o sistema, com "Executar
-estando o usuário conectado ou não" marcado.
+### 4.1. Copiar os arquivos
 
-**Linux (systemd)** — exemplo de unit file:
+Copie a pasta `agent/` do projeto pro servidor (pendrive, compartilhamento
+de rede ou SCP), em `C:\gmad-monitor`. Precisa levar:
+
+```
+index.js
+package.json
+package-lock.json
+```
+
+**Não copie `node_modules`** (são ~9 MB de dependências que serão baixadas
+no próprio servidor no passo 4.3) nem o seu `.env` local — as credenciais
+serão configuradas direto no servidor, no passo 4.4.
+
+### 4.2. Instalar o Node.js
+
+Baixe o instalador **LTS** em <https://nodejs.org> e instale (Node 18+;
+qualquer LTS atual serve). Confirme abrindo um PowerShell **como
+administrador**:
+
+```powershell
+node --version
+```
+
+### 4.3. Instalar as dependências
+
+```powershell
+cd C:\gmad-monitor
+npm install --omit=dev
+```
+
+### 4.4. Criar o arquivo de credenciais
+
+Crie `C:\gmad-monitor\.env` (sem nome antes do ponto) com este conteúdo,
+usando as mesmas `SUPABASE_URL`/`SUPABASE_ANON_KEY` do painel e a conta
+dedicada do agente:
+
+```
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_ANON_KEY=sua-chave-anon-publica
+AGENT_EMAIL=agente.monitoramento@gmad.ti
+AGENT_PASSWORD=a-senha-dessa-conta
+```
+
+> O Bloco de Notas gosta de salvar como `.env.txt`. Salve escolhendo
+> "Todos os arquivos" no tipo, ou crie pelo PowerShell com
+> `New-Item .env -ItemType File`.
+
+### 4.5. Testar antes de virar serviço
+
+```powershell
+cd C:\gmad-monitor
+node index.js
+```
+
+Deve aparecer `[agente] autenticado como ...` seguido de uma linha por
+ponto monitorado. Se aparecer erro de credencial ou de rede, resolva agora
+— é bem mais fácil de diagnosticar aqui do que depois, como serviço.
+Pare com `Ctrl+C` quando estiver satisfeito.
+
+### 4.6. Instalar como serviço do Windows (NSSM)
+
+Use o [NSSM](https://nssm.cc/download): baixe, extraia, e rode o
+`nssm.exe` da pasta `win64` num PowerShell **como administrador**.
+
+```powershell
+.\nssm.exe install GmadMonitorAgent "C:\Program Files\nodejs\node.exe" "C:\gmad-monitor\index.js"
+.\nssm.exe set GmadMonitorAgent AppDirectory C:\gmad-monitor
+.\nssm.exe set GmadMonitorAgent Start SERVICE_AUTO_START
+```
+
+Log em arquivo (o agente escreve tudo na saída padrão, que sem isso se
+perde quando roda como serviço):
+
+```powershell
+.\nssm.exe set GmadMonitorAgent AppStdout C:\gmad-monitor\agente.log
+.\nssm.exe set GmadMonitorAgent AppStderr C:\gmad-monitor\agente.log
+.\nssm.exe set GmadMonitorAgent AppRotateFiles 1
+.\nssm.exe set GmadMonitorAgent AppRotateBytes 10485760
+```
+
+Inicie:
+
+```powershell
+.\nssm.exe start GmadMonitorAgent
+```
+
+**Por que NSSM e não o Agendador de Tarefas:** se a rede ainda não estiver
+pronta quando o servidor liga, o login no Supabase falha e o agente
+encerra o processo de propósito (`process.exit(1)`, ver `main()` no final
+do `index.js`) — é o comportamento certo pra não ficar um processo
+zumbi sem sessão. Só que aí ele **não volta sozinho**: o Agendador dispara
+a tarefa uma vez no boot e não tenta de novo, então o monitoramento
+ficaria parado até alguém reparar. O NSSM reinicia o serviço
+automaticamente quando o processo morre, o que cobre esse caso e também
+quedas de rede prolongadas.
+
+Falhas pontuais **não** derrubam o agente: se a rede cair com ele já
+autenticado, cada gravação falha com um `console.error` e o ciclo seguinte
+tenta de novo normalmente (ver `insertMeasurement`).
+
+### 4.7. Verificar que está funcionando
+
+- **No servidor:** `Get-Content C:\gmad-monitor\agente.log -Tail 20`
+- **No painel:** abra Monitoramento de Rede — o indicador "Última
+  atualização" no topo deve mostrar poucos segundos atrás.
+
+Comandos úteis do serviço:
+
+```powershell
+.\nssm.exe restart GmadMonitorAgent   # depois de editar o .env
+.\nssm.exe stop GmadMonitorAgent
+.\nssm.exe remove GmadMonitorAgent confirm   # desinstalar
+```
+
+### 4.8. Requisitos de rede do servidor
+
+- Alcançar por **ICMP (ping)** os IPs cadastrados — se houver segmentação
+  de VLAN/firewall entre o servidor e os pontos, libere antes.
+- Alcançar `*.supabase.co` por **HTTPS (443)** na saída, pra gravar as
+  medições.
+
+> Escolha um servidor que enxergue as mesmas redes que você quer
+> monitorar: o agente mede a conectividade **a partir de onde ele roda**.
+> Rodando num segmento diferente, os números refletem aquele caminho de
+> rede, não o dos usuários.
+
+## 4-B. Alternativa: Linux (systemd)
+
+Se um dia migrar pra Linux, o equivalente do passo 4.6:
 
 ```ini
 [Unit]
 Description=Agente de Monitoramento de Rede - Painel TI GMAD
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 WorkingDirectory=/caminho/para/agent
 ExecStart=/usr/bin/node index.js
-Restart=on-failure
 EnvironmentFile=/caminho/para/agent/.env
+# always (não on-failure): cobre também o exit(1) proposital do login
+# quando a rede ainda não subiu — mesmo motivo do NSSM no Windows.
+Restart=always
+RestartSec=15
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Ou, mais simples em ambos os sistemas: `pm2 start index.js --name monitor-gmad`
-(precisa instalar o [PM2](https://pm2.keymetrics.io/) globalmente).
+`sudo systemctl enable --now gmad-monitor` pra ativar; logs em
+`journalctl -u gmad-monitor -f`.
+
+## 4-C. Atualizar um agente já instalado (métricas de CPU/memória/disco)
+
+O agente passou a coletar também métricas da máquina onde roda (CPU,
+memória, disco, uptime), que alimentam a aba **Painel de Infraestrutura**
+do painel. Pra habilitar num servidor que já está rodando:
+
+1. **No Supabase**, rode `supabase/migrations/0006_host_metrics.sql` no SQL
+   Editor (uma vez só). Sem isso o agente avisa no log e segue coletando
+   ping normalmente.
+2. **No servidor**, copie o arquivo novo `hostMetrics.js` e o `index.js`
+   atualizado pra pasta do agente (ex.: `C:\gmad-monitor`).
+3. Acrescente ao `.env` do servidor (opcional — há padrão pra tudo):
+
+   ```
+   AGENT_HOST_LABEL=Servidor TI - Madville
+   HOST_METRICS_INTERVAL_SEGUNDOS=60
+   ```
+
+   `AGENT_HOST_LABEL` é o nome que aparece no painel (sem ele, usa o
+   hostname do Windows). `HOST_METRICS_INTERVAL_SEGUNDOS=0` desliga a
+   coleta de métricas da máquina, mantendo só o monitoramento de rede.
+
+4. Reinicie o serviço: `.\nssm.exe restart GmadMonitorAgent`
+
+No log deve aparecer uma linha por coleta:
+`[agente] host SRV-TI: CPU 12.4% | RAM 63.1% | disco 71%`.
+
+A coleta é leve (uma leitura do SO a cada minuto) e independente do ping —
+se ela falhar, o monitoramento de rede continua funcionando.
 
 ## 5. Limitações conhecidas
 

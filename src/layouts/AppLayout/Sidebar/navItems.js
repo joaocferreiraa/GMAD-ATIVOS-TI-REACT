@@ -62,6 +62,7 @@ export const NAV_ITEMS = [
     items: [
       { to: ROUTES.infraestrutura, label: 'Infraestrutura', icon: InfraIcon },
       { to: ROUTES.monitoramento, label: 'Monitoramento', icon: NetworkMonitorIcon },
+      { to: ROUTES.monitoramentoPainel, label: 'Painel de Infra', icon: ReportsIcon },
     ],
   },
   {

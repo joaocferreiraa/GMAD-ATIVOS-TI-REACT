@@ -1,0 +1,63 @@
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 10px;
+  min-height: 92px;
+  border: 1px solid var(--dash-border);
+  border-radius: var(--radius);
+  background: var(--dash-panel);
+  text-align: center;
+}
+
+.label {
+  font-size: 11.5px;
+  color: var(--dash-text-muted);
+  line-height: 1.2;
+}
+
+.value {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--dash-text);
+}
+
+.unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dash-text-muted);
+}
+
+.hint {
+  font-size: 10.5px;
+  color: var(--dash-text-faint);
+}
+
+/* Cor semântica no número — mesma convenção de Grafana/Zabbix: o valor
+   muda de cor conforme a faixa, o card não vira um bloco colorido. */
+.ok .value {
+  color: var(--dash-ok);
+}
+
+.warn .value {
+  color: var(--dash-warn);
+}
+
+.danger .value {
+  color: var(--dash-danger);
+}
+
+.warn {
+  border-color: color-mix(in srgb, var(--dash-warn) 45%, var(--dash-border));
+}
+
+.danger {
+  border-color: color-mix(in srgb, var(--dash-danger) 45%, var(--dash-border));
+}

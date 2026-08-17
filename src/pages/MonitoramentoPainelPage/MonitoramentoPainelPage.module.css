@@ -1,0 +1,294 @@
+/* Layout de dashboard (densidade e organização de Grafana/Zabbix) com a
+   ESTÉTICA DO SITE: os tokens --dash-* abaixo são apenas apelidos dos
+   tokens globais, então a tela acompanha o tema claro/escuro escolhido
+   pelo usuário como qualquer outra página. Os componentes filhos
+   (StatTile, UsageBar) consomem esses apelidos, o que mantém um único
+   ponto de ajuste caso a paleta do painel precise divergir no futuro. */
+.page {
+  --dash-panel: var(--surface);
+  --dash-border: var(--border);
+  --dash-track: var(--surface-hover);
+  --dash-text: var(--text);
+  --dash-text-muted: var(--text-muted);
+  --dash-text-faint: var(--text-faint);
+  --dash-ok: var(--ok);
+  --dash-warn: var(--warn);
+  --dash-danger: var(--danger);
+}
+
+.topBar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Indicador de "vivo": ponto pulsante + horário da última medição. Num
+   painel de parede é a primeira coisa a conferir — números parados com
+   aparência de atuais são o pior modo de falha aqui. */
+.liveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+.liveTagStale {
+  color: var(--warn);
+}
+
+.liveTagStale .liveDot {
+  background: var(--warn);
+  animation: none;
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Respeita quem pediu menos animação no sistema operacional. */
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
+  }
+}
+
+.backLink {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+.backLink:hover {
+  color: var(--text);
+  border-color: var(--brand);
+}
+
+.topGrid {
+  display: grid;
+  /* Problemas ocupa ~45% e os números o resto, como no dashboard de
+     referência. Abaixo de 900px empilha. */
+  grid-template-columns: minmax(300px, 1fr) minmax(320px, 1.2fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.panelTitle {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Subtítulo explicativo dentro do cabeçalho de um painel — usado pra
+   deixar claro o que aquela seção mede (e o que ela NÃO mede). */
+.panelHint {
+  display: block;
+  margin: 3px auto 0;
+  max-width: 620px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-faint);
+  line-height: 1.45;
+}
+
+.gaugeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px 14px;
+  justify-items: center;
+}
+
+.problemsPanel {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.allGood {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ok);
+}
+
+.problemList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.problemRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+}
+
+.sev {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sevDanger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.sevWarn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.problemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+}
+
+.problemBody b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.problemBody span {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.problemTime {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+}
+
+.hostGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.hostCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 12px;
+  background: var(--surface-hover);
+}
+
+.hostHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.hostHead b {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.hostMeta {
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+
+.hostUpdated {
+  display: block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+
+.sectionTitle {
+  margin: 18px 0 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+.chartTitle {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}

@@ -21,6 +21,11 @@ export default function RealtimeChart({
 }) {
   const metricInfo = METRICA_OPTIONS.find((m) => m.value === metric) || METRICA_OPTIONS[0]
 
+  // `measurements` pode vir cru (uma linha por ping, com `disponivel`) ou
+  // agregado por intervalo em períodos longos (ver useMonitorHistory), onde
+  // não existe `disponivel` — lá a indisponibilidade já está embutida no
+  // valor agregado (média só das checagens que responderam) e um buraco
+  // aparece quando o intervalo inteiro ficou sem medição válida.
   const data = (measurements || []).map((m) => ({
     createdAt: m.createdAt,
     value: m.disponivel === false ? null : (m[metric] ?? null),

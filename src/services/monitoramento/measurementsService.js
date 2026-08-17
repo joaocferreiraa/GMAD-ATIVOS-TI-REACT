@@ -111,6 +111,46 @@ export async function getRecentMeasurements(sinceIso, limit = 1000) {
   return data.map(rowToMeasurement)
 }
 
+function rowToBucket(r) {
+  return {
+    monitorUid: r.monitor_uid,
+    createdAt: r.bucket, // mesmo nome do campo de uma medição crua, pra alimentar os mesmos gráficos
+    amostras: Number(r.amostras),
+    disponibilidadePct: numOrNull(r.disponibilidade_pct),
+    latenciaMin: numOrNull(r.latencia_min),
+    latenciaMs: numOrNull(r.latencia_avg), // "latenciaMs" = valor principal da série (média do intervalo)
+    latenciaMax: numOrNull(r.latencia_max),
+    jitterMs: numOrNull(r.jitter_avg),
+    packetLossPct: numOrNull(r.packet_loss_avg),
+    packetLossMax: numOrNull(r.packet_loss_max),
+    downloadMbps: numOrNull(r.download_avg),
+    uploadMbps: numOrNull(r.upload_avg),
+  }
+}
+
+// numeric do Postgres chega como string no supabase-js (pra não perder
+// precisão); os gráficos precisam de number. null continua null — "sem
+// medição" nunca vira 0, que seria um dado falso.
+function numOrNull(v) {
+  return v === null || v === undefined ? null : Number(v)
+}
+
+// Medições agregadas por intervalo, via função SQL (ver
+// supabase/migrations/0005_measurement_buckets.sql). Diferente de
+// getMeasurementsForMonitor (linhas cruas, teto de 2000), aqui o volume
+// devolvido depende do TAMANHO DO INTERVALO, não do período pedido — é o
+// que torna "últimos 30 dias" viável sem travar o navegador nem cortar o
+// período silenciosamente. `monitorUids` null = todos os pontos.
+export async function getBucketedMeasurements(sinceIso, bucketSegundos, monitorUids = null) {
+  const { data, error } = await requireSupabase().rpc('network_measurements_bucketed', {
+    p_since: sinceIso,
+    p_bucket_segundos: bucketSegundos,
+    p_monitor_uids: monitorUids,
+  })
+  if (error) throw error
+  return data.map(rowToBucket)
+}
+
 // Grava uma medição — usada pelo teste de velocidade manual (origem
 // 'navegador', ver utils/speedTest.js). O agente local (origem 'agente')
 // grava direto via supabase-js do lado dele — ver agent/index.js.

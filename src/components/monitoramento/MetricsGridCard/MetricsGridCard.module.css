@@ -1,0 +1,68 @@
+.grid {
+  display: grid;
+  /* Cada gráfico precisa de ~320px pra não virar um risco ilegível; abaixo
+     disso a grade colapsa sozinha pra uma coluna (celular). */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.panel {
+  min-width: 0; /* deixa o gráfico encolher dentro da célula da grade */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 12px 8px;
+  background: var(--surface);
+}
+
+.panelTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.panelUnit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.pill:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.pillActive {
+  border-color: var(--brand);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.loading {
+  color: var(--text-faint);
+  font-size: 12.5px;
+}

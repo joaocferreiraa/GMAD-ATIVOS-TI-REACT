@@ -23,6 +23,8 @@ const InstaladoresPage = lazy(() => import('../pages/InstaladoresPage'))
 const ScriptsPage = lazy(() => import('../pages/ScriptsPage'))
 const InfraestruturaPage = lazy(() => import('../pages/InfraestruturaPage'))
 const MonitoramentoRedePage = lazy(() => import('../pages/MonitoramentoRedePage'))
+const MonitoramentoPainelPage = lazy(() => import('../pages/MonitoramentoPainelPage'))
+const TvPage = lazy(() => import('../pages/TvPage'))
 const AtividadePage = lazy(() => import('../pages/AtividadePage'))
 const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
 const ChamadosPage = lazy(() => import('../pages/it/ITTickets'))
@@ -50,6 +52,11 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
+          // Modo TV fica FORA do AppLayout de propósito: sem sidebar,
+          // topbar nem rodapé, a tela inteira é o painel. Continua atrás do
+          // login (é filha de ProtectedRoute), então não expõe dado de rede
+          // pra quem não está autenticado.
+          { path: ROUTES.tv, element: lazyPage(TvPage) },
           {
             element: <AppLayout />,
             children: [
@@ -61,6 +68,7 @@ export const router = createBrowserRouter([
               { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },
               { path: ROUTES.infraestrutura, element: lazyPage(InfraestruturaPage) },
               { path: ROUTES.monitoramento, element: lazyPage(MonitoramentoRedePage) },
+              { path: ROUTES.monitoramentoPainel, element: lazyPage(MonitoramentoPainelPage) },
               { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
               { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
               { path: ROUTES.chamados, element: lazyPage(ChamadosPage) },

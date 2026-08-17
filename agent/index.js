@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import os from 'node:os'
+import { collectHostMetrics } from './hostMetrics.js'
 
 // execFile (não exec): manda o binário `ping` rodar direto, sem passar por
 // um shell. `host` vem do cadastro do painel (campo de texto livre, sem
@@ -29,6 +30,12 @@ const AGENT_PASSWORD = process.env.AGENT_PASSWORD
 const MONITORS_KEY = 'gmad_network_monitors'
 const MONITORS_REFRESH_MS = 5 * 60 * 1000
 const PING_COUNT = 4
+// Métricas do host num intervalo próprio, bem mais espaçado que o ping:
+// CPU/memória/disco mudam devagar e cada coleta é uma linha no banco, então
+// 60s dá resolução de sobra sem inflar a tabela (1.440 linhas/dia).
+// Configurável por HOST_METRICS_INTERVAL_SEGUNDOS; 0 desliga a coleta.
+const HOST_METRICS_INTERVAL_MS =
+  Math.max(parseInt(process.env.HOST_METRICS_INTERVAL_SEGUNDOS ?? '60', 10) || 0, 0) * 1000
 const DEFAULT_THRESHOLDS = {
   latenciaMaximaMs: 100,
   packetLossMaximoPct: 2,
@@ -291,10 +298,72 @@ async function refreshMonitors() {
   }
 }
 
+// Métricas da própria máquina (CPU/memória/disco/uptime) — ver
+// hostMetrics.js. `cpuAnteriorRef` guarda o snapshot da coleta passada,
+// porque uso de CPU só existe entre duas amostras.
+let cpuAnterior = null
+
+async function collectAndSaveHostMetrics() {
+  const { metrics, cpuSnapshot } = await collectHostMetrics(cpuAnterior)
+  cpuAnterior = cpuSnapshot
+
+  const { error } = await supabase.from('host_metrics').insert({
+    host: metrics.host,
+    rotulo: metrics.rotulo,
+    plataforma: metrics.plataforma,
+    cpu_pct: metrics.cpuPct,
+    cpu_nucleos: metrics.cpuNucleos,
+    mem_total_bytes: metrics.memTotalBytes,
+    mem_usada_bytes: metrics.memUsadaBytes,
+    mem_pct: metrics.memPct,
+    disco_total_bytes: metrics.discoTotalBytes,
+    disco_livre_bytes: metrics.discoLivreBytes,
+    disco_pct: metrics.discoPct,
+    uptime_segundos: metrics.uptimeSegundos,
+  })
+
+  if (error) {
+    // Tabela ausente (migration 0004 ainda não rodada) é o erro esperado
+    // em quem atualizou o agente antes do banco: avisa uma vez com a
+    // instrução, em vez de repetir o mesmo erro cru a cada minuto.
+    if (!collectAndSaveHostMetrics.avisou) {
+      collectAndSaveHostMetrics.avisou = true
+      console.error(
+        `[agente] falha ao gravar métricas do host: ${error.message}\n` +
+          '         Se a tabela não existe, rode supabase/migrations/0006_host_metrics.sql no SQL Editor do Supabase.',
+      )
+    }
+    return
+  }
+  collectAndSaveHostMetrics.avisou = false
+  console.log(
+    `[agente] host ${metrics.host}: CPU ${metrics.cpuPct ?? '—'}% | RAM ${metrics.memPct ?? '—'}% | disco ${metrics.discoPct ?? '—'}%`,
+  )
+}
+
 async function main() {
   await login()
   await refreshMonitors()
   setInterval(refreshMonitors, MONITORS_REFRESH_MS)
+
+  if (HOST_METRICS_INTERVAL_MS > 0) {
+    // A primeira coleta sai com cpuPct null de propósito (não há intervalo
+    // anterior pra comparar) — a partir da segunda o número é real.
+    collectAndSaveHostMetrics().catch((e) =>
+      console.error('[agente] erro ao coletar métricas do host:', e.message),
+    )
+    setInterval(
+      () =>
+        collectAndSaveHostMetrics().catch((e) =>
+          console.error('[agente] erro ao coletar métricas do host:', e.message),
+        ),
+      HOST_METRICS_INTERVAL_MS,
+    )
+    console.log(
+      `[agente] coletando métricas do host a cada ${HOST_METRICS_INTERVAL_MS / 1000}s (HOST_METRICS_INTERVAL_SEGUNDOS=0 desliga).`,
+    )
+  }
+
   console.log('[agente] rodando. Ctrl+C para parar.')
 }
 
