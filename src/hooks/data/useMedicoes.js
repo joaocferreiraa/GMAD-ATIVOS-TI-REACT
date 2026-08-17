@@ -31,6 +31,15 @@ function bucketFor(minutes) {
 // a janela acompanha o relógio.
 const JANELA_PASSO_MS = 5 * 60 * 1000
 
+// Mantém na tela os dados da busca anterior enquanto a nova carrega.
+// NECESSÁRIO por causa da janela deslizante: quando `sinceIso` avança um
+// passo, a queryKey muda e o React Query trata como consulta nova — sem
+// cache, `data` volta `undefined` por alguns instantes e a tela renderiza
+// vazia. Num painel de parede isso aparece como os dados "caindo" e
+// voltando a cada 5 minutos. Com o placeholder, a transição é invisível:
+// os números antigos ficam até os novos chegarem.
+const MANTER_ANTERIOR = (anterior) => anterior
+
 // Função comum (não-hook) pra isolar a chamada impura (Date.now()): o React
 // Compiler analisa a pureza de hooks/componentes e barra Date.now() direto
 // no corpo deles, mas não enxerga dentro de uma função auxiliar comum.
@@ -95,6 +104,7 @@ export function useMonitorHistory(monitorUid, minutes) {
         ? getBucketedMeasurements(sinceIso, bucketSegundos, [monitorUid])
         : getMeasurementsForMonitor(monitorUid, sinceIso),
     enabled: !!monitorUid && !!sinceIso,
+    placeholderData: MANTER_ANTERIOR,
   })
 }
 
@@ -132,6 +142,7 @@ export function useBucketedHistory(uids, minutes, bucketSegundos) {
               .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
           ),
     enabled: !!sinceIso && !!uidList,
+    placeholderData: MANTER_ANTERIOR,
   })
 }
 
@@ -150,6 +161,7 @@ export function useRecentMeasurements(minutes = 60) {
     queryKey,
     queryFn: () => getRecentMeasurements(sinceIso),
     enabled: !!sinceIso,
+    placeholderData: MANTER_ANTERIOR,
   })
 }
 

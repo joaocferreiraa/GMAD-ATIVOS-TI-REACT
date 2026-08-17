@@ -12,6 +12,11 @@ import { queryKeys } from '../../constants/queryKeys'
 // "desde que a página abriu" numa tela que fica horas aberta (modo TV).
 const JANELA_PASSO_MS = 5 * 60 * 1000
 
+// Mantém os dados anteriores enquanto a nova janela carrega — sem isso a
+// tela pisca a cada passo de 5 min (mesma razão documentada em
+// useMedicoes.js).
+const MANTER_ANTERIOR = (anterior) => anterior
+
 // Função comum (não-hook) pra isolar a chamada impura Date.now() do corpo
 // do hook (exigência do React Compiler).
 function sinceIsoStep(minutes) {
@@ -53,10 +58,11 @@ export function useRecentHostMetrics(minutes = 60) {
     queryKey,
     queryFn: () => getRecentHostMetrics(sinceIso),
     enabled: !!sinceIso,
-    // A tabela pode não existir ainda (migration 0004 não rodada). Sem
+    // A tabela pode não existir ainda (migration 0006 não rodada). Sem
     // retry, o erro aparece na hora como aviso acionável em vez de o
     // painel ficar tentando em silêncio.
     retry: false,
+    placeholderData: MANTER_ANTERIOR,
   })
 }
 
@@ -85,5 +91,6 @@ export function useBucketedHostMetrics(hosts, minutes, bucketSegundos) {
           ),
     enabled: !!sinceIso,
     retry: false,
+    placeholderData: MANTER_ANTERIOR,
   })
 }
