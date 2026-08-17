@@ -48,7 +48,7 @@ function NotificationsButton() {
     <div ref={rootRef} className={styles.notifRoot}>
       <button
         type="button"
-        className={`${styles.iconBtn} ${styles.iconBtnAccent}`}
+        className={`${styles.iconBtn} ${styles.iconBtnAccent} ${styles.notifBtn}`}
         onClick={() => setOpen((current) => !current)}
         aria-label="Notificações"
         aria-haspopup="menu"

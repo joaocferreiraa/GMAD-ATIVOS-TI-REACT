@@ -13,6 +13,8 @@
   border-radius: var(--radius);
   padding: 12px 12px 8px;
   background: var(--surface);
+  /* Mesma elevação dos demais cartões do site (ver Card.module.css). */
+  box-shadow: var(--shadow-soft);
 }
 
 .panelTitle {

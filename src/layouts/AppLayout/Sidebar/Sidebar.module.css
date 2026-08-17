@@ -12,8 +12,11 @@
   width: var(--sidebar-w);
   z-index: 61;
   background: var(--surface);
+  /* Só a borda separa a barra do conteúdo, sem sombra — mesmo tratamento
+     plano dos cartões (ver --shadow-soft em tokens.css) e do rail do
+     Supabase. A sombra continua no modo "expandir ao passar o mouse"
+     (.sidebar.peek), onde a barra REALMENTE flutua sobre o conteúdo. */
   border-right: 1px solid var(--border);
-  box-shadow: 3px 0 16px rgba(15, 56, 35, 0.06);
   display: flex;
   flex-direction: column;
   /* padding-top maior que o horizontal/inferior de propósito: alinha o topo
@@ -202,6 +205,15 @@
     flex-direction: row;
     gap: 6px;
     overflow-x: auto;
+  }
+
+  /* .navButton herda width: 100% da lista vertical do desktop — numa linha
+     horizontal isso vira o flex-basis de cada botão, fazendo todos
+     disputarem 100% da largura e encolherem de forma desigual (ícones
+     desalinhados/espaçamento irregular). Largura pelo conteúdo aqui. */
+  .navButton {
+    width: auto;
+    flex: 0 0 auto;
   }
 }
 

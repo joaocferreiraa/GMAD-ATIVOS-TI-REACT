@@ -50,6 +50,12 @@
   --brand: var(--gmad-verde-claro);
   --gauge-track: #2a2a2a;
 
+  /* Mantém o IBM Plex Sans nos títulos dos cartões de métrica só aqui — o
+     MetricStat é compartilhado com as telas normais do site, onde o padrão
+     é Poppins (ver MetricStat.module.css .titulo). Mesmo motivo do .title
+     abaixo: legibilidade a distância num painel de parede. */
+  --metricstat-titulo-font: 'IBM Plex Sans', var(--font-body);
+
   min-height: 100vh;
   /* Fundo chapado, sem brilho: a separação vem dos degraus de cinza
      entre fundo e painéis, como no Supabase. */

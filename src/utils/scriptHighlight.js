@@ -6,6 +6,24 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c])
 }
 
+// Aplica a substituição só nos trechos de TEXTO, pulando as tags que o
+// próprio highlighter já inseriu. Como escapeHtml() roda antes e não deixa
+// passar nenhum '<' vindo do código, todo <...> presente aqui é marcação
+// nossa — então dividir por tags é seguro e sem ambiguidade.
+//
+// Sem isso uma palavra-chave casava DENTRO da marcação: num .REG a palavra
+// 'string' (que está na lista de palavras-chave do tipo) casava com o
+// class="tok-string" recém-inserido pela etapa de strings e produzia
+// class="tok-<span class="tok-keyword">string</span>", quebrando o bloco.
+// Como praticamente todo .REG tem valores entre aspas, isso valia pra quase
+// todos eles.
+function replaceOutsideTags(html, re, replacement) {
+  return html
+    .split(/(<[^>]*>)/g)
+    .map((part) => (part.startsWith('<') ? part : part.replace(re, replacement)))
+    .join('')
+}
+
 // Highlighter leve e específico do projeto (sem depender de biblioteca
 // externa) — porta 1:1 de highlightScriptCode() do sistema original: marca
 // linhas de comentário e destaca strings/palavras-chave mais comuns por
@@ -26,7 +44,7 @@ export function highlightScriptCode(code, tipo) {
       html = html.replace(/(&quot;[^&]*?&quot;)/g, '<span class="tok-string">$1</span>')
       keywords.forEach((kw) => {
         const re = new RegExp(`\\b(${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b`, 'gi')
-        html = html.replace(re, '<span class="tok-keyword">$1</span>')
+        html = replaceOutsideTags(html, re, '<span class="tok-keyword">$1</span>')
       })
       return html
     })

@@ -9,6 +9,9 @@
   border: 1px solid var(--dash-border);
   border-radius: var(--radius);
   background: var(--dash-panel);
+  /* Mesma elevação dos tiles equivalentes no painel de Chamados
+     (ITDashboard.module.css .tile) e dos demais cartões do site. */
+  box-shadow: var(--shadow-soft);
   text-align: center;
 }
 

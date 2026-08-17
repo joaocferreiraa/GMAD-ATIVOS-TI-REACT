@@ -97,6 +97,14 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  /* Ancora .notifPanel (ver .notifRoot) na fileira inteira de ícones, não só
+     no botão do sino — o sino não é o último item (vem antes do avatar/
+     sair), então "right: 0" relativo só a ele deixava o painel de 300px
+     sobrando pra fora da tela à esquerda em telas estreitas, cortado pelo
+     overflow-x: hidden do body. Relativo à fileira toda, a borda direita do
+     painel sempre cai na borda direita da própria fileira (mesma referência
+     do restante do layout), dentro da tela em qualquer largura. */
+  position: relative;
 }
 
 /* Traço diagonal, igual ao .brandDivider (mesmo separador da referência do
@@ -145,6 +153,17 @@
 }
 
 .notifRoot {
+  /* Sem position aqui de propósito — .notifPanel (position: absolute) deve
+     usar .navRight como containing block, não este wrapper (ver comentário
+     em .navRight). */
+  display: contents;
+}
+
+/* O crachá do contador fica DENTRO deste botão (o painel é irmão dele), e
+   precisa se ancorar no sino, não na fileira: sem este position, ele herda
+   o .navRight como referência e vai parar no canto superior direito da
+   fileira inteira — ou seja, em cima do botão "Sair", que é o último item. */
+.notifBtn {
   position: relative;
 }
 
@@ -349,6 +368,37 @@
   }
 
   .brandUnitGroup {
+    display: none;
+  }
+
+  /* Sem espaço pra .brand e .navRight caberem lado a lado abaixo de 861px:
+     em vez de deixar o flex-wrap padrão jogar o .navRight pra uma 2ª linha
+     "crua" (começando da borda esquerda, ver comentário no chamado que
+     motivou isto), força as duas linhas e realinha os ícones à direita —
+     mesma borda direita da logo/brand, e o painel de notificações (ancorado
+     no sino via right: 0) passa a abrir dentro da tela em vez de estourar
+     pra fora à esquerda e ser cortado pelo overflow-x: hidden do body. */
+  .topbar {
+    row-gap: 10px;
+  }
+
+  .navRight {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* 300px fixos estoura telas bem estreitas (~320px) mesmo ancorado na
+     borda direita da fileira — encolhe pra caber com folga dos dois lados. */
+  .notifPanel {
+    width: min(300px, calc(100vw - 48px));
+  }
+}
+
+@media (max-width: 400px) {
+  /* Último recurso pra telas bem estreitas (ex.: iPhone SE): some só com o
+     nome por extenso, o avatar sozinho já identifica o usuário. */
+  .userChip span {
     display: none;
   }
 }

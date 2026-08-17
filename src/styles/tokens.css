@@ -11,16 +11,31 @@
   --madeira: #a9713f;
   --madeira-claro: #e9dac4;
 
+  /* Neutros do modo claro no espírito do painel do Supabase: cinza neutro
+     (R=G=B) em vez do levemente quente de antes (#f6f6f4 puxava amarelo).
+     O fundo fica um pouco mais claro, mas ainda distinguível do branco dos
+     cartões — com os cartões planos (ver --shadow-soft), é o contraste
+     fundo/cartão + a borda que define cada bloco. */
   --bg: #ffffff;
-  --bg-elevated: #f6f6f4;
+  /* Fundo da página, branco como o do painel do Supabase. Token próprio (e
+     não --bg-elevated, que o body usava antes) porque --bg-elevated também
+     é o preenchimento cinza sutil de campo de busca, bloco de código,
+     trilha de barra de progresso e balão de chamado — pintar aquele token
+     de branco apagaria todos esses elementos. */
+  --page-bg: #ffffff;
+  --bg-elevated: #f8f8f9;
   --surface: #ffffff;
-  --surface-hover: #f2f2f0;
-  --border: #e4e4e1;
-  --border-strong: #d6d6d2;
+  --surface-hover: #f3f3f5;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
   --login-bg: #fceee6;
-  --text: #20261f;
-  --text-muted: #5c6459;
-  --text-faint: #8d9385;
+  /* Texto neutro, acompanhando as superfícies (antes puxava verde:
+     #20261f/#5c6459/#8d9385 tinham o verde acima do vermelho). O --text-faint
+     também escureceu: em #8d9385 sobre branco o contraste era 3,16:1, abaixo
+     do mínimo de 4,5:1 pra texto pequeno — agora fica acima. */
+  --text: #18181b;
+  --text-muted: #52525b;
+  --text-faint: #6f6f78;
   --accent: var(--laranja);
   --accent-strong: var(--laranja-forte);
   --accent-ink: #ffffff;
@@ -49,9 +64,16 @@
   --indigo: #6366f1;
   --indigo-bg: rgba(99, 102, 241, 0.12);
   --radius: 10px;
-  --shadow-soft:
-    0 1px 2px rgba(15, 38, 25, 0.04),
-    0 6px 16px -8px rgba(15, 38, 25, 0.1);
+  /* Cartões PLANOS no modo claro (padrão do painel do Supabase): a borda de
+     1px define o bloco, sem sombra. Mantido como token (em vez de remover o
+     box-shadow de cada arquivo) pra continuar existindo um único ponto de
+     ajuste — e pro modo escuro poder ter a sua própria elevação. */
+  --shadow-soft: none;
+  /* Elevação de coisas que FLUTUAM sobre o conteúdo (tooltip de gráfico,
+     menus, painéis suspensos). O Supabase também mantém sombra nesses: sem
+     ela, um tooltip se confunde com o gráfico embaixo. Por isso é um token
+     separado de --shadow-soft, que agora é `none`. */
+  --shadow-float: 0 1px 2px rgba(15, 38, 25, 0.04), 0 6px 16px -8px rgba(15, 38, 25, 0.1);
 
   --font-display: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -84,16 +106,35 @@
   --laranja: #ff8c2a;
   --laranja-forte: #ffab5c;
 
-  --bg: #0a0b0d;
-  --bg-elevated: #111214;
-  --surface: #141518;
-  --surface-hover: #1a1c1f;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.13);
+  /* Cinzas NEUTROS (R=G=B), como o painel do Supabase — antes puxavam pro
+     azul (#0a0b0d, #111214, #141518 tinham o azul acima do vermelho).
+     Escada de profundidade: página < cartão < preenchimento < hover.
+     --bg-elevated agora é DIFERENTE de --page-bg de propósito: ele é o
+     preenchimento do campo de busca, do bloco de código e da trilha da
+     barra de progresso, que antes tinham exatamente a cor do fundo e
+     sumiam na tela (só a borda os denunciava). */
+  --bg: #121212;
+  --page-bg: #171717;
+  --surface: #1c1c1c;
+  --bg-elevated: #212121;
+  --surface-hover: #272727;
+  /* Borda sólida em vez de branco translúcido: sobre fundos diferentes o
+     alpha resultava em tons distintos, e no Supabase a borda é uma linha
+     cinza constante que sustenta os painéis planos. */
+  --border: #2e2e2e;
+  --border-strong: #3d3d3d;
 
-  --text: #f5f6f7;
-  --text-muted: #969ba3;
-  --text-faint: #6b7178;
+  /* Cartões planos aqui também (o Supabase define os painéis pela borda nos
+     dois temas) — sombra fica só pro que flutua sobre o conteúdo. */
+  --shadow-soft: none;
+  --shadow-float: 0 4px 12px -2px rgba(0, 0, 0, 0.45), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+
+  /* Texto também neutro (antes puxava azul, como os fundos). O --text-faint
+     subiu de #6b7178 pra #8a8a8a: no fundo mais claro de agora o tom antigo
+     ficaria com contraste baixo demais pra texto pequeno. */
+  --text: #ededed;
+  --text-muted: #a1a1a1;
+  --text-faint: #8a8a8a;
 
   --ok: #22c55e;
   --ok-bg: rgba(34, 197, 94, 0.16);

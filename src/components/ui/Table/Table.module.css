@@ -1,13 +1,25 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.table-wrap, table,
    thead/tbody, .badge/.cell-stack de apoio, e o layout em cartão no mobile). */
 
+/* overflow-y: hidden é obrigatório aqui, não descuido: rolagem horizontal
+   exige um contexto de recorte, e o CSS não deixa combinar um eixo `auto`
+   com o outro `visible` (o `visible` vira `auto` sozinho). O `hidden`
+   explícito também garante que a tabela respeite o border-radius do cartão
+   nos cantos.
+   CONSEQUÊNCIA: qualquer popover renderizado DENTRO da tabela (menu de
+   Select/Dropdown, balão) é recortado por este contêiner. Hoje isso não
+   afeta nada — nenhuma tabela usa Select/Dropdown numa célula, e o tooltip
+   compartilhado é portado pro body (ver HoverTooltipProvider). Se um dia
+   precisar de um menu dentro da tabela, a saída é portar pro body, como
+   fazem o tooltip e o SidebarGroupFlyout — mexer no overflow daqui não
+   resolve, só quebra a rolagem horizontal. */
 .tableWrap {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .table {

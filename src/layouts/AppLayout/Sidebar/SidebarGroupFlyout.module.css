@@ -8,17 +8,18 @@
   border-radius: 12px;
   box-shadow: 0 16px 36px -12px rgba(15, 30, 20, 0.24);
   padding: 8px;
-  animation: flyoutIn 0.15s ease both;
+  /* Só fade, sem o translateX de antes: o deslize de 4px, mesmo sutil e
+     rápido (150ms), lia como o painel "pulando" ou abrindo duas vezes em
+     cliques rápidos — reportado como sensação de duplo clique. */
+  animation: flyoutIn 0.12s ease both;
 }
 
 @keyframes flyoutIn {
   from {
     opacity: 0;
-    transform: translateX(-4px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 

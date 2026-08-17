@@ -48,22 +48,26 @@
   overflow-x: auto;
 }
 
+/* Tipografia alinhada à tabela padrão do site (Table.module.css): corpo
+   13px e cabeçalho 11px / 700 / letter-spacing 0.06em. O padding segue mais
+   compacto que o da tabela padrão de propósito — é um resumo denso embaixo
+   do gráfico, não uma tabela de dados por si só. */
 .statsTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12.5px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
 .statsTable th {
   text-align: right;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-faint);
   padding: 6px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 11.5px;
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
 }
 
 .statsTable th:first-child,

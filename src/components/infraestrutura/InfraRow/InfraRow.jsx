@@ -50,7 +50,14 @@ export default function InfraRow({ label, value, masked }) {
             type="button"
             className={styles.copyBtn}
             onClick={() => setVisible((v) => !v)}
-            {...bindTooltip('Mostrar/ocultar senha')}
+            /* bindTooltip só dá o tooltip visual (mouse/foco) — não nomeia o
+               botão pra leitor de tela. Sem o aria-label, este botão e o de
+               copiar eram anunciados só como "button", sem dizer que um
+               revela e o outro copia uma senha. Mesmo par aria-label +
+               tooltip usado no resto do site (ver RowActions e o olho de
+               senha da LoginPage, que também alterna o texto pelo estado). */
+            aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
+            {...bindTooltip(visible ? 'Ocultar senha' : 'Mostrar senha')}
           >
             {visible ? <EyeOffIcon /> : <EyeIcon />}
           </button>
@@ -60,6 +67,7 @@ export default function InfraRow({ label, value, masked }) {
             type="button"
             className={`${styles.copyBtn} ${copied ? styles.copied : ''}`}
             onClick={handleCopy}
+            aria-label={`Copiar ${label}`}
             {...bindTooltip('Copiar')}
           >
             <CopyIcon />

@@ -25,15 +25,22 @@
   margin-bottom: 14px;
 }
 
+/* Mesma receita de título/subtítulo das demais telas (ver
+   MonitoramentoRedePage/DashboardPage/AtivosPage .heading h2): Poppins 23px
+   600 + subtítulo 13px. Antes eram 17px sem font-family (caía no Inter do
+   corpo) e sem peso explícito — a página abria com uma tipografia própria,
+   destoando do resto do site. */
 .title {
   margin: 0;
-  font-size: 17px;
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 600;
   color: var(--text);
 }
 
 .subtitle {
-  margin: 3px 0 0;
-  font-size: 12.5px;
+  margin: 4px 0 0;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -124,6 +131,10 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 14px;
+  /* Mesma elevação de qualquer superfície de cartão do site (Card,
+     SummaryBar, .tableWrap, tiles do painel de Chamados) — sem ela esta
+     página ficava visivelmente mais "chapada" que as demais. */
+  box-shadow: var(--shadow-soft);
 }
 
 .panelTitle {

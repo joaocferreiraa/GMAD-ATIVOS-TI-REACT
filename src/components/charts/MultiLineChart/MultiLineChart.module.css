@@ -12,7 +12,7 @@
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-float);
   padding: 8px 10px;
   font-size: 12.5px;
   /* Com muitos pontos monitorados o tooltip não pode virar uma torre. */
