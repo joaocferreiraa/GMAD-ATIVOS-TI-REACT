@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../services/supabase/client'
 
@@ -17,21 +17,52 @@ import { supabase } from '../../services/supabase/client'
 // o supabase-js reaproveita/colide com o canal já inscrito e lança "cannot
 // add `postgres_changes` callbacks ... after `subscribe()`". Um id por
 // instância garante canais independentes mesmo quando a query é idêntica.
+//
+// A QUERYKEY NÃO ENTRA NAS DEPENDÊNCIAS DO EFEITO, de propósito. Ela contém
+// o início da janela de tempo (`sinceIso`), que avança de 5 em 5 minutos —
+// se o efeito dependesse dela, o WebSocket seria destruído e reassinado a
+// cada passo. Numa tela que fica aberta o dia todo (modo TV) isso dava ~432
+// reciclagens de canal em 12h, cada uma com uma janela de segundos sem
+// receber evento e uma chance de a reassinatura falhar em silêncio — a tela
+// então parava de atualizar até o refresh de segurança salvar, ou de vez.
+// Em vez disso o canal é criado UMA vez por tabela e a queryKey atual é
+// lida de uma ref no momento da invalidação.
 export function useRealtimeInvalidate(table, queryKey, { event = 'INSERT', filter } = {}) {
   const queryClient = useQueryClient()
   const instanceId = useId()
   const filterKey = filter || ''
 
+  // Ref sempre com a queryKey mais recente: o callback do canal é criado
+  // uma vez só, mas precisa invalidar a chave VIGENTE quando um evento
+  // chega — não a que existia no momento da inscrição. A escrita vai num
+  // efeito próprio (não no corpo do componente, que seria acesso a ref
+  // durante o render).
+  const queryKeyRef = useRef(queryKey)
+  useEffect(() => {
+    queryKeyRef.current = queryKey
+  })
+
   useEffect(() => {
     if (!supabase || !table) return undefined
+
+    const invalidar = () =>
+      queryClient.invalidateQueries({ queryKey: queryKeyRef.current, refetchType: 'all' })
+
     const channel = supabase
       .channel(`realtime:${table}:${instanceId}`)
       .on(
         'postgres_changes',
         { event, schema: 'public', table, ...(filter ? { filter } : {}) },
-        () => queryClient.invalidateQueries({ queryKey }),
+        invalidar,
       )
-      .subscribe()
+      .subscribe((status) => {
+        // CLOSED/CHANNEL_ERROR sem reconexão automática deixaria a tela
+        // muda: o supabase-js reconecta o socket, mas um canal que caiu
+        // por erro de servidor nem sempre volta sozinho. Invalidar ao
+        // reconectar garante que o que passou durante a queda seja
+        // buscado (postgres_changes não faz replay de eventos perdidos).
+        if (status === 'SUBSCRIBED') invalidar()
+      })
 
     // iOS fecha o WebSocket quando o app vai pra background (tela bloqueada,
     // troca de app) — mudanças no Postgres feitas nesse intervalo não são
@@ -40,9 +71,7 @@ export function useRealtimeInvalidate(table, queryKey, { event = 'INSERT', filte
     // reconexão do socket em si (já automática no supabase-js) tenha perdido
     // eventos no meio do caminho.
     function handleVisible() {
-      if (document.visibilityState === 'visible') {
-        queryClient.invalidateQueries({ queryKey })
-      }
+      if (document.visibilityState === 'visible') invalidar()
     }
     document.addEventListener('visibilitychange', handleVisible)
 
@@ -50,6 +79,9 @@ export function useRealtimeInvalidate(table, queryKey, { event = 'INSERT', filte
       document.removeEventListener('visibilitychange', handleVisible)
       supabase.removeChannel(channel)
     }
+    // `queryKey` fica FORA das dependências de propósito — ver o comentário
+    // no topo. O canal só é recriado se a tabela, o evento ou o filtro
+    // mudarem, que é quando a assinatura em si deixa de ser válida.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [table, instanceId, event, filterKey, JSON.stringify(queryKey)])
+  }, [table, instanceId, event, filterKey])
 }

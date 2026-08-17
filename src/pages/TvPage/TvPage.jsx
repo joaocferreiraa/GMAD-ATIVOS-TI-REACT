@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useMonitores } from '../../hooks/data/useMonitores'
 import { useRecentMeasurements, useBucketedHistory } from '../../hooks/data/useMedicoes'
 import { useAlertas } from '../../hooks/data/useAlertas'
+import { supabase } from '../../services/supabase/client'
 import { computeMonitorStatus, STATUS_LABEL } from '../../utils/networkStatus'
 import { statsLatencia, percentil } from '../../utils/hostFormatters'
 import { fmtRelTime } from '../../utils/formatters'
@@ -22,6 +23,9 @@ import styles from './TvPage.module.css'
 // buscar dado fresco antes de concluir que a coleta parou, senão um
 // tropeço de rede vira um "SEM COLETA" falso na parede.
 const SAFETY_REFRESH_MS = 45 * 1000
+// Verificação do WebSocket. 20s: rápido o bastante pra uma queda não passar
+// despercebida, espaçado o bastante pra checagem em si não pesar.
+const WATCHDOG_MS = 20 * 1000
 // Acima disso a coleta parou (o agente mede a cada 30s) — num painel de
 // parede, números velhos com cara de atuais são o pior modo de falha, então
 // a tela inteira avisa em vez de seguir exibindo o último valor.
@@ -92,6 +96,31 @@ export default function TvPage() {
       () => queryClient.invalidateQueries({ queryKey: ['monitoramento'], refetchType: 'all' }),
       SAFETY_REFRESH_MS,
     )
+    return () => clearInterval(id)
+  }, [queryClient])
+
+  // Watchdog do WebSocket: o refresh acima busca dados, mas não conserta um
+  // socket morto — e sem socket a tela perde o "tempo real", ficando só com
+  // o ciclo de 45s. Pior: se o socket cai e não volta, cada canal do
+  // supabase-js fica pendurado sem receber nada.
+  //
+  // Numa aba que fica dias aberta isso acontece (suspensão da máquina, o
+  // proxy da rede derrubando conexão ociosa, queda do lado do Supabase).
+  // Aqui a conexão é verificada periodicamente e reconectada quando não
+  // está mais aberta — algo que só um painel de longa duração precisa,
+  // por isso mora nesta tela e não no hook genérico.
+  useEffect(() => {
+    if (!supabase) return undefined
+    const id = setInterval(() => {
+      const socket = supabase.realtime
+      if (!socket) return
+      if (!socket.isConnected()) {
+        socket.connect()
+        // Buscar na hora: o que passou enquanto o socket esteve fora não é
+        // reenviado (postgres_changes não faz replay).
+        queryClient.invalidateQueries({ queryKey: ['monitoramento'], refetchType: 'all' })
+      }
+    }, WATCHDOG_MS)
     return () => clearInterval(id)
   }, [queryClient])
 
