@@ -332,13 +332,29 @@
 
 .chartRow {
   display: grid;
-  /* 4 painéis: em TV Full HD ficam 2x2; em telas largas (ultrawide) a
-     linha se espalha sozinha. minmax impede que um gráfico fique estreito
-     a ponto de virar um risco ilegível de longe. */
-  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+  /* 3 gráficos (latência, perda, disponibilidade): numa TV Full HD ficam
+     lado a lado; em tela estreita a grade quebra sozinha. minmax impede
+     que um gráfico fique estreito a ponto de virar um risco ilegível de
+     longe. */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 14px;
   flex: 1;
   min-height: 210px;
+}
+
+/* Resumo (tabela, mais larga) ao lado dos alertas — os dois respondem "o
+   que aconteceu", então formam uma faixa só no rodapé do painel. */
+.bottomRow {
+  display: grid;
+  grid-template-columns: minmax(380px, 1.15fr) minmax(320px, 1fr);
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  .bottomRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Tabela-resumo: densidade de NOC, com números alinhados à direita pra
@@ -358,6 +374,9 @@
   letter-spacing: 0.06em;
   padding: 0 8px 7px;
   border-bottom: 1px solid var(--dash-line);
+  /* Em uma linha só: "Latência méd." quebrando em duas desalinhava a
+     régua de títulos. */
+  white-space: nowrap;
 }
 
 .resumoTable th:first-child,
@@ -379,9 +398,11 @@
   color: var(--text);
   font-family: inherit;
   font-weight: 500;
-  /* Nome longo encolhe em vez de empurrar os números pra fora. */
+  /* Nome longo encolhe em vez de empurrar os números pra fora. Largura
+     maior que a das colunas numéricas: "Servidor Madville Externo" cabe
+     inteiro na maioria das telas em vez de virar "Servidor ...". */
   max-width: 0;
-  width: 45%;
+  width: 38%;
   overflow: hidden;
   text-overflow: ellipsis;
 }

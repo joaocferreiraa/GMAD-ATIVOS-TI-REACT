@@ -386,6 +386,13 @@ export default function TvPage() {
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
+      </div>
+
+      {/* Resumo e alertas lado a lado: os dois respondem "o que aconteceu",
+          enquanto os gráficos acima mostram "como está indo". Juntos numa
+          linha só, sobra altura pros gráficos e a tela fecha sem espaço
+          morto à direita. */}
+      <div className={styles.bottomRow}>
         {/* Quadro-resumo: junta disponibilidade e latência por ponto, que
             os gráficos mostram separados. É onde se lê "qual link deu mais
             trabalho hoje" de uma olhada. */}
@@ -437,9 +444,7 @@ export default function TvPage() {
             </table>
           )}
         </section>
-      </div>
 
-      <div className={styles.bottomRow}>
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <h2 className={styles.panelTitle}>Alertas ativos</h2>
