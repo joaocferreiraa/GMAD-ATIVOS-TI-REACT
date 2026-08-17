@@ -41,6 +41,10 @@ const RECENT_LIMIT = 8
 
 // Paleta dos rankings — mesma família do dashboard principal
 // (ver DashboardPage.jsx), para os dois painéis lerem igual.
+// --info/--yellow/--indigo por último: só entram quando um ranking passa de
+// 7-9 categorias (ex.: "Setores" com bastante departamento cadastrado) —
+// dão mais tons bem distintos sem mexer na ordem verde/laranja/madeira que
+// já domina os casos comuns.
 const RANK_COLORS = [
   'var(--verde-700)',
   'var(--laranja)',
@@ -49,6 +53,9 @@ const RANK_COLORS = [
   'var(--laranja-forte)',
   'var(--verde-800)',
   'var(--madeira)',
+  'var(--info)',
+  'var(--yellow)',
+  'var(--indigo)',
 ]
 
 const PERIOD_ITEMS = [
@@ -255,7 +262,7 @@ export default function ITDashboard() {
   const periodLabel = PERIOD_ITEMS.find((p) => p.value === period)?.label ?? 'Período'
 
   const kpiTiles = [
-    { icon: TicketIcon, label: 'Novos', value: computed.openStatus },
+    { icon: TicketIcon, label: 'Novos', value: computed.openStatus, tone: 'info' },
     { icon: Clock, label: 'Em atendimento', value: computed.inProgress },
     { icon: Hourglass, label: 'Pendentes', value: computed.waiting },
     { icon: AlertTriangle, label: 'SLA vencido', value: computed.overdueCount, tone: 'danger' },

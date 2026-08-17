@@ -5,6 +5,10 @@
    barra, os subitens têm 28px de recuo e 18px+10px de ícone/gap. */
 .shell {
   --sidebar-w: 244px;
+  /* Largura "aberta" fixa, independente de --sidebar-w — usada por
+     .sidebar.peek (modo "expandir ao passar o mouse") pra a barra crescer
+     por cima do conteúdo sem que o layout reserve esse espaço. */
+  --sidebar-w-expanded: 244px;
 }
 
 /* 64px: só ícones (18px) centralizados. Menor que os 72px anteriores porque

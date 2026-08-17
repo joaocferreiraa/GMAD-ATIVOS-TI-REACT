@@ -112,6 +112,16 @@
   color: var(--laranja-forte);
 }
 
+.iconBlue {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.iconYellow {
+  background: var(--yellow-bg);
+  color: var(--yellow);
+}
+
 .value {
   font-family: var(--font-display);
   font-size: 26px;

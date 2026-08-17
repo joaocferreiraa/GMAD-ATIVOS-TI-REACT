@@ -3,7 +3,7 @@ import {
   DashboardIcon,
   AssetsIcon,
   PackageIcon,
-  ContactsIcon,
+  PhoneIcon,
   UserIcon,
   StockIcon,
   DownloadIcon,
@@ -79,7 +79,7 @@ export const NAV_ITEMS = [
     key: 'pessoas',
     label: 'Pessoas',
     icon: UserIcon,
-    items: [{ to: ROUTES.contatos, label: 'Contatos', icon: ContactsIcon }],
+    items: [{ to: ROUTES.contatos, label: 'Contatos', icon: PhoneIcon }],
   },
   {
     type: 'group',

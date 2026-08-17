@@ -119,7 +119,7 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     const inventoryTiles = [
       {
         icon: StockIcon,
-        tone: 'green',
+        tone: 'yellow',
         value: total,
         label: 'Total de ativos',
         detail: totalDetail,
@@ -133,7 +133,7 @@ export function useDashboardData(assets, contatos, dashUnidade) {
         detail: categoryDetail(c),
         to: tileFilters(c),
       })),
-      { icon: BuildingIcon, tone: 'green', value: unidadesCount, label: 'Unidades', detail: unidadesDetail },
+      { icon: BuildingIcon, tone: 'blue', value: unidadesCount, label: 'Unidades', detail: unidadesDetail },
     ]
     const financeTiles = [
       {

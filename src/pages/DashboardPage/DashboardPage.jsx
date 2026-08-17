@@ -20,9 +20,11 @@ import StackedBarChart from '../../components/charts/StackedBarChart/StackedBarC
 import styles from './DashboardPage.module.css'
 
 // Paleta pro StackedBarChart de colaboradores por departamento — mais ampla
-// que as outras (6 cores) porque o número de departamentos reais costuma
+// que as outras (10 cores) porque o número de departamentos reais costuma
 // passar disso; repetição de cor é esperada, o hover sempre mostra o nome
-// exato do departamento.
+// exato do departamento. --info/--yellow/--indigo por último (mesmos tons
+// usados em tiles/badges pelo site) só pra dar mais tons bem distintos antes
+// de repetir.
 const DEPARTMENT_COLORS = [
   'var(--verde-700)',
   'var(--laranja)',
@@ -31,6 +33,9 @@ const DEPARTMENT_COLORS = [
   'var(--laranja-forte)',
   'var(--verde-800)',
   'var(--madeira)',
+  'var(--info)',
+  'var(--yellow)',
+  'var(--indigo)',
 ]
 
 export default function DashboardPage() {

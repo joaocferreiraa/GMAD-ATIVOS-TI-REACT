@@ -241,6 +241,14 @@
   color: var(--danger);
 }
 
+/* Mesmo azul do badge de status "Novo" (ver itBadges.jsx) — o tile "Novos"
+   usa esse tom em vez do verde neutro pra bater com o próprio badge que
+   representa o mesmo status. */
+.info {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
 .tileValue {
   font-family: var(--font-display);
   font-size: 26px;

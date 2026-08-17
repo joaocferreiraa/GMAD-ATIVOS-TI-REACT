@@ -52,7 +52,7 @@ export const AssetStatusBadge = ({ status }) => {
 // na fila é o problema, não o canal.
 const SOURCES = {
   whatsapp: { label: 'WhatsApp', color: '#16a34a', bg: 'rgba(22,163,74,0.12)' },
-  painel: { label: 'Painel', color: '#6366f1', bg: 'rgba(99,102,241,0.12)' },
+  painel: { label: 'Painel', color: 'var(--indigo)', bg: 'var(--indigo-bg)' },
 }
 
 export const SourceBadge = ({ source }) => {

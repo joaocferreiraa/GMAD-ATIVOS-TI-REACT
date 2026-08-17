@@ -1,72 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useTheme } from '../../../hooks/theme/useTheme'
-import { useSidebarState } from '../../../hooks/layout/useSidebarState'
-import { useSyncStatus } from '../../../hooks/useSyncStatus'
 import { useNotifications } from '../../../hooks/useNotifications'
 import { useNavigateTo } from '../../../hooks/useNavigateTo'
 import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
-import { initials, nameFromEmail, relativeSyncTime } from '../../../utils/formatters'
+import { initials, nameFromEmail } from '../../../utils/formatters'
 import { assetStatusVariant } from '../../../utils/statusBadge'
 import Badge from '../../../components/ui/Badge/Badge'
 import CommandPalette from '../CommandPalette/CommandPalette'
+import logo from '../../../assets/images/gmad-logo.png'
 import {
-  PanelIcon,
   MoonIcon,
   SunIcon,
   SearchIcon,
   BellIcon,
   LogoutIcon,
+  LocationIcon,
 } from '../../../components/ui/Icon/icons'
 import styles from './Topbar.module.css'
-
-const SYNC_LABEL = {
-  syncing: 'Sincronizando...',
-  offline: 'Sem conexão',
-  connected: 'Sincronizado',
-}
-
-// Indicador de sincronização (equivalente ao #syncIndicator original):
-// 'syncing' enquanto uma chamada ao Supabase está em andamento (ver
-// kvStore.js), 'connected'/'offline' depois, com a hora da última
-// sincronização bem-sucedida no tooltip.
-function SyncIndicator() {
-  const { status, lastSync } = useSyncStatus()
-
-  return (
-    <div
-      className={`${styles.syncIndicator} ${status !== 'connected' ? styles[status] : ''}`}
-      tabIndex={0}
-    >
-      <span className={styles.siDot} />
-      <span>{SYNC_LABEL[status]}</span>
-      <div className={styles.syncTooltip}>
-        <span className={styles.stTitle}>Status da sincronização</span>
-        {status === 'syncing' && <div className={styles.stLine}>Sincronizando dados...</div>}
-        {status === 'offline' && (
-          <>
-            <div className={styles.stLine}>Não foi possível comunicar com o banco de dados.</div>
-            <div className={styles.stLine}>Verifique sua conexão.</div>
-          </>
-        )}
-        {status === 'connected' && (
-          <>
-            <div className={styles.stRow}>
-              <span>Banco de dados:</span>
-              <b>Conectado</b>
-            </div>
-            <div className={styles.stRow}>
-              <span>Última sincronização:</span>
-              <b>{relativeSyncTime(lastSync)}</b>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
 
 // Sino de notificações: reaproveita os mesmos itens do "Requer atenção" do
 // Dashboard (garantias vencendo + manutenção), com contador no ícone e
@@ -150,7 +103,6 @@ function NotificationsButton() {
 export default function Topbar() {
   const { user, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
-  const { collapsed, toggleSidebar } = useSidebarState()
   const [paletteOpen, setPaletteOpen] = useState(false)
   const bindTooltip = useHoverTooltip()
 
@@ -171,17 +123,15 @@ export default function Topbar() {
     <div className={styles.heroNav}>
       <div className={styles.heroNavInner}>
         <div className={styles.topbar}>
-          <div className={styles.left}>
-            <button
-              type="button"
-              className={styles.panelBtn}
-              onClick={toggleSidebar}
-              aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
-              aria-expanded={!collapsed}
-              {...bindTooltip(collapsed ? 'Expandir menu' : 'Recolher menu')}
-            >
-              <PanelIcon width={16} height={16} />
-            </button>
+          <div className={styles.brand}>
+            <img src={logo} alt="GMAD" className={styles.brandLogo} />
+            <span className={styles.brandDivider} />
+            <span className={styles.brandLabel}>Painel de TI</span>
+            <span className={styles.brandDivider} />
+            <span className={styles.brandUnit}>
+              <LocationIcon width={16} height={16} />
+              Madville | Curitiba
+            </span>
           </div>
           <div className={styles.navRight}>
             <button
@@ -202,7 +152,6 @@ export default function Topbar() {
               <SearchIcon width={14} height={14} />
               <span className={styles.searchPlaceholder}>Buscar</span>
             </button>
-            <SyncIndicator />
             <NotificationsButton />
             <div className={styles.navDivider} />
             <div className={styles.userChip}>

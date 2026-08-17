@@ -3,7 +3,7 @@ import { useClickOutside } from '../../../hooks/overlay/useClickOutside'
 import { useEscapeKey } from '../../../hooks/overlay/useEscapeKey'
 import styles from './KpiStrip.module.css'
 
-const TONE_CLASS = { green: 'iconGreen', orange: 'iconOrange' }
+const TONE_CLASS = { green: 'iconGreen', orange: 'iconOrange', blue: 'iconBlue', yellow: 'iconYellow' }
 
 // Passar o mouse (ou focar via teclado) revela um detalhe que não aparece em
 // nenhum outro card do painel: valor investido/saúde por categoria, maior e

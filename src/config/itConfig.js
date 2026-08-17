@@ -9,7 +9,7 @@
 // tabela helpdesk_tickets (ver 0002_helpdesk_tickets.sql). Renomeá-las exigiria
 // migração de dados — e o que a equipe lê na tela é o label, não a chave.
 export const TICKET_STATUSES = {
-  aberto: { label: 'Novo', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  aberto: { label: 'Novo', color: 'var(--info)', bg: 'var(--info-bg)' },
   em_atendimento: { label: 'Em atendimento', color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
   aguardando_usuario: { label: 'Pendente', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
   resolvido: { label: 'Solucionado', color: '#16a34a', bg: 'rgba(22,163,74,0.12)' },
@@ -21,7 +21,7 @@ export const FINAL_STATUSES = ['resolvido', 'fechado', 'cancelado'];
 
 export const TICKET_PRIORITIES = {
   baixa: { label: 'Baixa', color: '#16a34a', bg: 'rgba(22,163,74,0.12)', order: 1, slaHours: 48, description: 'Sem urgência, não impede o trabalho.' },
-  media: { label: 'Média', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', order: 2, slaHours: 24, description: 'Impacto moderado no dia a dia.' },
+  media: { label: 'Média', color: 'var(--info)', bg: 'var(--info-bg)', order: 2, slaHours: 24, description: 'Impacto moderado no dia a dia.' },
   alta: { label: 'Alta', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', order: 3, slaHours: 8, description: 'Impede parte do trabalho, precisa de atenção logo.' },
   urgente: { label: 'Urgente', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', order: 4, slaHours: 2, description: 'Trabalho totalmente parado.' },
 };

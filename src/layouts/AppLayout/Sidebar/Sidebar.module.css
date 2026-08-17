@@ -1,9 +1,12 @@
-/* Barra lateral clara com cabeçalho de marca, rótulo de seção e saudação no
-   rodapé, alinhada ao padrão visual usado nos demais sites GMAD. */
+/* Barra lateral clara com cabeçalho de marca e saudação no rodapé, alinhada
+   ao padrão visual usado nos demais sites GMAD. */
 
+/* Começa abaixo da Topbar (top: var(--header-h)) — a marca GMAD agora mora
+   lá, numa barra de largura total (ver Topbar.module.css), então a sidebar
+   não precisa mais do seu próprio cabeçalho. */
 .sidebar {
   position: fixed;
-  top: 0;
+  top: var(--header-h);
   left: 0;
   bottom: 0;
   width: var(--sidebar-w);
@@ -13,66 +16,26 @@
   box-shadow: 3px 0 16px rgba(15, 56, 35, 0.06);
   display: flex;
   flex-direction: column;
-  padding: 20px 14px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* padding-top maior que o horizontal/inferior de propósito: alinha o topo
+     do ícone do primeiro botão com o topo do "Bom dia" do Dashboard. Ajuste
+     por tentativa (não dá pra calcular certo sem ver renderizado — métrica
+     de fonte real do Poppins/entrelinha do h1 não é exata no papel). */
+  padding: 33px 14px 20px;
   transition: width 0.28s ease;
 }
 
-.top {
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  margin-bottom: 12px;
-}
-
-.brandLogo {
-  height: 36px;
-  width: auto;
-  border-radius: 6px;
-  display: block;
-}
-
-/* Recolhida, quem limita a logo é a LARGURA, não a altura: o logotipo é
-   horizontal, então 24px de altura dariam uma largura maior que a barra e
-   ela vazaria pra fora do centro. Com max-width a altura acompanha
-   proporcionalmente e a marca fica centralizada como os ícones. */
-.sidebar.collapsed .brandLogo {
-  height: auto;
-  width: 100%;
-  max-width: 44px;
-}
-
-.brandSub {
-  padding: 0 12px;
-  margin: 0 0 16px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--text-faint);
-}
-
-.navDivider {
-  height: 1px;
-  margin: 0 12px 16px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.sectionLabel {
-  padding: 0 12px;
-  margin-bottom: 10px;
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
+/* flex + min-height: 0 fazem só a lista rolar (o cabeçalho de marca e o
+   rodapé ficam fixos) — overflow-x: hidden aqui, e não em .sidebar, porque
+   o popover do controle da barra lateral (rodapé) precisa poder estourar a
+   largura da barra sem ser cortado. */
 .nav {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .navButton {
@@ -128,6 +91,15 @@
   color: var(--brand);
 }
 
+/* Ícone de grupo com o flyout aberto (ver SidebarGroupFlyout) — mesmo realce
+   de fundo do hover/active, mais um contorno pra ficar claro que aquele
+   ícone específico é o dono do painel aberto ao lado. */
+.navButton.flyoutTrigger {
+  background: var(--surface-hover);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+
 /* max-width alto o bastante pra não cortar nenhum rótulo atual: quem limita
    é a largura da barra. Continua sendo um teto (e não `none`) porque a
    transição pra 0 no modo recolhido precisa de um valor concreto. */
@@ -143,72 +115,57 @@
     max-width 0.28s ease;
 }
 
-.navGroup {
+/* Bloco fixado no rodapé da barra (saudação + controle da barra lateral) —
+   o margin-top: auto fica aqui, e não em .greeting, porque a saudação some
+   no modo recolhido e o controle precisa continuar grudado embaixo mesmo
+   assim. */
+.bottom {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-}
-
-.groupHead {
-  flex: 1 1 auto;
-}
-
-.groupHead .label {
-  flex: 1 1 auto;
-}
-
-.chevron {
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-faint);
-  transition: transform 0.18s ease;
-}
-
-.chevron svg {
-  width: 14px;
-  height: 14px;
-}
-
-.chevronOpen {
-  transform: rotate(180deg);
-}
-
-.groupBody {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-top: 2px;
-  padding-left: 20px;
 }
 
 .greeting {
-  margin-top: auto;
-  padding: 14px 12px 2px;
-  border-top: 1px solid var(--border);
+  padding: 2px 12px 10px;
   font-family: var(--font-body);
   font-size: 12.5px;
   color: var(--text-faint);
 }
 
+.footerRow {
+  display: flex;
+  padding: 0 12px;
+}
+
+.footerRowCollapsed {
+  padding: 0;
+  justify-content: center;
+}
+
+/* Estoura a largura reservada (--sidebar-w continua estreito) pra abrir por
+   cima do conteúdo em vez de empurrá-lo — ver o modo "hover" em
+   SidebarProvider.jsx. */
+.sidebar.peek {
+  width: var(--sidebar-w-expanded, 244px);
+  box-shadow: 6px 0 28px -6px rgba(15, 56, 35, 0.22);
+}
+
 /* No modo recolhido a barra encolhe pra 64px: o padding lateral de 14px
-   viraria quase toda a largura, então cai pra 8px e todo o conteúdo
-   (logo, ícones, chevron) fica centralizado. */
+   viraria quase toda a largura, então cai pra 8px e os ícones ficam
+   centralizados. */
 .sidebar.collapsed {
   padding-left: 8px;
   padding-right: 8px;
 }
 
-.sidebar.collapsed .top {
-  justify-content: center;
-  padding: 0;
-}
-
 .sidebar.collapsed .navButton {
   justify-content: center;
-  padding: 10px 0;
+  /* Padding vertical igual ao do modo expandido (9px) — só o horizontal
+     muda (0 em vez de 12px). Diferente aqui e os botões ficam mais altos
+     no recolhido, e cada ícone abaixo do primeiro desce um pouco. */
+  padding: 9px 0;
   /* O .label recolhido tem max-width 0 mas continua sendo um item flex, e o
      gap de 10px do .navButton segue valendo entre ele e o ícone — o que
      empurraria o ícone ~5px pra esquerda do centro. */
@@ -231,15 +188,13 @@
     padding: 10px 12px;
   }
 
-  .top,
-  .brandSub,
-  .navDivider,
-  .sectionLabel,
-  .greeting {
+  .bottom {
     display: none;
   }
 
   .nav {
+    flex: initial;
+    min-height: auto;
     flex-direction: row;
     gap: 6px;
     overflow-x: auto;

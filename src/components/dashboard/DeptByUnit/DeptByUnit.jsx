@@ -9,6 +9,9 @@ const DEPT_COLORS = [
   'var(--verde-800)',
   'var(--laranja-forte)',
   'var(--verde-900)',
+  'var(--info)',
+  'var(--yellow)',
+  'var(--indigo)',
 ]
 
 // Distribuição por setor em cada unidade (.dept-by-unit) — um bloco por

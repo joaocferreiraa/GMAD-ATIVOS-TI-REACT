@@ -32,6 +32,22 @@
   --warn-bg: rgba(217, 133, 15, 0.14);
   --danger: #c23b1f;
   --danger-bg: rgba(194, 59, 31, 0.12);
+  /* Azul "informativo" — mesmo tom já usado no status "Novo" e na
+     prioridade "Média" dos chamados (antes hex solto em itConfig.js, sem
+     variante escura). Formalizado como token pra poder reaproveitar em
+     outros lugares do site (tiles, gráficos) já com dark mode certo. */
+  --info: #3b82f6;
+  --info-bg: rgba(59, 130, 246, 0.12);
+  /* Amarelo — mesma ideia do --info: um tom novo pra dar mais variedade em
+     tiles/gráficos, distinto do --warn (que já é mais âmbar/laranja) e do
+     --laranja da marca. */
+  --yellow: #ca8a04;
+  --yellow-bg: rgba(202, 138, 4, 0.14);
+  /* Azul-roxo — mesmo tom já usado no badge de origem "Painel" dos chamados
+     (ver itBadges.jsx), antes hex solto sem variante escura. Distinto do
+     --info (mais azul puro). */
+  --indigo: #6366f1;
+  --indigo-bg: rgba(99, 102, 241, 0.12);
   --radius: 10px;
   --shadow-soft:
     0 1px 2px rgba(15, 38, 25, 0.04),
@@ -85,4 +101,13 @@
   --warn-bg: rgba(245, 158, 11, 0.16);
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.16);
+
+  --info: #60a5fa;
+  --info-bg: rgba(96, 165, 250, 0.16);
+
+  --yellow: #facc15;
+  --yellow-bg: rgba(250, 204, 21, 0.16);
+
+  --indigo: #818cf8;
+  --indigo-bg: rgba(129, 140, 248, 0.16);
 }
