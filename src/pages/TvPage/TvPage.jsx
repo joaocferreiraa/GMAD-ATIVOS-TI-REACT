@@ -345,6 +345,26 @@ export default function TvPage() {
         })}
       </div>
 
+      {/* Legenda logo abaixo dos cartões que ela explica. As cores aqui
+          são de ESTADO (verde/âmbar/vermelho conforme o limite do ponto);
+          nos gráficos abaixo, a cor identifica QUAL ponto é — codificações
+          diferentes, então a legenda precisa ficar junto do que descreve,
+          não no rodapé da página. */}
+      <div className={styles.statLegend}>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--ok)' }} />
+          Dentro do limite
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--warn)' }} />
+          Acima do limite configurado
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--danger)' }} />
+          Sem resposta
+        </span>
+      </div>
+
       {/* Gráficos de tendência — as mesmas séries do Painel de
           Infraestrutura, em janela fixa de 6h. O velocímetro diz como está
           AGORA; o gráfico diz se está piorando, que é o que antecipa
@@ -487,24 +507,10 @@ export default function TvPage() {
         </section>
       </div>
 
-      {/* Rodapé: legenda das cores (quem passa pela sala nem sempre sabe o
-          que verde/âmbar/vermelho significam aqui) e a origem do dado — um
-          painel sem procedência convida a desconfiar do número. */}
+      {/* Rodapé: só a procedência do dado — um painel sem isso convida a
+          desconfiar do número. A legenda das cores subiu para junto dos
+          cartões que ela explica. */}
       <footer className={styles.footer}>
-        <div className={styles.footerLegend}>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: 'var(--ok)' }} />
-            Dentro do limite
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: 'var(--warn)' }} />
-            Acima do limite configurado
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: 'var(--danger)' }} />
-            Sem resposta
-          </span>
-        </div>
         <span>Medição real por ping a cada 30s · GMAD TI</span>
       </footer>
     </div>

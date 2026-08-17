@@ -539,7 +539,8 @@
 .footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* Só a procedência do dado sobrou aqui — alinhada à direita, discreta. */
+  justify-content: flex-end;
   gap: 16px;
   padding-top: 10px;
   border-top: 1px solid var(--dash-line-soft);
@@ -547,10 +548,16 @@
   color: var(--text-faint);
 }
 
-.footerLegend {
+/* Legenda dos cartões de latência, logo abaixo deles. Margem negativa
+   pequena pra ficar "grudada" nos cartões que explica, e não flutuando
+   entre eles e os gráficos. */
+.statLegend {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
+  margin: -6px 0 0 2px;
+  font-size: 11.5px;
+  color: var(--text-faint);
 }
 
 .legendItem {
