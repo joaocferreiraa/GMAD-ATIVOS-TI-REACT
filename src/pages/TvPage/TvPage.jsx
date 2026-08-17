@@ -313,10 +313,12 @@ export default function TvPage() {
                 unidade="ms"
                 label={m.nome}
                 limite={limite}
-                // Fluido: o mostrador cresce com a coluna da grade (numa TV
-                // Full HD com 3 pontos, ~400px cada em vez de 260 fixos).
+                // Fluido com teto baixo: o mostrador acompanha a coluna,
+                // mas para de crescer em 250px. Acima disso ele rouba a
+                // altura dos gráficos sem ganhar legibilidade — o número
+                // central já é grande o bastante para ler de longe.
                 fluid
-                size={400}
+                size={250}
                 stats={statsDe(m.meds, 'latenciaMs')}
                 trend={m.meds.slice(-40).map((x) => (x.disponivel === false ? null : x.latenciaMs))}
                 zones={[
