@@ -9,6 +9,7 @@ import {
   ClockIcon,
   WifiIcon,
   ServerIcon,
+  TicketIcon,
 } from '../components/ui/Icon/icons'
 import { CATEGORIES, CAT_LABEL_PLURAL } from './categories'
 import { STOCK_TIPOS } from './stock'
@@ -19,6 +20,15 @@ import { getUnidades } from '../utils/units'
 import { getUsuarios } from '../utils/assetsFilter'
 import { getContatoDepartamentos } from '../utils/contatosFilter'
 import { fmtDate, fmtMoney, unitDisplayName } from '../utils/formatters'
+import { TICKET_STATUSES, TICKET_PRIORITIES, TICKET_CATEGORIES, formatTicketNumber } from '../config/itConfig'
+
+// A origem não tem um rótulo pronto fora do badge da Central de Chamados
+// (itBadges.jsx é componente de UI, não faz sentido importar aqui).
+const TICKET_SOURCE_LABELS = { whatsapp: 'WhatsApp', painel: 'Painel' }
+
+// Data/hora completa (chamados guardam timestamp, não só data — diferente
+// do fmtDate acima, que espera "AAAA-MM-DD" e quebraria num ISO com hora).
+const fmtDateTime = (v) => (v ? new Date(v).toLocaleString('pt-BR') : '—')
 
 // Definições dos relatórios da Central de Relatórios — porta 1:1 do array
 // REPORTS do sistema original, com duas diferenças de forma (não de
@@ -27,8 +37,8 @@ import { fmtDate, fmtMoney, unitDisplayName } from '../utils/formatters'
 // repassada a uma função icon()), e `buildRows(data)` substitui `getRows()`
 // — já que no React os dados de cada módulo vêm de hooks carregados de uma
 // vez só (o "data" bag: { assets, stock, contatos, installers, scripts,
-// wifi, construshow, logEntries }), em vez de variáveis globais lidas sob
-// demanda.
+// wifi, construshow, logEntries, chamados }), em vez de variáveis globais
+// lidas sob demanda.
 export const REPORT_DEFS = [
   {
     key: 'painel',
@@ -52,6 +62,81 @@ export const REPORT_DEFS = [
         { metrica: 'Valor investido', valor: fmtMoney(invest) },
       ]
     },
+  },
+  {
+    key: 'chamados',
+    title: 'Chamados',
+    desc: 'Histórico de chamados abertos pela equipe de TI.',
+    icon: TicketIcon,
+    columns: [
+      { key: 'numero', label: 'Nº' },
+      { key: 'titulo', label: 'Título' },
+      { key: 'categoria', label: 'Categoria' },
+      { key: 'prioridade', label: 'Prioridade', format: (v) => TICKET_PRIORITIES[v]?.label ?? v },
+      { key: 'status', label: 'Status', format: (v) => TICKET_STATUSES[v]?.label ?? v },
+      { key: 'solicitante', label: 'Solicitante' },
+      { key: 'responsavel', label: 'Atribuído a' },
+      { key: 'setor', label: 'Setor' },
+      { key: 'unidade', label: 'Unidade', format: unitDisplayName },
+      { key: 'equipamento', label: 'Equipamento relacionado' },
+      { key: 'origem', label: 'Origem', format: (v) => TICKET_SOURCE_LABELS[v] ?? v },
+      { key: 'avaliacao', label: 'Avaliação', format: (v) => (v ? `${v}/5` : '—') },
+      { key: 'abertoEm', label: 'Aberto em', format: fmtDateTime },
+      { key: 'resolvidoEm', label: 'Resolvido em', format: fmtDateTime },
+    ],
+    filters: [
+      {
+        key: 'status',
+        label: 'Status',
+        allLabel: 'Todos os status',
+        options: () => Object.keys(TICKET_STATUSES),
+        optionLabel: (v) => TICKET_STATUSES[v]?.label ?? v,
+      },
+      {
+        key: 'prioridade',
+        label: 'Prioridade',
+        allLabel: 'Todas as prioridades',
+        options: () => Object.keys(TICKET_PRIORITIES),
+        optionLabel: (v) => TICKET_PRIORITIES[v]?.label ?? v,
+      },
+      {
+        key: 'categoria',
+        label: 'Categoria',
+        allLabel: 'Todas as categorias',
+        options: () => TICKET_CATEGORIES,
+      },
+      {
+        key: 'unidade',
+        label: 'Unidade',
+        allLabel: 'Todas as unidades',
+        options: (data) => getUnidades(data.assets),
+        optionLabel: unitDisplayName,
+      },
+    ],
+    buildRows: (data) =>
+      data.chamados.map((t) => {
+        const asset = t.asset_id ? data.assets.find((a) => a.id === t.asset_id) : null
+        return {
+          numero: formatTicketNumber(t.ticket_number),
+          titulo: t.title,
+          categoria: t.category,
+          prioridade: t.priority,
+          status: t.status,
+          solicitante: t.requester_name || t.requester || '—',
+          responsavel: t.assignee_name || t.assignee || '—',
+          setor: t.department || '—',
+          unidade: t.unit || '',
+          equipamento: asset
+            ? [asset.categoria, asset.modelo, asset.usuario && `(${asset.usuario})`]
+                .filter(Boolean)
+                .join(' ')
+            : t.asset_id || '—',
+          origem: t.source,
+          avaliacao: t.rating,
+          abertoEm: t.created_at,
+          resolvidoEm: t.resolved_at,
+        }
+      }),
   },
   {
     key: 'ativos',

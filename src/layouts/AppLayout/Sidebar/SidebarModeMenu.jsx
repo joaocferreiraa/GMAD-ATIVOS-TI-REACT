@@ -23,6 +23,16 @@ export default function SidebarModeMenu() {
   const bindTooltip = useHoverTooltip()
   const { hideTooltip } = useContext(HoverTooltipContext)
 
+  // Em touch (iOS/Android, tablets sem mouse/trackpad) não existe hover de
+  // verdade — "Expandir ao passar o mouse" ficaria sempre recolhida, sem
+  // como abrir (mesma checagem que o tooltip global já usa pra não aparecer
+  // em toque — ver HoverTooltipProvider). Só computado uma vez: capacidade
+  // de hover não muda durante a sessão.
+  const [canHover] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches,
+  )
+  const options = canHover ? OPTIONS : OPTIONS.filter((option) => option.value !== 'hover')
+
   function close() {
     setOpen(false)
   }
@@ -54,7 +64,7 @@ export default function SidebarModeMenu() {
       {open && (
         <div className={styles.panel} role="menu">
           <div className={styles.panelTitle}>Barra lateral</div>
-          {OPTIONS.map((option) => (
+          {options.map((option) => (
             <button
               key={option.value}
               type="button"

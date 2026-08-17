@@ -134,9 +134,13 @@
   color: var(--text-faint);
 }
 
+/* padding-left menor que o padding-right de propósito: o botão do controle
+   é um quadrado de 34px com o ícone (17px) centralizado dentro — sem
+   compensar essa folga de ~8.5px, o ícone fica visivelmente mais à direita
+   que o "Olá" da saudação logo acima, que não tem essa caixa em volta. */
 .footerRow {
   display: flex;
-  padding: 0 12px;
+  padding: 0 12px 0 3px;
 }
 
 .footerRowCollapsed {

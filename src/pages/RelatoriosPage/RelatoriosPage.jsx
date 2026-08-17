@@ -6,6 +6,7 @@ import { useInstaladores } from '../../hooks/data/useInstaladores'
 import { useScripts } from '../../hooks/data/useScripts'
 import { useInfra } from '../../hooks/data/useInfra'
 import { useAtividade } from '../../hooks/data/useAtividade'
+import { useChamados } from '../../hooks/data/useChamados'
 import { useRelatoriosData } from './useRelatoriosData'
 import { useToast } from '../../hooks/useToast'
 import {
@@ -33,6 +34,7 @@ export default function RelatoriosPage() {
   const scriptsQ = useScripts()
   const infraQ = useInfra()
   const atividadeQ = useAtividade()
+  const chamadosQ = useChamados()
   const { showToast } = useToast()
 
   const data = {
@@ -44,6 +46,7 @@ export default function RelatoriosPage() {
     wifi: infraQ.data?.wifi ?? [],
     construshow: infraQ.data?.construshow ?? [],
     logEntries: atividadeQ.data ?? [],
+    chamados: chamadosQ.data ?? [],
   }
   const isLoading =
     assetsQ.isLoading ||
@@ -52,7 +55,8 @@ export default function RelatoriosPage() {
     installersQ.isLoading ||
     scriptsQ.isLoading ||
     infraQ.isLoading ||
-    atividadeQ.isLoading
+    atividadeQ.isLoading ||
+    chamadosQ.isLoading
   const isError =
     assetsQ.isError ||
     stockQ.isError ||
@@ -60,7 +64,8 @@ export default function RelatoriosPage() {
     installersQ.isError ||
     scriptsQ.isError ||
     infraQ.isError ||
-    atividadeQ.isError
+    atividadeQ.isError ||
+    chamadosQ.isError
 
   const [uiState, setUiState] = useState({
     activeKey: null,

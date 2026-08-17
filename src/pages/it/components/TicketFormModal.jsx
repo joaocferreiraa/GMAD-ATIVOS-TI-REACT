@@ -9,6 +9,8 @@ import { useItToast as useToast } from '../useItContext'
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from '../../../config/itConfig'
 import { createTicket } from '../../../services/itService'
 import { useAssets } from '../../../hooks/data/useAssets'
+import { getUnidades } from '../../../utils/units'
+import { unitDisplayName } from '../../../utils/formatters'
 import styles from './TicketFormModal.module.css'
 
 const EMPTY_FORM = {
@@ -18,11 +20,12 @@ const EMPTY_FORM = {
   description: '',
   department: '',
   location: '',
+  unit: '',
   assetId: '',
 }
 
 const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
-  const { username, name, activeUnit, AVAILABLE_UNITS, group } = useData()
+  const { username, name, group } = useData()
   const toast = useToast()
 
   // O formulário começa limpo a cada abertura porque o pai remonta este
@@ -30,12 +33,16 @@ const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
   // dentro de um effect causaria um render em cascata (e o React Compiler
   // recusa esse padrão).
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, department: group || '' }))
-  const [unitId, setUnitId] = useState(activeUnit || '')
   const [saving, setSaving] = useState(false)
 
-  // Equipamentos vêm do módulo Ativos desta plataforma — é o mesmo parque
-  // que a equipe já cadastra, então não faz sentido manter uma lista à parte.
+  // Equipamentos (e as unidades onde eles estão) vêm do módulo Ativos desta
+  // plataforma — é o mesmo parque que a equipe já cadastra, então não faz
+  // sentido manter uma lista à parte. Unidade aqui não é uma entidade
+  // própria (não tem id) — é o mesmo texto livre usado em ativos/estoque/wifi
+  // (ver utils/units.js), por isso vem de getUnidades(assets) e não de um
+  // catálogo fixo.
   const { data: assets = [] } = useAssets()
+  const units = getUnidades(assets)
 
   const setField = (field) => (value) => setForm((prev) => ({ ...prev, [field]: value }))
 
@@ -54,7 +61,7 @@ const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
         requester: username,
         requesterName: name,
         department: form.department.trim() || null,
-        unitId: unitId || null,
+        unit: form.unit || null,
         location: form.location.trim() || null,
         assetId: form.assetId || null,
       })
@@ -130,11 +137,11 @@ const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
         <FormField label="Unidade" htmlFor="t_unit">
           <Select
             id="t_unit"
-            value={unitId}
-            onChange={setUnitId}
+            value={form.unit}
+            onChange={setField('unit')}
             options={[
               { value: '', label: 'Não informada' },
-              ...(AVAILABLE_UNITS || []).map((u) => ({ value: u.id, label: u.name })),
+              ...units.map((u) => ({ value: u, label: unitDisplayName(u) })),
             ]}
           />
         </FormField>

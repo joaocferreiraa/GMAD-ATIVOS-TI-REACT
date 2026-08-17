@@ -23,6 +23,8 @@ import {
   rateTicket,
 } from '../../../services/itService'
 import { useChamadoTimeline, useInvalidateChamados } from '../../../hooks/data/useChamados'
+import { useAssets } from '../../../hooks/data/useAssets'
+import { unitDisplayName } from '../../../utils/formatters'
 import { PriorityBadge, StatusBadge, SlaBadge, SourceBadge } from './itBadges'
 import TicketChat from './TicketChat'
 import styles from './TicketDetailModal.module.css'
@@ -39,6 +41,9 @@ const PRIORITY_OPTIONS = Object.entries(TICKET_PRIORITIES)
 export default function TicketDetailDrawer({ ticket, isOpen, onClose, onChanged, onOpenChat }) {
   const { username, name, userRole, group, jobTitle, users } = useData()
   const toast = useToast()
+  // Só pra resolver o "Equipamento relacionado" (guardado como ativo_id) num
+  // rótulo legível — mesmo formato usado no seletor do TicketFormModal.
+  const { data: assets = [] } = useAssets()
 
   const staff = isITStaff({ userRole, group, jobTitle })
   const isRequester = ticket?.requester === username
@@ -81,6 +86,13 @@ export default function TicketDetailDrawer({ ticket, isOpen, onClose, onChanged,
   }, [timeline, staff])
 
   if (!ticket) return null
+
+  const relatedAsset = ticket.asset_id ? assets.find((a) => a.id === ticket.asset_id) : null
+  const relatedAssetLabel = relatedAsset
+    ? [relatedAsset.categoria, relatedAsset.modelo, relatedAsset.usuario && `(${relatedAsset.usuario})`]
+        .filter(Boolean)
+        .join(' ')
+    : ticket.asset_id // ativo pode ter sido excluído depois — mostra o id em vez de "Não informado"
 
   const isFinal = FINAL_STATUSES.includes(ticket.status)
   const canRate = isRequester && ['resolvido', 'fechado'].includes(ticket.status) && !ticket.rating
@@ -252,7 +264,9 @@ export default function TicketDetailDrawer({ ticket, isOpen, onClose, onChanged,
             <ViewRow label="Origem" value={<SourceBadge source={ticket.source} />} raw />
             <ViewRow label="Setor" value={ticket.department} />
             <ViewRow label="Categoria" value={ticket.category} />
+            <ViewRow label="Unidade" value={unitDisplayName(ticket.unit)} />
             <ViewRow label="Local" value={ticket.location} />
+            <ViewRow label="Equipamento relacionado" value={relatedAssetLabel} />
             <ViewRow label="Atribuído a" value={ticket.assignee_name || 'Não atribuído'} raw />
             <ViewRow label="Aberto em" value={fmtDateTime(ticket.created_at)} raw />
             <ViewRow label="Prazo SLA" value={fmtDateTime(ticket.sla_due_at)} raw />

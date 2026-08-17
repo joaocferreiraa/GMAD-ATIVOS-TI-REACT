@@ -64,6 +64,16 @@
   white-space: nowrap;
 }
 
+/* Agrupa o 2º traço + a unidade pra sumirem juntos no celular (ver media
+   query) — sem o wrapper, esconder só o .brandUnit deixaria um traço
+   diagonal solto no fim da marca. */
+.brandUnitGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
 .brandUnit {
   display: flex;
   align-items: center;
@@ -335,6 +345,10 @@
   }
 
   .search {
+    display: none;
+  }
+
+  .brandUnitGroup {
     display: none;
   }
 }

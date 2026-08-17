@@ -44,6 +44,8 @@ function rowToTicket(r) {
     assignee_name: r.responsavel_nome,
     department: r.setor,
     location: r.local,
+    unit: r.unidade,
+    asset_id: r.ativo_id,
     rating: r.avaliacao,
     rating_comment: r.avaliacao_comentario,
     sla_due_at: r.sla_prazo,
@@ -135,6 +137,8 @@ export async function createTicket({
   priority = 'media',
   department,
   location,
+  unit,
+  assetId,
   requester,
   requesterName,
 }) {
@@ -150,6 +154,8 @@ export async function createTicket({
       solicitante_nome: requesterName ?? null,
       setor: department ?? null,
       local: location ?? null,
+      unidade: unit ?? null,
+      ativo_id: assetId ?? null,
       sla_prazo: slaPrazoDe(priority),
     })
     .select()

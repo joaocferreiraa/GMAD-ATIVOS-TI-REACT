@@ -127,10 +127,15 @@ export default function Topbar() {
             <img src={logo} alt="GMAD" className={styles.brandLogo} />
             <span className={styles.brandDivider} />
             <span className={styles.brandLabel}>Painel de TI</span>
-            <span className={styles.brandDivider} />
-            <span className={styles.brandUnit}>
-              <LocationIcon width={16} height={16} />
-              Madville | Curitiba
+            {/* Some primeiro no celular (ver media query) — "Painel de TI" +
+                logo já bastam pra marca ali, e a barra some de largura sobra
+                pra pouca coisa nas telas estreitas. */}
+            <span className={styles.brandUnitGroup}>
+              <span className={styles.brandDivider} />
+              <span className={styles.brandUnit}>
+                <LocationIcon width={16} height={16} />
+                Madville | Curitiba
+              </span>
             </span>
           </div>
           <div className={styles.navRight}>
