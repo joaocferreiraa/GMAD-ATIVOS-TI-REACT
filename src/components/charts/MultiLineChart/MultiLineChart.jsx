@@ -227,6 +227,11 @@ export default function MultiLineChart({
                 dataKey={s.key}
                 stroke={s.color}
                 strokeWidth={2}
+                // Padrão de traço por série: séries com o MESMO valor se
+                // sobrepõem exatamente (todos em 0% de perda, por
+                // exemplo) e só a última desenhada apareceria. Tracejadas
+                // diferentes se intercalam e todas seguem visíveis.
+                strokeDasharray={s.dash ?? undefined}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 dot={false}
@@ -255,7 +260,21 @@ export default function MultiLineChart({
         <div className={styles.legend}>
           {series.map((s) => (
             <span key={s.key} className={styles.legendItem}>
-              <span className={styles.swatch} style={{ background: s.color }} />
+              {/* Amostra do traço (não um quadrado de cor): reproduz o
+                  padrão da linha, então dá pra casar legenda e gráfico
+                  quando duas séries têm a mesma cor de fundo escuro. */}
+              <svg className={styles.legendLine} viewBox="0 0 22 6" aria-hidden="true">
+                <line
+                  x1="0"
+                  y1="3"
+                  x2="22"
+                  y2="3"
+                  stroke={s.color}
+                  strokeWidth="2.5"
+                  strokeDasharray={s.dash ?? undefined}
+                  strokeLinecap="round"
+                />
+              </svg>
               {s.label}
             </span>
           ))}

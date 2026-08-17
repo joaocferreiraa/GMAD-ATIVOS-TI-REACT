@@ -166,7 +166,12 @@ export default function TvPage() {
   const seriesRede = buildSeries(monitorList)
   const wideLatencia = toWideSeries(histRede ?? [], 'latenciaMs')
   const widePerda = toWideSeries(histRede ?? [], 'packetLossPct')
-  const wideDisponibilidade = toWideSeries(histRede ?? [], 'disponibilidadePct')
+  // Jitter no lugar de disponibilidade: com os links no ar, a
+  // disponibilidade fica cravada em 100% e o gráfico não conta nada (pior:
+  // numa escala 0-100, uma queda real pra 98% seria quase invisível). O
+  // jitter varia de verdade e antecipa degradação. A disponibilidade
+  // continua no Resumo por ponto e nos cartões do topo.
+  const wideJitter = toWideSeries(histRede ?? [], 'jitterMs')
 
   // Ranking de estabilidade das últimas 6h: junta disponibilidade e
   // latência média por ponto num quadro só. Responde "qual link me deu
@@ -374,16 +379,16 @@ export default function TvPage() {
         </section>
         <section className={styles.panel}>
           <div className={styles.panelHead}>
-            <h2 className={styles.panelTitle}>Disponibilidade</h2>
+            <h2 className={styles.panelTitle}>Jitter</h2>
             <span className={styles.panelMeta}>últimas 6h</span>
           </div>
           <MultiLineChart
-            data={wideDisponibilidade}
+            data={wideJitter}
             series={seriesRede}
-            unidade="%"
+            unidade="ms"
             height={190}
             interactive={false}
-            emptyMessage="Sem medições nas últimas 6 horas."
+            emptyMessage="Jitter aparece aqui conforme o agente coleta."
           />
         </section>
       </div>

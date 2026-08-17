@@ -54,6 +54,14 @@
   flex-shrink: 0;
 }
 
+/* Amostra do traço na legenda — reproduz o padrão da linha (contínua,
+   tracejada, pontilhada) e não só a cor. */
+.legendLine {
+  width: 22px;
+  height: 6px;
+  flex-shrink: 0;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

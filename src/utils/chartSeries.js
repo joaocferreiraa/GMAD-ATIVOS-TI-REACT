@@ -23,14 +23,25 @@ export function toWideSeries(measurements, metric) {
   return Array.from(byBucket.values()).sort((a, b) => new Date(a.bucket) - new Date(b.bucket))
 }
 
-// Descritor de série (key/label/cor) por ponto monitorado, na ordem em que
-// os pontos foram passados — cor estável por posição, então trocar de
-// métrica ou de período não embaralha as cores da legenda.
+// Padrões de traço por série. Quando dois pontos têm o MESMO valor (o caso
+// comum: todos em 0% de perda, todos em 100% de disponibilidade), as linhas
+// se sobrepõem exatamente e só a última desenhada aparece — dá a impressão
+// de que uma série sumiu do gráfico. Com padrões diferentes, as linhas
+// coincidentes se intercalam e todas continuam visíveis.
+//
+// A primeira é contínua (a leitura mais limpa fica com o primeiro ponto) e
+// as demais alternam tracejados de densidade decrescente.
+const SERIE_TRACOS = [null, '6 4', '2 3', '10 4 2 4', '1 4', '8 3 2 3']
+
+// Descritor de série (key/label/cor/traço) por ponto monitorado, na ordem em
+// que os pontos foram passados — cor e traço estáveis por posição, então
+// trocar de métrica ou de período não embaralha a legenda.
 export function buildSeries(monitors) {
   return monitors.map((m, i) => ({
     key: m.uid,
     label: m.nome,
     color: SERIE_CORES[i % SERIE_CORES.length],
+    dash: SERIE_TRACOS[i % SERIE_TRACOS.length],
   }))
 }
 
