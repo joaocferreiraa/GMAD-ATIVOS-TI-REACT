@@ -9,7 +9,12 @@ import { fmtRelTime } from '../../utils/formatters'
 import { toWideSeries, buildSeries } from '../../utils/chartSeries'
 import GaugeChart from '../../components/charts/GaugeChart/GaugeChart'
 import MultiLineChart from '../../components/charts/MultiLineChart/MultiLineChart'
-import logo from '../../assets/images/gmad-logo.png'
+// Versão da logo para fundo escuro: o verde da marca (#006934) tem só
+// 2.84:1 de contraste sobre o fundo do painel — abaixo do mínimo de 3:1
+// para elementos gráficos, ficando pesado e sem definição na TV. Esta
+// versão clareia apenas o verde (9.77:1), preservando o laranja e a
+// transparência.
+import logo from '../../assets/images/gmad-logo-dark.png'
 import styles from './TvPage.module.css'
 
 // 45s: menor que o intervalo de coleta do agente (30s) somado a uma folga,
@@ -135,6 +140,17 @@ export default function TvPage() {
 
   const online = comStatus.filter((m) => m.statusInfo.status === 'estavel').length
   const alertasAbertos = (alerts ?? []).filter((a) => !a.resolvido)
+
+  // Latência média entre os pontos que responderam na última checagem —
+  // resume a saúde da rede num número só, pro topo do painel. Pontos sem
+  // resposta ficam de fora (não têm latência; incluí-los como zero puxaria
+  // a média pra baixo e faria uma queda parecer melhora).
+  const latenciasAtuais = comStatus
+    .map((m) => (m.ultima?.disponivel === false ? null : m.ultima?.latenciaMs))
+    .filter((v) => v !== null && v !== undefined)
+  const latenciaMedia = latenciasAtuais.length
+    ? Math.round((latenciasAtuais.reduce((a, b) => a + b, 0) / latenciasAtuais.length) * 10) / 10
+    : null
   const monitorNameByUid = Object.fromEntries(monitorList.map((m) => [m.uid, m.nome]))
 
   const ultimaMedicaoIso = measurementsList.length
@@ -150,6 +166,32 @@ export default function TvPage() {
   const seriesRede = buildSeries(monitorList)
   const wideLatencia = toWideSeries(histRede ?? [], 'latenciaMs')
   const widePerda = toWideSeries(histRede ?? [], 'packetLossPct')
+  const wideDisponibilidade = toWideSeries(histRede ?? [], 'disponibilidadePct')
+
+  // Ranking de estabilidade das últimas 6h: junta disponibilidade e
+  // latência média por ponto num quadro só. Responde "qual link me deu
+  // mais trabalho hoje?" — pergunta que nem o velocímetro (só o agora) nem
+  // o gráfico (uma métrica por vez) respondem sozinhos.
+  const resumoPorPonto = monitorList
+    .map((m) => {
+      const buckets = (histRede ?? []).filter((b) => b.monitorUid === m.uid)
+      const disp = buckets.map((b) => b.disponibilidadePct).filter((v) => v !== null && v !== undefined)
+      const lat = buckets.map((b) => b.latenciaMs).filter((v) => v !== null && v !== undefined)
+      return {
+        uid: m.uid,
+        nome: m.nome,
+        cor: seriesRede.find((s) => s.key === m.uid)?.color,
+        disponibilidade: disp.length
+          ? Math.round((disp.reduce((a, b) => a + b, 0) / disp.length) * 100) / 100
+          : null,
+        latenciaMedia: lat.length
+          ? Math.round((lat.reduce((a, b) => a + b, 0) / lat.length) * 10) / 10
+          : null,
+        latenciaPico: lat.length ? Math.round(Math.max(...lat) * 10) / 10 : null,
+      }
+    })
+    // Pior disponibilidade primeiro: o que deu problema fica no topo.
+    .sort((a, b) => (a.disponibilidade ?? 101) - (b.disponibilidade ?? 101))
 
   const tudoOk = alertasAbertos.length === 0 && !dadosVelhos && online === monitorList.length
 
@@ -157,26 +199,65 @@ export default function TvPage() {
     <div className={`${styles.tv} ${dadosVelhos ? styles.stale : ''}`}>
       <header className={styles.header}>
         <div className={styles.headLeft}>
-          <div className={styles.brandRow}>
-            <img src={logo} alt="GMAD" className={styles.logo} />
+          <img src={logo} alt="GMAD" className={styles.logo} />
+          <div className={styles.titleBlock}>
             <h1 className={styles.title}>Monitoramento de Rede</h1>
+            <span className={`${styles.liveTag} ${dadosVelhos ? styles.liveStale : ''}`}>
+              <span className={styles.liveDot} />
+              {ultimaMedicaoIso
+                ? dadosVelhos
+                  ? `COLETA PARADA — última medição ${fmtRelTime(ultimaMedicaoIso)}`
+                  : `Atualizado ${fmtRelTime(ultimaMedicaoIso)}`
+                : 'Aguardando primeira medição'}
+            </span>
           </div>
-          <span className={`${styles.liveTag} ${dadosVelhos ? styles.liveStale : ''}`}>
-            <span className={styles.liveDot} />
-            {ultimaMedicaoIso
-              ? dadosVelhos
-                ? `COLETA PARADA — última medição ${fmtRelTime(ultimaMedicaoIso)}`
-                : `Atualizado ${fmtRelTime(ultimaMedicaoIso)}`
-              : 'Aguardando primeira medição'}
-          </span>
         </div>
         <div className={styles.headRight}>
-          <span className={styles.clock}>
-            {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          <span className={styles.date}>
-            {agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
-          </span>
+          {/* Resumo numérico: as três respostas mais consultadas, sempre no
+              mesmo lugar. Cor no valor, não no card inteiro — um bloco
+              colorido grande cansa numa tela que fica ligada o dia todo. */}
+          <div className={styles.headStats}>
+            <div className={styles.headStat}>
+              <span
+                className={styles.headStatValue}
+                style={{ color: online === monitorList.length ? 'var(--ok)' : 'var(--danger)' }}
+              >
+                {online}/{monitorList.length}
+              </span>
+              <span className={styles.headStatLabel}>online</span>
+            </div>
+            <div className={styles.headStat}>
+              <span className={styles.headStatValue}>
+                {latenciaMedia === null ? '—' : latenciaMedia}
+                <span className={styles.clockSeconds}>{latenciaMedia === null ? '' : 'ms'}</span>
+              </span>
+              <span className={styles.headStatLabel}>latência méd.</span>
+            </div>
+            <div className={styles.headStat}>
+              <span
+                className={styles.headStatValue}
+                style={{ color: alertasAbertos.length ? 'var(--danger)' : 'var(--text)' }}
+              >
+                {alertasAbertos.length}
+              </span>
+              <span className={styles.headStatLabel}>alertas</span>
+            </div>
+          </div>
+          <div className={styles.clockBlock}>
+            <span className={styles.clock}>
+              {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              <span className={styles.clockSeconds}>
+                :{String(agora.getSeconds()).padStart(2, '0')}
+              </span>
+            </span>
+            <span className={styles.date}>
+              {agora.toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+              })}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -216,8 +297,16 @@ export default function TvPage() {
           const limite = m.thresholds?.latenciaMaximaMs ?? 100
           const escala = escalaLatencia(limite)
           const offline = m.statusInfo.status === 'offline' || m.ultima?.disponivel === false
+          const atencao = !offline && ['problema', 'atencao'].includes(m.statusInfo.status)
+          // A fita no topo da célula repete o estado em cor: dá pra varrer
+          // a linha inteira e ver quais pontos estão bem sem ler número.
+          const cellClass = offline
+            ? styles.gaugeOffline
+            : atencao
+              ? styles.gaugeWarn
+              : ''
           return (
-            <div key={m.uid} className={`${styles.gaugeCell} ${offline ? styles.gaugeOffline : ''}`}>
+            <div key={m.uid} className={`${styles.gaugeCell} ${cellClass}`}>
               <GaugeChart
                 value={offline ? null : (m.ultima?.latenciaMs ?? null)}
                 max={escala}
@@ -236,10 +325,14 @@ export default function TvPage() {
                   { ate: escala, color: 'var(--danger)' },
                 ]}
               />
-              {offline && <span className={styles.offlineTag}>SEM RESPOSTA</span>}
-              {!offline && (
+              {offline ? (
+                <span className={styles.offlineTag}>SEM RESPOSTA</span>
+              ) : (
                 <span className={styles.gaugeStatus}>{STATUS_LABEL[m.statusInfo.status]}</span>
               )}
+              {/* O IP/host embaixo: quem opera a rede identifica o
+                  equipamento pelo endereço, não só pelo apelido. */}
+              <span className={styles.gaugeHost}>{m.host}</span>
             </div>
           )
         })}
@@ -251,7 +344,10 @@ export default function TvPage() {
           problema. Sem tooltip/zoom: numa TV ninguém passa o mouse. */}
       <div className={styles.chartRow}>
         <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Latência — últimas 6h</h2>
+          <div className={styles.panelHead}>
+            <h2 className={styles.panelTitle}>Latência</h2>
+            <span className={styles.panelMeta}>últimas 6h</span>
+          </div>
           <MultiLineChart
             data={wideLatencia}
             series={seriesRede}
@@ -262,7 +358,10 @@ export default function TvPage() {
           />
         </section>
         <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Perda de pacotes — últimas 6h</h2>
+          <div className={styles.panelHead}>
+            <h2 className={styles.panelTitle}>Perda de pacotes</h2>
+            <span className={styles.panelMeta}>últimas 6h</span>
+          </div>
           <MultiLineChart
             data={widePerda}
             series={seriesRede}
@@ -272,18 +371,91 @@ export default function TvPage() {
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <h2 className={styles.panelTitle}>Disponibilidade</h2>
+            <span className={styles.panelMeta}>últimas 6h</span>
+          </div>
+          <MultiLineChart
+            data={wideDisponibilidade}
+            series={seriesRede}
+            unidade="%"
+            height={190}
+            interactive={false}
+            emptyMessage="Sem medições nas últimas 6 horas."
+          />
+        </section>
+        {/* Quadro-resumo: junta disponibilidade e latência por ponto, que
+            os gráficos mostram separados. É onde se lê "qual link deu mais
+            trabalho hoje" de uma olhada. */}
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <h2 className={styles.panelTitle}>Resumo por ponto</h2>
+            <span className={styles.panelMeta}>últimas 6h</span>
+          </div>
+          {resumoPorPonto.length === 0 || resumoPorPonto.every((r) => r.disponibilidade === null) ? (
+            <p className={styles.allGood}>Sem dados suficientes no período.</p>
+          ) : (
+            <table className={styles.resumoTable}>
+              <thead>
+                <tr>
+                  <th>Ponto</th>
+                  <th>Disponib.</th>
+                  <th>Latência méd.</th>
+                  <th>Pico</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumoPorPonto.map((r) => (
+                  <tr key={r.uid}>
+                    <td>
+                      <span className={styles.resumoDot} style={{ background: r.cor }} />
+                      {r.nome}
+                    </td>
+                    <td
+                      style={{
+                        color:
+                          r.disponibilidade === null
+                            ? 'var(--text-faint)'
+                            : r.disponibilidade >= 99.5
+                              ? 'var(--ok)'
+                              : r.disponibilidade >= 95
+                                ? 'var(--warn)'
+                                : 'var(--danger)',
+                      }}
+                    >
+                      {r.disponibilidade === null ? '—' : `${r.disponibilidade}%`}
+                    </td>
+                    <td>{r.latenciaMedia === null ? '—' : `${r.latenciaMedia} ms`}</td>
+                    <td>{r.latenciaPico === null ? '—' : `${r.latenciaPico} ms`}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
       </div>
 
       <div className={styles.bottomRow}>
-        {/* Alertas ativos */}
         <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Alertas ativos</h2>
+          <div className={styles.panelHead}>
+            <h2 className={styles.panelTitle}>Alertas ativos</h2>
+            <span className={styles.panelMeta}>
+              {alertasAbertos.length > 0 ? `${alertasAbertos.length} aberto(s)` : 'nenhum'}
+            </span>
+          </div>
           {alertasAbertos.length === 0 ? (
-            <p className={styles.allGood}>Nenhum alerta aberto</p>
+            <p className={styles.allGood}>
+              <span className={styles.allGoodIcon}>✓</span>
+              Nenhum alerta aberto
+            </p>
           ) : (
             <div className={styles.alertList}>
-              {alertasAbertos.slice(0, 5).map((a) => (
-                <div key={a.id} className={styles.alertRow}>
+              {alertasAbertos.slice(0, 4).map((a) => (
+                <div
+                  key={a.id}
+                  className={`${styles.alertRow} ${a.severidade === 'problema' ? '' : styles.alertRowWarn}`}
+                >
                   <span
                     className={`${styles.sev} ${a.severidade === 'problema' ? styles.sevDanger : styles.sevWarn}`}
                   >
@@ -299,8 +471,28 @@ export default function TvPage() {
             </div>
           )}
         </section>
-
       </div>
+
+      {/* Rodapé: legenda das cores (quem passa pela sala nem sempre sabe o
+          que verde/âmbar/vermelho significam aqui) e a origem do dado — um
+          painel sem procedência convida a desconfiar do número. */}
+      <footer className={styles.footer}>
+        <div className={styles.footerLegend}>
+          <span className={styles.legendItem}>
+            <span className={styles.legendDot} style={{ background: 'var(--ok)' }} />
+            Dentro do limite
+          </span>
+          <span className={styles.legendItem}>
+            <span className={styles.legendDot} style={{ background: 'var(--warn)' }} />
+            Acima do limite configurado
+          </span>
+          <span className={styles.legendItem}>
+            <span className={styles.legendDot} style={{ background: 'var(--danger)' }} />
+            Sem resposta
+          </span>
+        </div>
+        <span>Medição real por ping a cada 30s · GMAD TI</span>
+      </footer>
     </div>
   )
 }

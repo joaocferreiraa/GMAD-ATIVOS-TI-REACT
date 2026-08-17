@@ -1,108 +1,132 @@
-/* Modo TV: ocupa a viewport inteira, sem a casca do app. Escala maior que
-   o painel normal porque a distância de leitura é de metros, não de um
-   braço. Segue o tema (claro/escuro) escolhido pelo usuário, como o resto
-   do site. */
-/* Modo TV é SEMPRE escuro, independente do tema escolhido no site: a tela
-   fica ligada 24/7 num monitor de parede, onde fundo claro cansa a vista e
-   ilumina a sala à noite. Os tokens abaixo sobrescrevem os globais só
-   dentro desta página, então os componentes reaproveitados (GaugeChart,
-   MultiLineChart, UsageBar) já saem na paleta escura sem precisar de
-   variante própria.
+/* Painel de parede (NOC) — sempre escuro, independente do tema do site.
+   Escuro não é preferência estética aqui: numa TV ligada 24/7, fundo claro
+   ilumina a sala, desgasta o painel e faz as cores de alerta competirem
+   com o resto da tela. É o padrão de Grafana/Zabbix/Datadog pelo mesmo
+   motivo.
 
-   Paleta escolhida pra alto contraste a distância: fundo bem escuro
-   (quase preto) e valores em cores saturadas, que é o que sobrevive ao
-   brilho e ao ângulo de visão de uma TV. */
+   Os tokens abaixo sobrescrevem os globais só dentro desta página, então
+   os componentes reaproveitados (GaugeChart, MultiLineChart) já saem na
+   paleta certa sem precisar de variante própria.
+
+   Verde e laranja vêm da marca GMAD (ver assets/images/gmad-logo.png):
+   o verde é a cor de "normal" e assina o painel; o laranja aparece como
+   acento na régua superior e nos detalhes. */
 .tv {
-  --bg: #0d0f13;
-  --surface: #161a20;
-  --surface-hover: #1d222a;
-  --border: #2a3038;
-  --border-strong: #3a424d;
-  --text: #f0f2f5;
-  --text-muted: #a8b1bd;
-  --text-faint: #6f7885;
-  --ok: #3fd07f;
-  --warn: #ffb340;
-  --danger: #ff5f65;
-  --ok-bg: #0f2a1c;
-  --warn-bg: #2e2412;
-  --danger-bg: #2f1518;
-  --brand: #3fd07f;
-  /* Trilho do gauge um pouco mais claro que a borda: no escuro, o arco de
-     fundo precisa se distinguir do painel sem competir com o valor. */
-  --gauge-track: #262d36;
+  --dash-bg: #0a0d12;
+  --dash-panel: #12161d;
+  --dash-panel-2: #171c24;
+  --dash-line: #222833;
+  --dash-line-soft: #1a1f28;
+
+  --gmad-verde: #00a94f;
+  --gmad-verde-claro: #3fd07f;
+  --gmad-laranja: #f36c21;
+
+  --bg: var(--dash-bg);
+  --surface: var(--dash-panel);
+  --surface-hover: var(--dash-panel-2);
+  --border: var(--dash-line);
+  --border-strong: #2e3644;
+  --text: #eef1f5;
+  --text-muted: #96a0ad;
+  --text-faint: #626c7a;
+  --ok: var(--gmad-verde-claro);
+  --warn: #ffb02e;
+  --danger: #ff4d55;
+  --ok-bg: #0b2418;
+  --warn-bg: #2b2110;
+  --danger-bg: #2a1114;
+  --brand: var(--gmad-verde-claro);
+  --gauge-track: #1e242e;
 
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    /* Brilho sutil no topo: dá profundidade e evita o "preto chapado",
+       que numa TV grande parece tela desligada. */
+    radial-gradient(1200px 400px at 50% -180px, rgba(0, 169, 79, 0.1), transparent 70%),
+    var(--dash-bg);
   color: var(--text);
-  padding: 22px 26px 26px;
+  padding: 20px 26px 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  /* A página inteira é escura mesmo com o site no tema claro — sem isso,
-     as bordas da viewport mostrariam o fundo claro do body. */
+  gap: 14px;
   color-scheme: dark;
+  /* Números tabulares: dígitos de mesma largura, então o relógio e as
+     métricas não "dançam" a cada atualização. */
+  font-variant-numeric: tabular-nums;
 }
 
-/* Com gauges + 4 gráficos + painéis, o conteúdo pode passar da altura da
-   TV dependendo de quantos pontos existem. Rolar é melhor que espremer
-   (texto minúsculo não se lê de longe) ou cortar em silêncio. Numa TV
-   1080p com poucos pontos, tudo cabe sem rolagem. */
-.gaugeRow,
-.chartRow,
-.bottomRow {
-  flex-shrink: 0;
-}
+/* ---------- Cabeçalho ---------- */
 
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
-  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--dash-line);
+  position: relative;
+}
+
+/* Régua de marca sob o cabeçalho: verde -> laranja, as cores da GMAD. */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 190px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gmad-verde), var(--gmad-laranja));
+  border-radius: 2px;
 }
 
 .headLeft {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.brandRow {
-  display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .logo {
-  height: 42px;
+  height: 46px;
   width: auto;
-  /* Sem filtro de cor: a logo é verde e laranja (cores da marca) e tem
-     fundo transparente, então já se lê bem sobre o painel escuro.
-     Inverter ou embranquecer descaracterizaria a marca. */
+  /* Sem filtro de cor: a logo é verde e laranja com fundo transparente,
+     então já se lê sobre o painel escuro. Inverter descaracterizaria a
+     marca. */
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  /* Separador vertical entre a logo e o título, como em painéis de
+     operação que combinam marca + nome do sistema. */
+  padding-left: 16px;
+  border-left: 1px solid var(--dash-line);
 }
 
 .title {
   margin: 0;
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
 }
 
 .liveTag {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
+  gap: 7px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .liveDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--ok);
-  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(63, 208, 127, 0.6);
+  animation: pulse 2.4s ease-out infinite;
 }
 
 .liveStale {
@@ -113,53 +137,138 @@
 .liveStale .liveDot {
   background: var(--danger);
   animation: none;
+  box-shadow: none;
 }
 
+/* Pulso em anel (não piscar opacidade): lê melhor de longe e não some
+   entre um quadro e outro. */
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
+  0% {
+    box-shadow: 0 0 0 0 rgba(63, 208, 127, 0.55);
   }
-  50% {
-    opacity: 0.3;
+  70% {
+    box-shadow: 0 0 0 9px rgba(63, 208, 127, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(63, 208, 127, 0);
   }
 }
 
 .headRight {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* Resumo numérico no cabeçalho: aproveita o espaço morto ao lado do
+   relógio com a informação mais consultada (quantos pontos de pé). */
+.headStats {
+  display: flex;
+  gap: 20px;
+}
+
+.headStat {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 1px;
 }
 
+.headStatValue {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.headStatLabel {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.clockBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding-left: 22px;
+  border-left: 1px solid var(--dash-line);
+}
+
 .clock {
   font-family: var(--font-mono);
-  font-size: 40px;
+  font-size: 42px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
+.clockSeconds {
+  font-size: 20px;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
 .date {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
   text-transform: capitalize;
 }
 
-/* Estado normal: uma pastilha discreta. Ocupa pouco espaço porque "está
-   tudo bem" é a informação menos urgente da tela — o que precisa saltar é
-   a exceção (ver .statusBanner). */
-.statusChip {
-  display: inline-flex;
+/* ---------- Faixa de status ---------- */
+
+.statusBanner {
+  display: flex;
   align-items: center;
-  gap: 9px;
-  align-self: flex-start;
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
-  background: var(--ok-bg);
+  gap: 18px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--danger);
+  background: linear-gradient(90deg, var(--danger-bg), transparent 70%);
+  /* Respiração lenta: chama atenção sem virar um estrobo irritante numa
+     sala onde as pessoas trabalham. */
+  animation: alertPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes alertPulse {
+  0%,
+  100% {
+    border-color: var(--danger);
+    box-shadow: 0 0 22px -6px rgba(255, 77, 85, 0.5);
+  }
+  50% {
+    border-color: rgba(255, 77, 85, 0.45);
+    box-shadow: 0 0 0 0 rgba(255, 77, 85, 0);
+  }
+}
+
+.bannerBig {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+.bannerSub {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+/* Estado normal: uma barra fina e discreta. "Está tudo bem" é a
+   informação menos urgente da tela — o que precisa saltar é a exceção. */
+.statusChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(63, 208, 127, 0.28);
+  background: linear-gradient(90deg, var(--ok-bg), transparent 60%);
   color: var(--ok);
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
 }
 
@@ -170,154 +279,208 @@
   background: var(--ok);
 }
 
-/* Faixa de status geral — a linha que precisa ser legível do outro lado
-   da sala. Só aparece quando há problema. */
-.statusBanner {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 14px 20px;
-  border-radius: var(--radius);
-  border: 2px solid;
-}
-
-.bannerAlert {
-  background: var(--danger-bg);
-  border-color: var(--danger);
-}
-
-.bannerBig {
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-
-.bannerAlert .bannerBig {
-  color: var(--danger);
-}
-
-.bannerSub {
-  font-size: 16px;
-  color: var(--text-muted);
-}
-
-/* Coleta parada: a tela inteira ganha uma borda de alerta, pra quem passa
-   pela sala perceber sem precisar ler nada. */
 .stale {
-  box-shadow: inset 0 0 0 4px var(--danger);
+  box-shadow: inset 0 0 0 3px var(--danger);
 }
+
+/* ---------- Velocímetros ---------- */
 
 .gaugeRow {
   display: grid;
-  /* Colunas iguais que se dividem pela largura: com 3 pontos numa TV Full
-     HD cada gauge fica com ~600px, bem maior que os 260px fixos de antes.
-     `minmax(0, 1fr)` (não `auto`) impede que um rótulo longo estufe a
-     coluna e desalinhe os mostradores entre si. */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 8px 20px;
-  justify-items: center;
-  align-items: start;
+  gap: 14px;
 }
-
 
 .gaugeCell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   width: 100%;
+  padding: 12px 10px 14px;
+  border: 1px solid var(--dash-line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--dash-panel-2), var(--dash-panel));
+  position: relative;
+  overflow: hidden;
 }
 
-.gaugeStatus {
-  font-size: 13px;
-  color: var(--text-muted);
+/* Fita superior indicando o estado do ponto — dá pra varrer a linha
+   inteira de gauges e ver quais estão bem sem ler número nenhum. */
+.gaugeCell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--ok);
+  opacity: 0.85;
+}
+
+.gaugeWarn::before {
+  background: var(--warn);
+}
+
+.gaugeOffline::before {
+  background: var(--danger);
 }
 
 .gaugeOffline {
-  /* Ponto sem resposta ganha destaque próprio: numa parede, o que está
-     errado precisa saltar sem exigir leitura. */
-  border: 2px solid var(--danger);
-  border-radius: var(--radius);
-  background: var(--danger-bg);
-  padding: 6px 8px;
+  border-color: var(--danger);
+  background: linear-gradient(180deg, var(--danger-bg), var(--dash-panel));
+}
+
+.gaugeStatus {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .offlineTag {
   font-size: 13px;
   font-weight: 800;
   color: var(--danger);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
-/* Gráficos de tendência: 2 por linha em tela cheia (4 no total, formando
-   duas faixas), 1 por linha em telas estreitas. minmax garante que nenhum
-   fique estreito a ponto de virar um risco ilegível de longe. */
+.gaugeHost {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+/* ---------- Gráficos ---------- */
+
 .chartRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  /* 4 painéis: em TV Full HD ficam 2x2; em telas largas (ultrawide) a
+     linha se espalha sozinha. minmax impede que um gráfico fique estreito
+     a ponto de virar um risco ilegível de longe. */
+  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
   gap: 14px;
-  /* Os dois gráficos de rede ocupam o espaço que sobrou entre os
-     velocímetros e os alertas — numa TV, área vazia é desperdício de
-     informação. */
   flex: 1;
-  min-height: 240px;
+  min-height: 210px;
 }
 
-.chartRow .panel {
-  display: flex;
-  flex-direction: column;
+/* Tabela-resumo: densidade de NOC, com números alinhados à direita pra
+   comparar coluna a coluna sem esforço. */
+.resumoTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
-.bottomRow {
-  display: grid;
-  gap: 16px;
+.resumoTable th {
+  text-align: right;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 8px 7px;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.resumoTable th:first-child,
+.resumoTable td:first-child {
+  text-align: left;
+}
+
+.resumoTable td {
+  text-align: right;
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--dash-line-soft);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.resumoTable td:first-child {
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 500;
+  /* Nome longo encolhe em vez de empurrar os números pra fora. */
+  max-width: 0;
+  width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resumoTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.resumoDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  margin-right: 8px;
+  vertical-align: baseline;
 }
 
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  background: var(--dash-panel);
+  border: 1px solid var(--dash-line);
+  border-radius: 12px;
+  padding: 13px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .panelTitle {
-  margin: 0 0 10px;
-  font-size: 15px;
-  font-weight: 600;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
 }
 
-.allGood {
-  margin: 0;
-  padding: 14px 0;
-  font-size: 17px;
-  color: var(--ok);
-  text-align: center;
-  font-weight: 600;
+.panelMeta {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
 }
+
+/* ---------- Alertas ---------- */
 
 .alertList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .alertRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 11px;
-  padding: 9px 10px;
-  border-radius: var(--radius);
-  background: var(--surface-hover);
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--dash-panel-2);
+  border-left: 3px solid var(--danger);
+}
+
+.alertRowWarn {
+  border-left-color: var(--warn);
 }
 
 .sev {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   padding: 3px 8px;
   border-radius: 4px;
   white-space: nowrap;
@@ -343,22 +506,74 @@
 }
 
 .alertBody b {
-  font-size: 15px;
+  font-size: 14.5px;
 }
 
 .alertBody span {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-muted);
-}
-
-.alertTime {
-  font-size: 12.5px;
-  color: var(--text-faint);
+  /* Mensagem longa não pode empurrar o horário pra fora da tela. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.alertTime {
+  font-size: 12px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.allGood {
+  margin: 0;
+  padding: 20px 0;
+  font-size: 15px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.allGoodIcon {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 6px;
+  color: var(--ok);
+}
+
+/* ---------- Rodapé ---------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--dash-line-soft);
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+.footerLegend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .liveDot {
+  .liveDot,
+  .statusBanner {
     animation: none;
   }
 }
