@@ -5,27 +5,28 @@
   min-width: 0;
   padding: 13px 16px 10px;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--ok);
   border-radius: 12px;
   background: linear-gradient(180deg, var(--surface-hover), var(--surface));
-  /* `currentColor` na sparkline herda daqui, então a linha acompanha o
-     estado sem precisar passar a cor duas vezes. */
+  /* `currentColor` na sparkline e no valor herda daqui, então o estado
+     aparece na cor do próprio número — sem faixa lateral competindo. */
   color: var(--ok);
 }
 
+/* Só o estado de alerta muda a borda: no normal, o cartão fica neutro e a
+   cor vive no número. Assim a moldura vermelha realmente salta quando
+   aparece, em vez de ser mais uma entre várias coloridas. */
 .warn {
-  border-left-color: var(--warn);
   color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 45%, var(--border));
 }
 
 .danger {
-  border-left-color: var(--danger);
   color: var(--danger);
+  border-color: var(--danger);
   background: linear-gradient(180deg, var(--danger-bg), var(--surface));
 }
 
 .none {
-  border-left-color: var(--text-faint);
   color: var(--text-faint);
 }
 
@@ -44,7 +45,8 @@
 }
 
 .titulo {
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--text);
   /* Nome longo encolhe em vez de empurrar o número pra fora do cartão. */
@@ -70,10 +72,16 @@
 /* O número é o elemento dominante: numa TV a 4 metros é ele que se lê,
    não a posição de uma agulha. */
 .value {
+  /* IBM Plex Mono: dígitos de largura fixa (o número não "pula" quando
+     muda de 9 para 10) e formas bem diferenciadas entre si — 6/8, 3/9 e
+     0/O continuam distinguíveis de longe, que é o que importa aqui. */
   font-family: var(--font-mono);
-  font-size: 38px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 600;
   line-height: 0.95;
+  /* Mono em corpo grande fica espaçado demais; apertar um pouco devolve a
+     unidade visual do número. */
+  letter-spacing: -0.02em;
   color: currentColor;
   white-space: nowrap;
 }

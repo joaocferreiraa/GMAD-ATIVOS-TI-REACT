@@ -18,9 +18,10 @@
   --dash-line: #222833;
   --dash-line-soft: #1a1f28;
 
-  --gmad-verde: #00a94f;
+  /* Verde da marca clareado para uso sobre fundo escuro — é a cor de
+     "normal" do painel e a que assina a identidade GMAD aqui (o laranja
+     fica por conta da própria logo). */
   --gmad-verde-claro: #3fd07f;
-  --gmad-laranja: #f36c21;
 
   --bg: var(--dash-bg);
   --surface: var(--dash-panel);
@@ -51,9 +52,16 @@
   flex-direction: column;
   gap: 14px;
   color-scheme: dark;
+  /* Inter no corpo: desenhada para telas, com altura de x generosa — o que
+     sustenta a leitura a vários metros. Os títulos usam Poppins e os
+     números IBM Plex Mono (ver .title/.clock); as três já vêm carregadas
+     pelo site, então o painel não puxa fonte nova. */
+  font-family: var(--font-body);
   /* Números tabulares: dígitos de mesma largura, então o relógio e as
      métricas não "dançam" a cada atualização. */
   font-variant-numeric: tabular-nums;
+  /* Suaviza o traço em tela grande, onde o texto fica mais espesso. */
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ---------- Cabeçalho ---------- */
@@ -65,19 +73,6 @@
   gap: 20px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--dash-line);
-  position: relative;
-}
-
-/* Régua de marca sob o cabeçalho: verde -> laranja, as cores da GMAD. */
-.header::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 190px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--gmad-verde), var(--gmad-laranja));
-  border-radius: 2px;
 }
 
 .headLeft {
@@ -106,7 +101,11 @@
 
 .title {
   margin: 0;
-  font-size: 26px;
+  /* Poppins: geométrica e de contraste baixo, então mantém a forma das
+     letras mesmo vista de longe e num ângulo ruim — melhor que Inter em
+     tamanho grande. */
+  font-family: var(--font-display);
+  font-size: 27px;
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.1;
@@ -176,16 +175,17 @@
 
 .headStatValue {
   font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 23px;
+  font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .headStatLabel {
   font-size: 10.5px;
   color: var(--text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
 }
 
 .clockBlock {
@@ -199,10 +199,10 @@
 
 .clock {
   font-family: var(--font-mono);
-  font-size: 42px;
-  font-weight: 700;
+  font-size: 44px;
+  font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .clockSeconds {
@@ -245,7 +245,8 @@
 }
 
 .bannerBig {
-  font-size: 30px;
+  font-family: var(--font-display);
+  font-size: 31px;
   font-weight: 800;
   letter-spacing: 0.01em;
   color: var(--danger);
@@ -387,11 +388,12 @@
 
 .panelTitle {
   margin: 0;
-  font-size: 13px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
 }
 
 .panelMeta {
