@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   getRecentHostMetrics,
@@ -7,19 +7,36 @@ import {
 import { useRealtimeInvalidate } from './useRealtimeInvalidate'
 import { queryKeys } from '../../constants/queryKeys'
 
-// Mesmo padrão de useMedicoes.js: função comum (não-hook) pra isolar a
-// chamada impura Date.now() do corpo do hook.
-function sinceIsoFor(minutes) {
-  return new Date(Date.now() - minutes * 60000).toISOString()
+// Janela deslizante em passos de 5 min — mesma solução (e mesmo motivo) de
+// useMedicoes.js: congelada na montagem, "últimos 60 minutos" viraria
+// "desde que a página abriu" numa tela que fica horas aberta (modo TV).
+const JANELA_PASSO_MS = 5 * 60 * 1000
+
+// Função comum (não-hook) pra isolar a chamada impura Date.now() do corpo
+// do hook (exigência do React Compiler).
+function sinceIsoStep(minutes) {
+  const agoraArredondado = Math.floor(Date.now() / JANELA_PASSO_MS) * JANELA_PASSO_MS
+  return new Date(agoraArredondado - minutes * 60000).toISOString()
 }
 
 function useSinceIso(minutes) {
   const [sinceIso, setSinceIso] = useState(null)
   const [computedFor, setComputedFor] = useState(null)
+
   if (minutes !== computedFor) {
     setComputedFor(minutes)
-    setSinceIso(sinceIsoFor(minutes))
+    setSinceIso(sinceIsoStep(minutes))
   }
+
+  useEffect(() => {
+    if (!minutes) return undefined
+    const id = setInterval(() => {
+      const proximo = sinceIsoStep(minutes)
+      setSinceIso((atual) => (atual === proximo ? atual : proximo))
+    }, 30_000)
+    return () => clearInterval(id)
+  }, [minutes])
+
   return sinceIso
 }
 

@@ -12,7 +12,11 @@ import MultiLineChart from '../../components/charts/MultiLineChart/MultiLineChar
 import logo from '../../assets/images/gmad-logo.png'
 import styles from './TvPage.module.css'
 
-const SAFETY_REFRESH_MS = 2 * 60 * 1000
+// 45s: menor que o intervalo de coleta do agente (30s) somado a uma folga,
+// e bem menor que DADOS_VELHOS_MS — a tela precisa ter várias chances de
+// buscar dado fresco antes de concluir que a coleta parou, senão um
+// tropeço de rede vira um "SEM COLETA" falso na parede.
+const SAFETY_REFRESH_MS = 45 * 1000
 // Acima disso a coleta parou (o agente mede a cada 30s) — num painel de
 // parede, números velhos com cara de atuais são o pior modo de falha, então
 // a tela inteira avisa em vez de seguir exibindo o último valor.
@@ -70,11 +74,17 @@ export default function TvPage() {
 
   // Rede de segurança: o Realtime já atualiza quando chega medição nova,
   // mas um WebSocket que caia em silêncio deixaria a TV congelada sem
-  // ninguém por perto pra notar. Revalidar periodicamente garante que a
-  // tela volta a andar sozinha depois de qualquer interrupção.
+  // ninguém por perto pra notar — e aqui não há o resgate de
+  // refetchOnWindowFocus, porque ninguém clica numa tela de parede.
+  //
+  // `refetchType: 'all'` é essencial: invalidateQueries sozinho apenas
+  // MARCA a query como obsoleta, e o refetch automático ainda respeita o
+  // staleTime global de 30s (ver App.jsx) — numa TV ociosa isso podia
+  // deixar a tela sem buscar nada e disparar o falso "SEM COLETA".
+  // Com 'all', a busca acontece de fato a cada ciclo.
   useEffect(() => {
     const id = setInterval(
-      () => queryClient.invalidateQueries({ queryKey: ['monitoramento'] }),
+      () => queryClient.invalidateQueries({ queryKey: ['monitoramento'], refetchType: 'all' }),
       SAFETY_REFRESH_MS,
     )
     return () => clearInterval(id)

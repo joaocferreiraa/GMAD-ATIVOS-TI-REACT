@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getBucketedMeasurements,
@@ -21,27 +21,47 @@ function bucketFor(minutes) {
   return 14400 // 30d -> 4 horas
 }
 
-// Função comum (não-hook) pra isolar a chamada impura (Date.now()) — o
-// React Compiler analisa a pureza de hooks/componentes e barra Date.now()
-// direto no corpo deles, mas não enxerga dentro de uma função auxiliar
-// comum (mesmo motivo pelo qual relativeSyncTime()/fmtRelTime(), que também
-// chamam Date.now(), já são usadas direto em render em outros lugares do
-// projeto sem reclamação do linter).
-function sinceIsoFor(minutes) {
-  return new Date(Date.now() - minutes * 60000).toISOString()
+// Passo em que a janela desliza. A janela NÃO pode ser recalculada a cada
+// render (mudaria a queryKey toda hora, refazendo a busca sem parar), mas
+// também não pode ficar congelada na montagem: numa tela que fica aberta
+// por horas — o modo TV — o início da janela ficaria cada vez mais para
+// trás no tempo, e "últimos 60 minutos" viraria "desde que a página
+// abriu". Arredondar o instante para baixo num passo fixo resolve os dois:
+// o valor só muda de 5 em 5 minutos, então a busca é refeita nesse ritmo e
+// a janela acompanha o relógio.
+const JANELA_PASSO_MS = 5 * 60 * 1000
+
+// Função comum (não-hook) pra isolar a chamada impura (Date.now()): o React
+// Compiler analisa a pureza de hooks/componentes e barra Date.now() direto
+// no corpo deles, mas não enxerga dentro de uma função auxiliar comum.
+function sinceIsoStep(minutes) {
+  const agoraArredondado = Math.floor(Date.now() / JANELA_PASSO_MS) * JANELA_PASSO_MS
+  return new Date(agoraArredondado - minutes * 60000).toISOString()
 }
 
-// Calcula o início da janela só quando `minutes` muda — comparação com o
-// valor anterior durante o render, em vez de useMemo ou useEffect+setState
-// (mesmo padrão já usado em CommandPalette.jsx/AtivosPage.jsx pra outros
-// casos de "recalcula só quando X muda").
+// Início da janela, recalculado quando `minutes` muda OU quando o passo de
+// 5 min vira. O `setInterval` só dispara um setState quando o valor
+// realmente muda, então não há re-render desnecessário entre os passos.
 function useSinceIso(minutes) {
   const [sinceIso, setSinceIso] = useState(null)
   const [computedForMinutes, setComputedForMinutes] = useState(null)
+
   if (minutes !== computedForMinutes) {
     setComputedForMinutes(minutes)
-    setSinceIso(sinceIsoFor(minutes))
+    setSinceIso(sinceIsoStep(minutes))
   }
+
+  useEffect(() => {
+    if (!minutes) return undefined
+    // Checa com folga em relação ao passo (30s) pra virada acontecer logo
+    // depois do minuto cheio, não até 5 min atrasada.
+    const id = setInterval(() => {
+      const proximo = sinceIsoStep(minutes)
+      setSinceIso((atual) => (atual === proximo ? atual : proximo))
+    }, 30_000)
+    return () => clearInterval(id)
+  }, [minutes])
+
   return sinceIso
 }
 
