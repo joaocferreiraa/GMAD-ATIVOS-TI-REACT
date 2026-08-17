@@ -5,12 +5,8 @@
    motivo.
 
    Os tokens abaixo sobrescrevem os globais só dentro desta página, então
-   os componentes reaproveitados (GaugeChart, MultiLineChart) já saem na
-   paleta certa sem precisar de variante própria.
-
-   Verde e laranja vêm da marca GMAD (ver assets/images/gmad-logo.png):
-   o verde é a cor de "normal" e assina o painel; o laranja aparece como
-   acento na régua superior e nos detalhes. */
+   os componentes reaproveitados (MetricStat, MultiLineChart) já saem na
+   paleta certa sem precisar de variante própria. */
 .tv {
   --dash-bg: #0a0d12;
   --dash-panel: #12161d;
@@ -52,10 +48,11 @@
   flex-direction: column;
   gap: 14px;
   color-scheme: dark;
-  /* Inter no corpo: desenhada para telas, com altura de x generosa — o que
-     sustenta a leitura a vários metros. Os títulos usam Poppins e os
-     números IBM Plex Mono (ver .title/.clock); as três já vêm carregadas
-     pelo site, então o painel não puxa fonte nova. */
+  /* Família IBM Plex no painel inteiro: Sans nos títulos (ver .title) e
+     Mono nos números (.clock/.headStatValue) — desenhadas juntas, então
+     cabeçalho e métricas conversam, com o ar técnico que um painel de
+     operação pede. Inter fica no corpo/textos auxiliares. Todas já vêm
+     carregadas pelo site, então o painel não puxa fonte nova. */
   font-family: var(--font-body);
   /* Números tabulares: dígitos de mesma largura, então o relógio e as
      métricas não "dançam" a cada atualização. */
@@ -82,7 +79,7 @@
 }
 
 .logo {
-  height: 46px;
+  height: 62px;
   width: auto;
   /* Sem filtro de cor: a logo é verde e laranja com fundo transparente,
      então já se lê sobre o painel escuro. Inverter descaracterizaria a
@@ -101,14 +98,18 @@
 
 .title {
   margin: 0;
-  /* Poppins: geométrica e de contraste baixo, então mantém a forma das
-     letras mesmo vista de longe e num ângulo ruim — melhor que Inter em
-     tamanho grande. */
-  font-family: var(--font-display);
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.1;
+  /* IBM Plex Sans, não Poppins: Poppins é geométrica e muito arredondada
+     (o "o" é quase um círculo perfeito), o que dá um ar informal que
+     destoa de um painel de operação. Plex Sans é da mesma família do mono
+     usado nos números, então o cabeçalho e as métricas conversam.
+     Em CAIXA ALTA com tracking aberto: em corpo menor, versalete lê melhor
+     a distância que minúscula grande, e dá o tom de painel técnico. */
+  font-family: 'IBM Plex Sans', var(--font-body);
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
 }
 
 .liveTag {
@@ -156,36 +157,66 @@
 .headRight {
   display: flex;
   align-items: center;
-  gap: 22px;
+  /* Sem gap: o espaçamento vem do padding de cada .headStat, pra régua de
+     separadores ficar uniforme até o relógio. */
+  gap: 0;
 }
 
-/* Resumo numérico no cabeçalho: aproveita o espaço morto ao lado do
-   relógio com a informação mais consultada (quantos pontos de pé). */
+/* Resumo numérico no cabeçalho: aproveita o espaço ao lado do relógio com
+   a informação mais consultada. Os três formam UM bloco (separados por
+   linha fina), em vez de números soltos disputando atenção com o relógio. */
 .headStats {
   display: flex;
-  gap: 20px;
+  align-items: stretch;
 }
 
 .headStat {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  /* Rótulo em cima, valor embaixo: lê-se "o quê" antes de "quanto", e as
+     linhas de base dos três números ficam alinhadas entre si. */
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 18px;
+  border-right: 1px solid var(--dash-line);
+}
+
+.headStat:first-child {
+  padding-left: 0;
+}
+
+.headStat:last-child {
+  border-right: none;
+  padding-right: 20px;
 }
 
 .headStatValue {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
   font-family: var(--font-mono);
-  font-size: 23px;
+  font-size: 26px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* Unidade e denominador em corpo menor: "10.7" é o dado, "ms" e "/3" são
+   contexto — hierarquia dentro do próprio número. */
+.headStatSuffix {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-faint);
 }
 
 .headStatLabel {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
+  white-space: nowrap;
 }
 
 .clockBlock {
@@ -193,7 +224,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 1px;
-  padding-left: 22px;
+  padding-left: 20px;
   border-left: 1px solid var(--dash-line);
 }
 
@@ -245,7 +276,7 @@
 }
 
 .bannerBig {
-  font-family: var(--font-display);
+  font-family: 'IBM Plex Sans', var(--font-body);
   font-size: 31px;
   font-weight: 800;
   letter-spacing: 0.01em;
@@ -388,7 +419,7 @@
 
 .panelTitle {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: 'IBM Plex Sans', var(--font-body);
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-muted);

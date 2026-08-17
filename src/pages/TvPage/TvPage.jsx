@@ -218,33 +218,35 @@ export default function TvPage() {
         </div>
         <div className={styles.headRight}>
           {/* Resumo numérico: as três respostas mais consultadas, sempre no
-              mesmo lugar. Cor no valor, não no card inteiro — um bloco
-              colorido grande cansa numa tela que fica ligada o dia todo. */}
+              mesmo lugar. Rótulo ACIMA do valor (leitura de cima pra
+              baixo: "o quê" antes de "quanto") e separadores entre eles,
+              pra ler como um bloco só e não como três números soltos. */}
           <div className={styles.headStats}>
             <div className={styles.headStat}>
+              <span className={styles.headStatLabel}>Online</span>
               <span
                 className={styles.headStatValue}
                 style={{ color: online === monitorList.length ? 'var(--ok)' : 'var(--danger)' }}
               >
-                {online}/{monitorList.length}
+                {online}
+                <span className={styles.headStatSuffix}>/{monitorList.length}</span>
               </span>
-              <span className={styles.headStatLabel}>online</span>
             </div>
             <div className={styles.headStat}>
+              <span className={styles.headStatLabel}>Latência méd.</span>
               <span className={styles.headStatValue}>
                 {latenciaMedia === null ? '—' : latenciaMedia}
-                <span className={styles.clockSeconds}>{latenciaMedia === null ? '' : 'ms'}</span>
+                {latenciaMedia !== null && <span className={styles.headStatSuffix}>ms</span>}
               </span>
-              <span className={styles.headStatLabel}>latência méd.</span>
             </div>
             <div className={styles.headStat}>
+              <span className={styles.headStatLabel}>Alertas</span>
               <span
                 className={styles.headStatValue}
-                style={{ color: alertasAbertos.length ? 'var(--danger)' : 'var(--text)' }}
+                style={{ color: alertasAbertos.length ? 'var(--danger)' : 'var(--text-muted)' }}
               >
                 {alertasAbertos.length}
               </span>
-              <span className={styles.headStatLabel}>alertas</span>
             </div>
           </div>
           <div className={styles.clockBlock}>

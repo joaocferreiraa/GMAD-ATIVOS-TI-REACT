@@ -45,7 +45,7 @@
 }
 
 .titulo {
-  font-family: var(--font-display);
+  font-family: 'IBM Plex Sans', var(--font-body);
   font-size: 15.5px;
   font-weight: 600;
   color: var(--text);
