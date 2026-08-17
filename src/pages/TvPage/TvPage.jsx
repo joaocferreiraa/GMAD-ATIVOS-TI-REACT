@@ -213,6 +213,10 @@ export default function TvPage() {
           <img src={logo} alt="GMAD" className={styles.logo} />
           <div className={styles.titleBlock}>
             <h1 className={styles.title}>Monitoramento de Rede</h1>
+            {/* Sem indicador de "tudo OK": o ponto verde pulsante do
+                "Atualizado agora" já comunica isso, e o resumo 3/3 no
+                cabeçalho dá o número. O que aparece aqui é só a exceção
+                (ver .statusBanner). */}
             <span className={`${styles.liveTag} ${dadosVelhos ? styles.liveStale : ''}`}>
               <span className={styles.liveDot} />
               {ultimaMedicaoIso
@@ -274,10 +278,10 @@ export default function TvPage() {
         </div>
       </header>
 
-      {/* Faixa de status: discreta quando está tudo bem (uma pastilha), e
-          só cresce quando há problema — num painel que fica ligado o dia
-          todo, um bloco verde gigante permanente vira ruído e a pessoa
-          para de enxergá-lo. O que precisa chamar atenção é a exceção. */}
+      {/* Faixa de status: só existe quando há PROBLEMA. O estado normal
+          virou uma pastilha ao lado do título — num painel ligado o dia
+          todo, uma faixa verde permanente vira ruído e as pessoas param de
+          enxergar a tela. O que precisa chamar atenção é a exceção. */}
       {dadosVelhos ? (
         <div className={`${styles.statusBanner} ${styles.bannerAlert}`}>
           <span className={styles.bannerBig}>SEM COLETA</span>
@@ -285,12 +289,7 @@ export default function TvPage() {
             O agente parou de enviar medições — verifique o serviço no servidor
           </span>
         </div>
-      ) : tudoOk ? (
-        <div className={styles.statusChip}>
-          <span className={styles.chipDot} />
-          Todos os {monitorList.length} pontos operando normalmente
-        </div>
-      ) : (
+      ) : tudoOk ? null : (
         <div className={`${styles.statusBanner} ${styles.bannerAlert}`}>
           <span className={styles.bannerBig}>
             {alertasAbertos.length > 0
