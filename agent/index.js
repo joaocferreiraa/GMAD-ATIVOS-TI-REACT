@@ -86,6 +86,19 @@ async function getMonitors() {
 // regex de latência não bateu com aquele texto específico, o certo é
 // mostrar "latência indisponível" (latenciaMs: null) e ainda assim marcar
 // como online — não "offline" por um problema de parsing nosso, não da rede.
+// Jitter no sentido usado em rede (RFC 3550): média do MÓDULO da variação
+// entre pacotes CONSECUTIVOS — não o desvio padrão. A diferença importa:
+// a série 10,20,10,20 tem desvio padrão baixo mas jitter alto (a conexão
+// oscila a cada pacote), e é a oscilação que derruba VoIP e vídeo. Jitter
+// alto com latência média boa é o sinal clássico de link degradando, e
+// aparece antes da média subir.
+function calcJitter(amostras) {
+  if (!amostras || amostras.length < 2) return null
+  let soma = 0
+  for (let i = 1; i < amostras.length; i++) soma += Math.abs(amostras[i] - amostras[i - 1])
+  return Math.round((soma / (amostras.length - 1)) * 100) / 100
+}
+
 function parseWindowsPing(stdout) {
   const lossMatch = stdout.match(/\((\d+)%/i) // "(0% de perda)"/"(0% loss)" — só dígitos, imune a codepage
   const packetLossPct = lossMatch ? parseInt(lossMatch[1], 10) : 100
@@ -98,7 +111,20 @@ function parseWindowsPing(stdout) {
   // com ou sem os rótulos legíveis.
   const allMs = [...stdout.matchAll(/=\s*<?(\d+)\s*ms/gi)]
   const latenciaMs = allMs.length ? parseInt(allMs[allMs.length - 1][1], 10) : null
-  return { disponivel: packetLossPct < 100, latenciaMs, packetLossPct }
+
+  // Tempos de cada resposta individual ("tempo=11ms" / "time=11ms"), que é
+  // o que permite calcular jitter. `tempo(=|<)` casa nos dois idiomas e
+  // também em "tempo<1ms" (resposta sub-milissegundo em rede local).
+  const respostas = [...stdout.matchAll(/(?:tempo|time)[=<]\s*(\d+)\s*ms/gi)].map((m) =>
+    parseInt(m[1], 10),
+  )
+
+  return {
+    disponivel: packetLossPct < 100,
+    latenciaMs,
+    packetLossPct,
+    jitterMs: calcJitter(respostas),
+  }
 }
 
 function parseUnixPing(stdout) {
@@ -106,7 +132,20 @@ function parseUnixPing(stdout) {
   const avgMatch = stdout.match(/=\s*[\d.]+\/([\d.]+)\//) // rtt min/avg/max/mdev
   const packetLossPct = lossMatch ? parseFloat(lossMatch[1]) : 100
   const latenciaMs = avgMatch ? Math.round(parseFloat(avgMatch[1])) : null
-  return { disponivel: packetLossPct < 100, latenciaMs, packetLossPct }
+
+  // Tempos individuais ("time=11.4 ms") pra calcular jitter do mesmo jeito
+  // que na versão Windows — o `mdev` que o ping do Linux já reporta é
+  // desvio padrão, não jitter entre pacotes consecutivos.
+  const respostas = [...stdout.matchAll(/time[=<]\s*([\d.]+)\s*ms/gi)].map((m) =>
+    parseFloat(m[1]),
+  )
+
+  return {
+    disponivel: packetLossPct < 100,
+    latenciaMs,
+    packetLossPct,
+    jitterMs: calcJitter(respostas),
+  }
 }
 
 // Ping real via utilitário do SO — nunca inventa um número: se o comando
@@ -126,7 +165,7 @@ async function pingHost(host) {
     const parsed = stdout ? parse(stdout) : null
     return parsed && parsed.disponivel
       ? parsed
-      : { disponivel: false, latenciaMs: null, packetLossPct: 100 }
+      : { disponivel: false, latenciaMs: null, packetLossPct: 100, jitterMs: null }
   }
 }
 
@@ -137,6 +176,7 @@ async function insertMeasurement(monitorUid, result) {
     origem: 'agente',
     disponivel: result.disponivel,
     latencia_ms: result.latenciaMs,
+    jitter_ms: result.jitterMs ?? null,
     packet_loss_pct: result.packetLossPct,
   })
   if (error) console.error(`[agente] falha ao gravar medição de ${monitorUid}:`, error.message)
@@ -249,7 +289,9 @@ async function checkMonitor(monitor) {
   }
 
   console.log(
-    `[agente] ${monitor.nome} (${monitor.host}): ${result.latenciaMs}ms, ${result.packetLossPct}% perda`,
+    `[agente] ${monitor.nome} (${monitor.host}): ${result.latenciaMs}ms` +
+      (result.jitterMs !== null ? `, jitter ${result.jitterMs}ms` : '') +
+      `, ${result.packetLossPct}% perda`,
   )
 }
 

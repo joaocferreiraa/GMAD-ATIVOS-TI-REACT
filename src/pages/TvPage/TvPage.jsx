@@ -4,11 +4,11 @@ import { useMonitores } from '../../hooks/data/useMonitores'
 import { useRecentMeasurements, useBucketedHistory } from '../../hooks/data/useMedicoes'
 import { useAlertas } from '../../hooks/data/useAlertas'
 import { computeMonitorStatus, STATUS_LABEL } from '../../utils/networkStatus'
-import { escalaLatencia, statsDe } from '../../utils/hostFormatters'
+import { statsLatencia, percentil } from '../../utils/hostFormatters'
 import { fmtRelTime } from '../../utils/formatters'
 import { toWideSeries, buildSeries } from '../../utils/chartSeries'
-import GaugeChart from '../../components/charts/GaugeChart/GaugeChart'
 import MultiLineChart from '../../components/charts/MultiLineChart/MultiLineChart'
+import MetricStat from '../../components/monitoramento/MetricStat/MetricStat'
 // Versão da logo para fundo escuro: o verde da marca (#006934) tem só
 // 2.84:1 de contraste sobre o fundo do painel — abaixo do mínimo de 3:1
 // para elementos gráficos, ficando pesado e sem definição na TV. Esta
@@ -187,6 +187,10 @@ export default function TvPage() {
         latenciaMedia: lat.length
           ? Math.round((lat.reduce((a, b) => a + b, 0) / lat.length) * 10) / 10
           : null,
+        // p95: o número que a operação de rede acompanha. Média de 13ms
+        // com p95 de 80ms = picos intermitentes que a média esconde e o
+        // usuário sente.
+        latenciaP95: percentil(lat, 95),
         latenciaPico: lat.length ? Math.round(Math.max(...lat) * 10) / 10 : null,
       }
     })
@@ -290,52 +294,45 @@ export default function TvPage() {
         </div>
       )}
 
-      {/* Velocímetros — um por ponto monitorado, grandes o suficiente pra
-          leitura à distância. */}
-      <div className={styles.gaugeRow}>
+      {/* Um cartão por ponto: valor grande + tendência. Substituiu o
+          velocímetro porque latência de rede não tem faixa útil que ocupe
+          uma escala circular — links saudáveis vivem em 9-13ms num
+          mostrador de 0-200, então todas as agulhas ficavam coladas à
+          esquerda e uma latência DOBRANDO movia a agulha ~4 graus. O
+          número grande mostra isso na hora (ver MetricStat). */}
+      <div className={styles.statRow}>
         {comStatus.map((m) => {
           const limite = m.thresholds?.latenciaMaximaMs ?? 100
-          const escala = escalaLatencia(limite)
           const offline = m.statusInfo.status === 'offline' || m.ultima?.disponivel === false
           const atencao = !offline && ['problema', 'atencao'].includes(m.statusInfo.status)
-          // A fita no topo da célula repete o estado em cor: dá pra varrer
-          // a linha inteira e ver quais pontos estão bem sem ler número.
-          const cellClass = offline
-            ? styles.gaugeOffline
-            : atencao
-              ? styles.gaugeWarn
-              : ''
+          const stats = statsLatencia(m.meds)
+          const jitter = m.ultima?.jitterMs
+
           return (
-            <div key={m.uid} className={`${styles.gaugeCell} ${cellClass}`}>
-              <GaugeChart
-                value={offline ? null : (m.ultima?.latenciaMs ?? null)}
-                max={escala}
-                unidade="ms"
-                label={m.nome}
-                limite={limite}
-                // Fluido com teto baixo: o mostrador acompanha a coluna,
-                // mas para de crescer em 250px. Acima disso ele rouba a
-                // altura dos gráficos sem ganhar legibilidade — o número
-                // central já é grande o bastante para ler de longe.
-                fluid
-                size={250}
-                stats={statsDe(m.meds, 'latenciaMs')}
-                trend={m.meds.slice(-40).map((x) => (x.disponivel === false ? null : x.latenciaMs))}
-                zones={[
-                  { ate: limite, color: 'var(--ok)' },
-                  { ate: limite * 2, color: 'var(--warn)' },
-                  { ate: escala, color: 'var(--danger)' },
-                ]}
-              />
-              {offline ? (
-                <span className={styles.offlineTag}>SEM RESPOSTA</span>
-              ) : (
-                <span className={styles.gaugeStatus}>{STATUS_LABEL[m.statusInfo.status]}</span>
-              )}
-              {/* O IP/host embaixo: quem opera a rede identifica o
-                  equipamento pelo endereço, não só pelo apelido. */}
-              <span className={styles.gaugeHost}>{m.host}</span>
-            </div>
+            <MetricStat
+              key={m.uid}
+              titulo={m.nome}
+              subtitulo={m.host}
+              value={offline ? null : (m.ultima?.latenciaMs ?? null)}
+              unidade="ms"
+              limite={limite}
+              // Teto fixo em 2x o limite: escala comparável entre pontos e
+              // ruído de 1ms deixa de virar montanha na sparkline.
+              escalaTeto={limite * 2}
+              trend={m.meds.slice(-60).map((x) => (x.disponivel === false ? null : x.latenciaMs))}
+              tone={offline ? 'danger' : atencao ? 'warn' : 'ok'}
+              badge={offline ? 'SEM RESPOSTA' : null}
+              rodape={
+                <>
+                  {/* p95 em vez de média: a média esconde picos
+                      intermitentes que o usuário sente. Ver percentil() em
+                      utils/hostFormatters.js. */}
+                  <span>p95 {stats?.p95 ?? '—'} ms</span>
+                  <span>jitter {jitter ?? '—'} ms</span>
+                  <span>{STATUS_LABEL[m.statusInfo.status]}</span>
+                </>
+              }
+            />
           )
         })}
       </div>
@@ -404,6 +401,7 @@ export default function TvPage() {
                   <th>Ponto</th>
                   <th>Disponib.</th>
                   <th>Latência méd.</th>
+                  <th>p95</th>
                   <th>Pico</th>
                 </tr>
               </thead>
@@ -429,6 +427,7 @@ export default function TvPage() {
                       {r.disponibilidade === null ? '—' : `${r.disponibilidade}%`}
                     </td>
                     <td>{r.latenciaMedia === null ? '—' : `${r.latenciaMedia} ms`}</td>
+                    <td>{r.latenciaP95 === null ? '—' : `${r.latenciaP95} ms`}</td>
                     <td>{r.latenciaPico === null ? '—' : `${r.latenciaPico} ms`}</td>
                   </tr>
                 ))}

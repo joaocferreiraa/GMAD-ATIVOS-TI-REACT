@@ -285,77 +285,15 @@
 
 /* ---------- Velocímetros ---------- */
 
-.gaugeRow {
+.statRow {
   display: grid;
-  /* Cartões menores (240px) e mais por linha: com o gauge limitado a
-     250px, sobra altura para os gráficos — que é onde a tendência
-     aparece. O velocímetro responde "agora", e para isso não precisa
-     dominar a tela. */
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  /* Cartões largos o suficiente pro número de 38px e a sparkline
+     conviverem sem aperto. */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 12px;
-  /* Não deixa a faixa de gauges esticar: ela ocupa o que precisa e o
-     resto da altura vai para os gráficos. */
+  /* Não estica: ocupa o que precisa e o resto da altura vai pros
+     gráficos, que é onde a tendência longa aparece. */
   flex-shrink: 0;
-}
-
-.gaugeCell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  width: 100%;
-  padding: 10px 10px 12px;
-  border: 1px solid var(--dash-line);
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--dash-panel-2), var(--dash-panel));
-  position: relative;
-  overflow: hidden;
-}
-
-/* Fita superior indicando o estado do ponto — dá pra varrer a linha
-   inteira de gauges e ver quais estão bem sem ler número nenhum. */
-.gaugeCell::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--ok);
-  opacity: 0.85;
-}
-
-.gaugeWarn::before {
-  background: var(--warn);
-}
-
-.gaugeOffline::before {
-  background: var(--danger);
-}
-
-.gaugeOffline {
-  border-color: var(--danger);
-  background: linear-gradient(180deg, var(--danger-bg), var(--dash-panel));
-}
-
-.gaugeStatus {
-  font-size: 12.5px;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.offlineTag {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--danger);
-  letter-spacing: 0.06em;
-}
-
-.gaugeHost {
-  font-size: 11px;
-  color: var(--text-faint);
-  font-family: var(--font-mono);
 }
 
 /* ---------- Gráficos ---------- */

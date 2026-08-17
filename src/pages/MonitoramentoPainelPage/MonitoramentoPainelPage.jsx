@@ -7,7 +7,7 @@ import { useRecentHostMetrics, useBucketedHostMetrics } from '../../hooks/data/u
 import { useAlertas } from '../../hooks/data/useAlertas'
 import { computeMonitorStatus } from '../../utils/networkStatus'
 import { toWideSeries, buildSeries } from '../../utils/chartSeries'
-import { fmtBytes, fmtUptime, fmtPct, escalaLatencia, statsDe } from '../../utils/hostFormatters'
+import { fmtBytes, fmtUptime, fmtPct, statsLatencia } from '../../utils/hostFormatters'
 import { fmtRelTime } from '../../utils/formatters'
 import {
   HISTORICO_PERIODOS,
@@ -18,7 +18,7 @@ import { ROUTES } from '../../constants/routes'
 import Select from '../../components/ui/Select/Select'
 import Alert from '../../components/ui/Alert/Alert'
 import MultiLineChart from '../../components/charts/MultiLineChart/MultiLineChart'
-import GaugeChart from '../../components/charts/GaugeChart/GaugeChart'
+import MetricStat from '../../components/monitoramento/MetricStat/MetricStat'
 import StatTile from '../../components/monitoramento/StatTile/StatTile'
 import UsageBar from '../../components/monitoramento/UsageBar/UsageBar'
 import styles from './MonitoramentoPainelPage.module.css'
@@ -263,35 +263,42 @@ export default function MonitoramentoPainelPage() {
         </div>
       </div>
 
-      {/* Velocímetros: leitura de relance à distância — o motivo de existir
-          essa seção num painel pensado pra ficar aberto numa TV. Um por
-          ponto monitorado, mostrando a latência atual contra o limite
-          configurado naquele ponto. */}
+      {/* Um cartão por ponto: valor grande + tendência, com p95 e jitter no
+          rodapé. Substituiu o velocímetro — latência de rede não preenche
+          uma escala circular (links saudáveis vivem em 9-13ms num
+          mostrador de 0-200), e uma latência dobrando movia a agulha ~4
+          graus. Ver o comentário em MetricStat. */}
       {comStatus.length > 0 && (
         <section className={styles.panel}>
           <h3 className={styles.panelTitle}>Latência por ponto monitorado</h3>
-          <div className={styles.gaugeGrid}>
+          <div className={styles.statGridPontos}>
             {comStatus.map((m) => {
               const limite = m.thresholds?.latenciaMaximaMs ?? 100
-              const escala = escalaLatencia(limite)
               const offline = m.statusInfo.status === 'offline' || m.ultima?.disponivel === false
+              const atencao = !offline && ['problema', 'atencao'].includes(m.statusInfo.status)
               const medsDoPonto = measurementsByMonitor.get(m.uid) || []
+              const stats = statsLatencia(medsDoPonto)
               return (
-                <GaugeChart
+                <MetricStat
                   key={m.uid}
+                  titulo={m.nome}
+                  subtitulo={m.host}
                   value={offline ? null : (m.ultima?.latenciaMs ?? null)}
-                  max={escala}
                   unidade="ms"
-                  label={offline ? `${m.nome} — sem resposta` : m.nome}
                   limite={limite}
-                  size={210}
-                  stats={statsDe(medsDoPonto, 'latenciaMs')}
-                  trend={medsDoPonto.slice(-40).map((x) => (x.disponivel === false ? null : x.latenciaMs))}
-                  zones={[
-                    { ate: limite, color: 'var(--ok)' },
-                    { ate: limite * 2, color: 'var(--warn)' },
-                    { ate: escala, color: 'var(--danger)' },
-                  ]}
+                  escalaTeto={limite * 2}
+                  trend={medsDoPonto
+                    .slice(-60)
+                    .map((x) => (x.disponivel === false ? null : x.latenciaMs))}
+                  tone={offline ? 'danger' : atencao ? 'warn' : 'ok'}
+                  badge={offline ? 'SEM RESPOSTA' : null}
+                  rodape={
+                    <>
+                      <span>p95 {stats?.p95 ?? '—'} ms</span>
+                      <span>jitter {m.ultima?.jitterMs ?? '—'} ms</span>
+                      <span>máx {stats?.max ?? '—'} ms</span>
+                    </>
+                  }
                 />
               )
             })}

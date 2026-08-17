@@ -1,12 +1,12 @@
-import GaugeChart from '../../charts/GaugeChart/GaugeChart'
+import MetricStat from '../MetricStat/MetricStat'
 import { DEFAULT_THRESHOLDS } from '../../../constants/monitoramento'
-import { escalaLatencia, statsDe } from '../../../utils/hostFormatters'
+import { statsLatencia } from '../../../utils/hostFormatters'
 import styles from './LiveGauges.module.css'
 
-// Quantos pontos a sparkline de tendência usa. 40 é o suficiente pra
-// enxergar a forma recente sem virar um gráfico cheio (o gráfico completo
-// está logo abaixo, no mesmo card).
-const TREND_POINTS = 40
+// Quantos pontos a sparkline de tendência usa. 60 mostra a forma recente
+// sem virar um gráfico cheio (o gráfico completo está logo abaixo, no mesmo
+// card).
+const TREND_POINTS = 60
 
 // Últimos N valores de uma métrica, pra sparkline de tendência.
 function trendDe(lista, campo) {
@@ -16,19 +16,20 @@ function trendDe(lista, campo) {
   })
 }
 
-// Trio de velocímetros com a leitura ATUAL do ponto selecionado: latência,
-// perda de pacotes e disponibilidade da janela recente. O gráfico de linha
-// ao lado mostra a evolução; aqui é o "agora", legível de relance — a
-// mesma divisão que Grafana/Zabbix fazem entre gauge e série temporal.
+// Leitura ATUAL do ponto selecionado em quatro números: latência, jitter,
+// perda de pacotes e disponibilidade da janela. O gráfico de linha abaixo
+// mostra a evolução longa; aqui é o "agora", legível de relance.
 //
-// Cada gauge traz também os indicadores daqueles painéis: escala numerada,
-// marcador do limite configurado, mín/méd/máx da janela e sparkline de
-// tendência (ver GaugeChart).
+// Formato "single stat" (valor grande + tendência) em vez de velocímetro:
+// latência de rede não preenche uma escala circular — um link saudável
+// vive em 9-13ms num mostrador de 0-200ms, e uma latência DOBRANDO (sinal
+// claro de degradação) movia a agulha poucos graus. Ver MetricStat.
 //
-// As faixas coloridas saem dos limites configurados NO PRÓPRIO PONTO (ver
+// Os limites saem do que está configurado NO PRÓPRIO PONTO (ver
 // MonitorFormModal), não de números fixos: 80ms é excelente num link de
 // internet e ruim num switch local, então o mesmo valor pode sair verde num
-// ponto e vermelho noutro.
+// ponto e vermelho noutro. A exceção é o jitter, cujo efeito sobre voz e
+// vídeo é o mesmo em qualquer link.
 export default function LiveGauges({ monitor, measurements }) {
   if (!monitor) return null
 
@@ -66,61 +67,95 @@ export default function LiveGauges({ monitor, measurements }) {
       Math.round((lista.filter((m) => m.disponivel !== false).length / lista.length) * 10000) / 100
   }
 
-  const maxLatencia = escalaLatencia(t.latenciaMaximaMs)
-  // Escala da perda: o limite costuma ser baixo (2%), então uma escala de
-  // 0-100% deixaria a agulha imóvel no canto. 5x o limite dá movimento
-  // visível, com teto de 100 (é uma porcentagem).
-  const maxPerda = Math.min(Math.max(t.packetLossMaximoPct * 5, 10), 100)
-
   // A tendência de disponibilidade só existe no formato agregado (cada
   // bucket tem um %); no cru, cada medição é 0 ou 100 e a linha viraria uma
   // onda quadrada sem informação.
   const trendDisponibilidade = agregado ? trendDe(lista, 'disponibilidadePct') : null
 
+  // Tom por faixa. Diferente do gauge, que pintava zonas na escala, aqui a
+  // cor sai direto da comparação com o limite configurado no ponto.
+  const toneLatencia =
+    latencia === null
+      ? 'none'
+      : latencia > t.latenciaMaximaMs * 2
+        ? 'danger'
+        : latencia > t.latenciaMaximaMs
+          ? 'warn'
+          : 'ok'
+  const tonePerda =
+    perda === null
+      ? 'none'
+      : perda > t.packetLossMaximoPct * 2
+        ? 'danger'
+        : perda > t.packetLossMaximoPct
+          ? 'warn'
+          : 'ok'
+  const toneDisp =
+    disponibilidade === null
+      ? 'none'
+      : disponibilidade < 90
+        ? 'danger'
+        : disponibilidade < 99
+          ? 'warn'
+          : 'ok'
+  // Jitter: acima de 30ms atrapalha voz/vídeo; acima de 15ms já merece
+  // atenção. Referência da própria área (ITU-T G.114 e prática de VoIP),
+  // não um limite configurável por ponto — o efeito é o mesmo em qualquer
+  // link.
+  const jitter = ultimaValida?.jitterMs ?? null
+  const toneJitter = jitter === null ? 'none' : jitter > 30 ? 'danger' : jitter > 15 ? 'warn' : 'ok'
+
+  const statsLat = statsLatencia(lista)
+
   return (
     <div className={styles.row}>
-      <GaugeChart
+      <MetricStat
+        titulo="Latência"
+        subtitulo={`limite ${t.latenciaMaximaMs} ms`}
         value={latencia}
-        max={maxLatencia}
         unidade="ms"
-        label="Latência atual"
         limite={t.latenciaMaximaMs}
-        stats={statsDe(lista, 'latenciaMs')}
+        escalaTeto={t.latenciaMaximaMs * 2}
         trend={trendDe(lista, 'latenciaMs')}
-        zones={[
-          { ate: t.latenciaMaximaMs, color: 'var(--ok)' },
-          { ate: t.latenciaMaximaMs * 2, color: 'var(--warn)' },
-          { ate: maxLatencia, color: 'var(--danger)' },
-        ]}
+        tone={toneLatencia}
+        rodape={
+          <>
+            <span>p95 {statsLat?.p95 ?? '—'} ms</span>
+            <span>máx {statsLat?.max ?? '—'} ms</span>
+          </>
+        }
       />
-      <GaugeChart
+      {/* Jitter (variação entre pacotes): detecta link degradando antes da
+          latência média subir, e é o que derruba VoIP/vídeo primeiro. */}
+      <MetricStat
+        titulo="Jitter"
+        subtitulo="variação entre pacotes"
+        value={jitter}
+        unidade="ms"
+        limite={15}
+        escalaTeto={30}
+        trend={trendDe(lista, 'jitterMs')}
+        tone={toneJitter}
+        rodape={<span>acima de 30 ms afeta voz e vídeo</span>}
+      />
+      <MetricStat
+        titulo="Perda de pacotes"
+        subtitulo={`limite ${t.packetLossMaximoPct}%`}
         value={perda}
-        max={maxPerda}
         unidade="%"
-        label="Perda de pacotes"
         limite={t.packetLossMaximoPct}
-        stats={statsDe(lista, 'packetLossPct')}
+        escalaTeto={Math.max(t.packetLossMaximoPct * 2, 4)}
         trend={trendDe(lista, 'packetLossPct')}
-        zones={[
-          { ate: t.packetLossMaximoPct, color: 'var(--ok)' },
-          { ate: t.packetLossMaximoPct * 2, color: 'var(--warn)' },
-          { ate: maxPerda, color: 'var(--danger)' },
-        ]}
+        tone={tonePerda}
       />
-      <GaugeChart
+      <MetricStat
+        titulo="Disponibilidade"
+        subtitulo="na janela carregada"
         value={disponibilidade}
-        max={100}
         unidade="%"
-        label="Disponibilidade"
-        stats={agregado ? statsDe(lista, 'disponibilidadePct') : null}
+        escalaTeto={100}
         trend={trendDisponibilidade}
-        // Maior é melhor: as zonas vão de vermelho (baixo) a verde (alto) —
-        // o inverso das duas de cima.
-        zones={[
-          { ate: 90, color: 'var(--danger)' },
-          { ate: 99, color: 'var(--warn)' },
-          { ate: 100, color: 'var(--ok)' },
-        ]}
+        tone={toneDisp}
       />
     </div>
   )

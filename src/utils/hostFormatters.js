@@ -39,22 +39,30 @@ export function fmtPct(v) {
   return `${Math.round(v * 10) / 10}%`
 }
 
-// Escala do velocímetro de latência: sobe junto com o limite configurado do
-// ponto, pra agulha não ficar sempre colada no início. Arredonda pra cima
-// num múltiplo "redondo" (50/100/200...) só pra escala não ficar com
-// números quebrados tipo 137. Compartilhado entre o card de tempo real
-// (LiveGauges) e o painel de infraestrutura, pra um mesmo ponto ter a mesma
-// escala nas duas telas.
-export function escalaLatencia(limite) {
-  const alvo = Math.max((limite ?? 100) * 2, 50)
-  const passos = [50, 100, 200, 300, 500, 1000, 2000]
-  return passos.find((p) => p >= alvo) ?? 2000
+// Percentil de uma série — p95 por padrão. Em monitoramento de rede o
+// percentil diz mais que a média: uma média de 13ms com p95 de 80ms
+// significa picos intermitentes que a média esconde e que o usuário sente
+// (chamada travando, sistema "lento às vezes"). É o número que a operação
+// de rede acompanha, não a média.
+//
+// Usa interpolação linear entre as duas amostras vizinhas (mesmo método
+// "linear" do NumPy/Excel), pra série curta não pular degraus.
+export function percentil(valores, p = 95) {
+  const vals = (valores ?? [])
+    .filter((v) => v !== null && v !== undefined && !Number.isNaN(v))
+    .sort((a, b) => a - b)
+  if (!vals.length) return null
+  if (vals.length === 1) return Math.round(vals[0] * 100) / 100
+  const idx = ((p / 100) * (vals.length - 1))
+  const baixo = Math.floor(idx)
+  const alto = Math.ceil(idx)
+  const valor = baixo === alto ? vals[baixo] : vals[baixo] + (vals[alto] - vals[baixo]) * (idx - baixo)
+  return Math.round(valor * 100) / 100
 }
 
-// mín/méd/máx de uma métrica numa lista de medições — o rodapé de
-// estatística que o Zabbix mostra sob cada gráfico. Ignora null (ausência
-// de medição não é zero).
-export function statsDe(lista, campo) {
+// Estatísticas de latência no formato que a operação de rede usa: além de
+// mín/méd/máx, o p95 (ver percentil acima).
+export function statsLatencia(lista, campo = 'latenciaMs') {
   const vals = (lista ?? [])
     .map((m) => m[campo])
     .filter((v) => v !== null && v !== undefined && !Number.isNaN(v))
@@ -64,6 +72,7 @@ export function statsDe(lista, campo) {
     min: Math.round(Math.min(...vals) * 100) / 100,
     avg: Math.round((soma / vals.length) * 100) / 100,
     max: Math.round(Math.max(...vals) * 100) / 100,
+    p95: percentil(vals, 95),
   }
 }
 

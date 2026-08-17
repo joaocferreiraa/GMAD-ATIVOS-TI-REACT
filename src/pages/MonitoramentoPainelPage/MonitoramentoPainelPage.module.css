@@ -146,11 +146,10 @@
   line-height: 1.45;
 }
 
-.gaugeGrid {
+.statGridPontos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 10px 14px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 12px;
 }
 
 .problemsPanel {

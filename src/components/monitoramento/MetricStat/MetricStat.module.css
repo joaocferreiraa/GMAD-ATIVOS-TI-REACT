@@ -1,0 +1,111 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 16px 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--ok);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--surface-hover), var(--surface));
+  /* `currentColor` na sparkline herda daqui, então a linha acompanha o
+     estado sem precisar passar a cor duas vezes. */
+  color: var(--ok);
+}
+
+.warn {
+  border-left-color: var(--warn);
+  color: var(--warn);
+}
+
+.danger {
+  border-left-color: var(--danger);
+  color: var(--danger);
+  background: linear-gradient(180deg, var(--danger-bg), var(--surface));
+}
+
+.none {
+  border-left-color: var(--text-faint);
+  color: var(--text-faint);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.titulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  /* Nome longo encolhe em vez de empurrar o número pra fora do cartão. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitulo {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.valueBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+/* O número é o elemento dominante: numa TV a 4 metros é ele que se lê,
+   não a posição de uma agulha. */
+.value {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 0.95;
+  color: currentColor;
+  white-space: nowrap;
+}
+
+.unidade {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: currentColor;
+  white-space: nowrap;
+}
+
+.spark {
+  display: block;
+  width: 100%;
+}
+
+.rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
