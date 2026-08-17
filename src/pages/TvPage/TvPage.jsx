@@ -101,7 +101,9 @@ export default function TvPage() {
   // rolagem. Restaura ao sair pra não afetar as outras telas.
   useEffect(() => {
     const anterior = document.body.style.background
-    document.body.style.background = '#0d0f13'
+    // Mesmo --dash-bg do painel (paleta escura do Supabase): sem isso o
+    // body aparece com o tema do site em qualquer rolagem elástica.
+    document.body.style.background = '#171717'
     return () => {
       document.body.style.background = anterior
     }

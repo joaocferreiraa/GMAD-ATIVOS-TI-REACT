@@ -4,15 +4,25 @@
    com o resto da tela. É o padrão de Grafana/Zabbix/Datadog pelo mesmo
    motivo.
 
+   A paleta segue o modo escuro do Supabase: cinzas neutros em degraus
+   (fundo -> painel -> painel elevado) em vez de azulados ou preto
+   absoluto, com verde de acento. Contraste verificado: texto 14.6:1,
+   muted 6.5:1, estados acima de 5.5:1.
+
    Os tokens abaixo sobrescrevem os globais só dentro desta página, então
    os componentes reaproveitados (MetricStat, MultiLineChart) já saem na
    paleta certa sem precisar de variante própria. */
 .tv {
-  --dash-bg: #0a0d12;
-  --dash-panel: #12161d;
-  --dash-panel-2: #171c24;
-  --dash-line: #222833;
-  --dash-line-soft: #1a1f28;
+  /* Paleta do modo escuro do Supabase: cinzas NEUTROS (sem o azul que o
+     #0a0d12 tinha, e sem preto absoluto). O fundo em #171717 com painéis
+     em #1c1c1c cria a separação por degraus de luminância, que é o que
+     dá profundidade sem precisar de borda forte — e evita o "smearing"
+     que preto absoluto provoca em OLED quando o conteúdo muda. */
+  --dash-bg: #171717;
+  --dash-panel: #1c1c1c;
+  --dash-panel-2: #232323;
+  --dash-line: #2e2e2e;
+  --dash-line-soft: #262626;
 
   /* Verde da marca clareado para uso sobre fundo escuro — é a cor de
      "normal" do painel e a que assina a identidade GMAD aqui (o laranja
@@ -23,25 +33,27 @@
   --surface: var(--dash-panel);
   --surface-hover: var(--dash-panel-2);
   --border: var(--dash-line);
-  --border-strong: #2e3644;
-  --text: #eef1f5;
-  --text-muted: #96a0ad;
-  --text-faint: #626c7a;
+  --border-strong: #3e3e3e;
+  /* Escala de texto do Supabase: branco levemente rebaixado no topo e
+     dois níveis de cinza neutro abaixo. */
+  --text: #ededed;
+  --text-muted: #a0a0a0;
+  --text-faint: #707070;
   --ok: var(--gmad-verde-claro);
-  --warn: #ffb02e;
-  --danger: #ff4d55;
-  --ok-bg: #0b2418;
-  --warn-bg: #2b2110;
-  --danger-bg: #2a1114;
+  --warn: #f5a524;
+  --danger: #ff5a5f;
+  /* Fundos de estado bem discretos, no espírito do Supabase: matiz só o
+     suficiente pra distinguir do painel neutro. */
+  --ok-bg: #10231a;
+  --warn-bg: #241c0e;
+  --danger-bg: #241416;
   --brand: var(--gmad-verde-claro);
-  --gauge-track: #1e242e;
+  --gauge-track: #2a2a2a;
 
   min-height: 100vh;
-  background:
-    /* Brilho sutil no topo: dá profundidade e evita o "preto chapado",
-       que numa TV grande parece tela desligada. */
-    radial-gradient(1200px 400px at 50% -180px, rgba(0, 169, 79, 0.1), transparent 70%),
-    var(--dash-bg);
+  /* Fundo chapado, sem brilho: a separação vem dos degraus de cinza
+     entre fundo e painéis, como no Supabase. */
+  background: var(--dash-bg);
   color: var(--text);
   padding: 20px 26px 22px;
   display: flex;
