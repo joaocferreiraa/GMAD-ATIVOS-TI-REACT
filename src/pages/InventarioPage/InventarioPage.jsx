@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useInventario, useInventarioMudancas } from '../../hooks/data/useInventario'
@@ -6,6 +6,7 @@ import { useInventarioData } from './useInventarioData'
 import { useToast } from '../../hooks/useToast'
 import { removeMachine } from '../../services/inventario/inventarioService'
 import { queryKeys } from '../../constants/queryKeys'
+import { diagnosticarParque } from '../../utils/saudeParque'
 import { ROUTES } from '../../constants/routes'
 import Button from '../../components/ui/Button/Button'
 import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
@@ -16,6 +17,7 @@ import InventarioFilters from '../../components/inventario/InventarioFilters/Inv
 import InventarioTable from '../../components/inventario/InventarioTable/InventarioTable'
 import InventarioViewModal from '../../components/inventario/InventarioViewModal/InventarioViewModal'
 import MudancasList from '../../components/inventario/MudancasList/MudancasList'
+import SaudeParque from '../../components/inventario/SaudeParque/SaudeParque'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import styles from './InventarioPage.module.css'
 
@@ -42,12 +44,15 @@ export default function InventarioPage() {
   const { showToast } = useToast()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [aba, setAba] = useState('maquinas')
+  const [aba, setAba] = useState('saude')
   const [viewingUid, setViewingUid] = useState(null)
   const [pendingRemove, setPendingRemove] = useState(null)
 
-  const list = inventario ?? []
+  const list = useMemo(() => inventario ?? [], [inventario])
   const data = useInventarioData(list, filters)
+  // Diagnóstico recalculado só quando o inventário muda — não a cada
+  // tecla nos filtros.
+  const diagnostico = useMemo(() => diagnosticarParque(list), [list])
 
   // Deriva do uid em vez de guardar o objeto: assim a ficha aberta mostra o
   // dado novo quando o Realtime traz uma coleta nova daquela máquina, em
@@ -95,6 +100,14 @@ export default function InventarioPage() {
 
       <Tabs
         items={[
+          {
+            value: 'saude',
+            label: 'Precisa de atenção',
+            // Só crítico e atenção no contador: oportunidades (HDD, sem
+            // acesso remoto) são melhorias, não pendências — inflá-lo com
+            // elas faria o número perder o sentido de urgência.
+            count: diagnostico.porGravidade.critico + diagnostico.porGravidade.atencao || undefined,
+          },
           { value: 'maquinas', label: 'Máquinas', count: list.length },
           {
             value: 'mudancas',
@@ -108,7 +121,9 @@ export default function InventarioPage() {
         onChange={setAba}
       />
 
-      {aba === 'mudancas' ? (
+      {aba === 'saude' ? (
+        <SaudeParque diagnostico={diagnostico} onAbrirMaquina={setViewingUid} />
+      ) : aba === 'mudancas' ? (
         <MudancasList mudancas={mudancas} />
       ) : (
         <>

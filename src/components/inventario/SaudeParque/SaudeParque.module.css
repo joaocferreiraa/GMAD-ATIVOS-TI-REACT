@@ -1,0 +1,96 @@
+.resumo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.resumoItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saudaveis {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Barra vertical colorida: dá para varrer a coluna e achar os críticos sem
+   ler linha por linha. */
+.marcador {
+  flex-shrink: 0;
+  width: 3px;
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--text-muted);
+}
+
+.critico {
+  background: var(--danger);
+}
+
+.atencao {
+  background: var(--warn);
+}
+
+.oportunidade {
+  background: var(--text-muted);
+}
+
+.conteudo {
+  flex: 1;
+  min-width: 0;
+}
+
+.linhaTitulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.detalhe {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* A ação recebe destaque próprio: é a única parte da linha em que alguém
+   precisa agir. */
+.acao {
+  font-size: 12.5px;
+  color: var(--brand);
+  margin-top: 5px;
+}
+
+.maquina {
+  flex-shrink: 0;
+}
