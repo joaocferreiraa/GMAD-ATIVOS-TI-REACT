@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { useInventario, useInventarioMudancas } from '../../hooks/data/useInventario'
+import {
+  useInventario,
+  useInventarioMudancas,
+  useSoftwareDoParque,
+} from '../../hooks/data/useInventario'
 import { useInventarioData } from './useInventarioData'
 import { useToast } from '../../hooks/useToast'
 import { removeMachine } from '../../services/inventario/inventarioService'
 import { queryKeys } from '../../constants/queryKeys'
 import { diagnosticarParque } from '../../utils/saudeParque'
+import { montarCatalogo } from '../../utils/catalogoSoftware'
 import { ROUTES } from '../../constants/routes'
 import Button from '../../components/ui/Button/Button'
 import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
@@ -18,6 +23,7 @@ import InventarioTable from '../../components/inventario/InventarioTable/Inventa
 import InventarioViewModal from '../../components/inventario/InventarioViewModal/InventarioViewModal'
 import MudancasList from '../../components/inventario/MudancasList/MudancasList'
 import SaudeParque from '../../components/inventario/SaudeParque/SaudeParque'
+import CatalogoSoftware from '../../components/inventario/CatalogoSoftware/CatalogoSoftware'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import styles from './InventarioPage.module.css'
 
@@ -45,6 +51,12 @@ export default function InventarioPage() {
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [aba, setAba] = useState('saude')
+
+  // Só busca a lista completa de software quando a aba está aberta: são
+  // ~90 programas por máquina, e carregar isso sempre custaria megabytes
+  // para uma tela que talvez nem seja visitada. Declarado depois de `aba`
+  // porque depende dela.
+  const { data: softwareParque } = useSoftwareDoParque({ enabled: aba === 'software' })
   const [viewingUid, setViewingUid] = useState(null)
   const [pendingRemove, setPendingRemove] = useState(null)
 
@@ -53,6 +65,7 @@ export default function InventarioPage() {
   // Diagnóstico recalculado só quando o inventário muda — não a cada
   // tecla nos filtros.
   const diagnostico = useMemo(() => diagnosticarParque(list), [list])
+  const catalogo = useMemo(() => montarCatalogo(softwareParque ?? []), [softwareParque])
 
   // Deriva do uid em vez de guardar o objeto: assim a ficha aberta mostra o
   // dado novo quando o Realtime traz uma coleta nova daquela máquina, em
@@ -109,6 +122,7 @@ export default function InventarioPage() {
             count: diagnostico.porGravidade.critico + diagnostico.porGravidade.atencao || undefined,
           },
           { value: 'maquinas', label: 'Máquinas', count: list.length },
+          { value: 'software', label: 'Software' },
           {
             value: 'mudancas',
             label: 'O que mudou',
@@ -123,6 +137,8 @@ export default function InventarioPage() {
 
       {aba === 'saude' ? (
         <SaudeParque diagnostico={diagnostico} onAbrirMaquina={setViewingUid} />
+      ) : aba === 'software' ? (
+        <CatalogoSoftware catalogo={catalogo} onAbrirMaquina={setViewingUid} />
       ) : aba === 'mudancas' ? (
         <MudancasList mudancas={mudancas} />
       ) : (

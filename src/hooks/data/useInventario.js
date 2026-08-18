@@ -3,6 +3,7 @@ import {
   getInventory,
   getMachineSoftware,
   getInventoryChanges,
+  getSoftwareDoParque,
 } from '../../services/inventario/inventarioService'
 import { useRealtimeInvalidate } from './useRealtimeInvalidate'
 import { queryKeys } from '../../constants/queryKeys'
@@ -51,6 +52,21 @@ export function useInventarioMudancas({ machineUid = null, limite = 200 } = {}) 
   return useQuery({
     queryKey,
     queryFn: () => getInventoryChanges({ machineUid, limite }),
+    retry: false,
+  })
+}
+
+// Software de todas as máquinas — só para a tela de catálogo, que é a
+// única que precisa da lista completa (ver getSoftwareDoParque).
+export function useSoftwareDoParque({ enabled = true } = {}) {
+  const queryKey = [...queryKeys.inventario, 'software-parque']
+
+  useRealtimeInvalidate(enabled ? 'host_inventory' : null, queryKey, { event: '*' })
+
+  return useQuery({
+    queryKey,
+    queryFn: getSoftwareDoParque,
+    enabled,
     retry: false,
   })
 }

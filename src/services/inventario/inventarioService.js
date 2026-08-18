@@ -149,3 +149,21 @@ export async function getInventoryChanges({ machineUid = null, limite = 200 } = 
   if (error) throw error
   return data.map(rowToChange)
 }
+
+// Software de TODAS as máquinas, para o catálogo do parque.
+//
+// Consulta separada (e não incluída em getInventory) porque só a tela de
+// catálogo precisa: são ~90 programas por máquina, e trazer isso junto da
+// lista faria toda visita à tela de máquinas carregar megabytes de JSON
+// que nem são exibidos.
+export async function getSoftwareDoParque() {
+  const { data, error } = await requireSupabase()
+    .from('host_inventory')
+    .select('machine_uid, hostname, softwares')
+  if (error) throw error
+  return data.map((r) => ({
+    machineUid: r.machine_uid,
+    hostname: r.hostname,
+    softwares: lista(r.softwares),
+  }))
+}
