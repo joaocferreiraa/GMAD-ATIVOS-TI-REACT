@@ -20,6 +20,9 @@ export const queryKeys = {
   // Histórico de mudanças detectadas pelo agente (tabela
   // host_inventory_changes, ver 0010).
   inventarioMudancas: ['inventario', 'mudancas'],
+  // Equipamentos vistos pela varredura de rede (tabela network_devices,
+  // ver 0011) — impressoras, câmeras e afins, que não rodam o agente.
+  dispositivosRede: ['inventario', 'dispositivosRede'],
   chamados: ['chamados'],
   chamadoTimeline: ['chamados', 'timeline'], // + ticketId
 }

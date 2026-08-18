@@ -167,3 +167,37 @@ export async function getSoftwareDoParque() {
     softwares: lista(r.softwares),
   }))
 }
+
+// --- Equipamentos de rede -------------------------------------------------
+// Impressoras, câmeras, switches — tudo que NÃO roda o agente e só é
+// visto de fora, pela varredura (ver agent/descobrir.js e a migration
+// 0011_network_devices.sql).
+
+function rowToDevice(r) {
+  return {
+    ip: r.ip,
+    tipo: r.tipo,
+    nomeDns: r.nome_dns,
+    modelo: r.modelo,
+    identificacaoOrigem: r.identificacao_origem,
+    local: r.local,
+    portas: lista(r.portas),
+    respondePing: r.responde_ping,
+    vistoEm: r.visto_em,
+    criadoEm: r.criado_em,
+  }
+}
+
+export async function getNetworkDevices() {
+  const { data, error } = await requireSupabase()
+    .from('network_devices')
+    .select('*')
+    .order('ip')
+  if (error) throw error
+  return data.map(rowToDevice)
+}
+
+export async function removeNetworkDevice(ip) {
+  const { error } = await requireSupabase().rpc('remover_network_device', { p_ip: ip })
+  if (error) throw error
+}

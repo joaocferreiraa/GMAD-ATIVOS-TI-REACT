@@ -294,3 +294,58 @@ removê-la pela ficha, em **Remover do inventário**.
   (que guarda o ID criptografado, em `enc_id`). Numa versão do RustDesk sem
   suporte a `--get-id`, a máquina aparece como "Sem ID" — instalado, mas sem
   o número.
+
+## 9. Descoberta de equipamentos de rede
+
+O agente de inventário cobre Windows. Impressoras, câmeras, switches e
+nobreaks não rodam agente — quem os enxerga é a **varredura de rede**.
+
+Rode no **mesmo servidor** do agente de rede (`index.js`), não nas
+estações: varredura precisa de um ponto fixo dentro da rede, e disparar
+isso de 60 máquinas ao mesmo tempo é ruído inútil e parece ataque para
+qualquer firewall.
+
+```powershell
+cd C:\gmad-monitor
+
+# verifica os IPs que o painel já conhece (ativos cadastrados + pontos
+# monitorados + equipamentos já descobertos)
+node descobrir.js
+
+# varre uma faixa inteira
+node descobrir.js 172.25.251.0/24
+node descobrir.js 172.25.251.1-120
+
+# mostra o que achou sem gravar
+node descobrir.js --dry-run 172.25.251.0/24
+```
+
+Sem faixa informada, ele confere só o que já está cadastrado — é o modo
+certo para agendar diariamente. Varredura ampla é operação deliberada.
+
+O resultado aparece no painel em **Ativos → Máquinas detectadas →
+Equipamentos de rede**.
+
+### Como cada equipamento é identificado
+
+Não é só SNMP. Medido neste parque, das 5 impressoras cadastradas todas
+respondem ping e porta 9100, mas **só uma tem SNMP habilitado** — apostar
+em SNMP daria 20% de cobertura. A identificação combina:
+
+| Sinal | O que revela |
+|---|---|
+| Portas abertas | 9100/631/515 = impressora; 22/23 = equipamento de rede |
+| Título e cabeçalho HTTP | modelo ("HP LaserJet M402dne") e, às vezes, o número de série |
+| Assinatura do HTML | famílias cuja página tem título vazio (câmeras Intelbras/Dahua, Hikvision) |
+| SNMP (quando aberto) | descrição, nome e local configurados |
+| DNS reverso | nome do equipamento na rede |
+
+Numa varredura de 120 endereços deste parque: **40 equipamentos em 19
+segundos, 39 identificados** (27 câmeras, 12 impressoras).
+
+### SNMP opcional
+
+Se o `snmpget` estiver instalado no servidor (pacote `net-snmp`), a
+varredura também lê descrição, nome e local via SNMP. Sem ele, tudo
+continua funcionando pelos outros sinais — só não há esses três campos.
+A comunidade padrão é `public`; ajuste com `SNMP_COMUNIDADE` no `.env`.

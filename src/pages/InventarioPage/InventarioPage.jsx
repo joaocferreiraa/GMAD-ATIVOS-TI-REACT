@@ -5,6 +5,7 @@ import {
   useInventario,
   useInventarioMudancas,
   useSoftwareDoParque,
+  useNetworkDevices,
 } from '../../hooks/data/useInventario'
 import { useInventarioData } from './useInventarioData'
 import { useToast } from '../../hooks/useToast'
@@ -12,6 +13,7 @@ import { removeMachine } from '../../services/inventario/inventarioService'
 import { queryKeys } from '../../constants/queryKeys'
 import { diagnosticarParque } from '../../utils/saudeParque'
 import { montarCatalogo } from '../../utils/catalogoSoftware'
+import { useAssets } from '../../hooks/data/useAssets'
 import { ROUTES } from '../../constants/routes'
 import Button from '../../components/ui/Button/Button'
 import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
@@ -24,6 +26,7 @@ import InventarioViewModal from '../../components/inventario/InventarioViewModal
 import MudancasList from '../../components/inventario/MudancasList/MudancasList'
 import SaudeParque from '../../components/inventario/SaudeParque/SaudeParque'
 import CatalogoSoftware from '../../components/inventario/CatalogoSoftware/CatalogoSoftware'
+import DispositivosRede from '../../components/inventario/DispositivosRede/DispositivosRede'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import styles from './InventarioPage.module.css'
 
@@ -57,6 +60,8 @@ export default function InventarioPage() {
   // para uma tela que talvez nem seja visitada. Declarado depois de `aba`
   // porque depende dela.
   const { data: softwareParque } = useSoftwareDoParque({ enabled: aba === 'software' })
+  const { data: dispositivos } = useNetworkDevices()
+  const { data: ativos } = useAssets()
   const [viewingUid, setViewingUid] = useState(null)
   const [pendingRemove, setPendingRemove] = useState(null)
 
@@ -66,6 +71,13 @@ export default function InventarioPage() {
   // tecla nos filtros.
   const diagnostico = useMemo(() => diagnosticarParque(list), [list])
   const catalogo = useMemo(() => montarCatalogo(softwareParque ?? []), [softwareParque])
+  // Índice IP -> ativo, para a lista de equipamentos mostrar quais já têm
+  // ficha cadastrada.
+  const ativosPorIp = useMemo(() => {
+    const mapa = new Map()
+    for (const a of ativos ?? []) if (a?.ip) mapa.set(String(a.ip).trim(), a)
+    return mapa
+  }, [ativos])
 
   // Deriva do uid em vez de guardar o objeto: assim a ficha aberta mostra o
   // dado novo quando o Realtime traz uma coleta nova daquela máquina, em
@@ -124,6 +136,11 @@ export default function InventarioPage() {
           { value: 'maquinas', label: 'Máquinas', count: list.length },
           { value: 'software', label: 'Software' },
           {
+            value: 'rede',
+            label: 'Equipamentos de rede',
+            count: dispositivos?.length || undefined,
+          },
+          {
             value: 'mudancas',
             label: 'O que mudou',
             // Só o que pede ação no contador: o total incluiria cada
@@ -139,6 +156,8 @@ export default function InventarioPage() {
         <SaudeParque diagnostico={diagnostico} onAbrirMaquina={setViewingUid} />
       ) : aba === 'software' ? (
         <CatalogoSoftware catalogo={catalogo} onAbrirMaquina={setViewingUid} />
+      ) : aba === 'rede' ? (
+        <DispositivosRede dispositivos={dispositivos} ativosPorIp={ativosPorIp} />
       ) : aba === 'mudancas' ? (
         <MudancasList mudancas={mudancas} />
       ) : (

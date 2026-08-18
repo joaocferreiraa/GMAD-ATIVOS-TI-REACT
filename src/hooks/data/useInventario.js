@@ -4,6 +4,7 @@ import {
   getMachineSoftware,
   getInventoryChanges,
   getSoftwareDoParque,
+  getNetworkDevices,
 } from '../../services/inventario/inventarioService'
 import { useRealtimeInvalidate } from './useRealtimeInvalidate'
 import { queryKeys } from '../../constants/queryKeys'
@@ -67,6 +68,18 @@ export function useSoftwareDoParque({ enabled = true } = {}) {
     queryKey,
     queryFn: getSoftwareDoParque,
     enabled,
+    retry: false,
+  })
+}
+
+// Equipamentos de rede descobertos pela varredura (impressoras, câmeras,
+// switches). Atualiza sozinho quando uma varredura grava resultados.
+export function useNetworkDevices() {
+  useRealtimeInvalidate('network_devices', queryKeys.dispositivosRede, { event: '*' })
+
+  return useQuery({
+    queryKey: queryKeys.dispositivosRede,
+    queryFn: getNetworkDevices,
     retry: false,
   })
 }

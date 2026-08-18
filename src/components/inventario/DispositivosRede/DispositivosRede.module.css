@@ -1,0 +1,96 @@
+.resumo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.resumo span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.identificacao {
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+}
+
+.ip {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.tipo {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.detalhe {
+  flex: 1;
+  min-width: 200px;
+}
+
+.modelo {
+  font-size: 13px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+/* Ausência de dado é informação: a varredura vê o equipamento de fora, e
+   nem todo aparelho se identifica. Marcar isso é mais honesto que deixar
+   a linha em branco. */
+.semDado {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.link {
+  font-size: 12.5px;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
