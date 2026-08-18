@@ -4,6 +4,9 @@ export const ROUTES = {
   dashboard: '/',
   ativos: '/ativos',
   estoque: '/estoque',
+  // Inventário coletado pelo agente (specs das máquinas) — distinto de
+  // `ativos`, que é o cadastro administrativo preenchido por pessoas.
+  inventarioMaquinas: '/inventario-maquinas',
   contatos: '/contatos',
   instaladores: '/instaladores',
   scripts: '/scripts',

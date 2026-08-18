@@ -16,6 +16,21 @@ dist-ssr
 # só agent/.env.example (sem valores reais) vai pro git.
 agent/.env
 
+# Artefatos gerados pelo build do MSI (agent/msi/build.ps1). O .msi em si
+# fica em agent/msi/dist/, já coberto pela regra `dist` acima — e não deve
+# ser commitado NUNCA: o pacote leva o .env com as credenciais embutido.
+agent/msi/*.g.wxs
+agent/msi/*.g.xml
+
+# Instalador do Node.js baixado pelo build-exe.ps1 para embutir no .exe
+# (~29 MB). Rebaixado sob demanda e verificado por SHA256 a cada build —
+# não faz sentido versionar binário de terceiro.
+agent/msi/redist/
+
+# Pasta de trabalho do build do .exe: guarda o .msi intermediário que é
+# embutido no instalador. Também carrega credenciais — nunca commitar.
+agent/msi/obj/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

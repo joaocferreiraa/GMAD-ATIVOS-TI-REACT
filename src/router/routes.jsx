@@ -18,6 +18,7 @@ import RouteErrorBoundary from './RouteErrorBoundary'
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const AtivosPage = lazy(() => import('../pages/AtivosPage'))
 const EstoquePage = lazy(() => import('../pages/EstoquePage'))
+const InventarioPage = lazy(() => import('../pages/InventarioPage'))
 const ContatosPage = lazy(() => import('../pages/ContatosPage'))
 const InstaladoresPage = lazy(() => import('../pages/InstaladoresPage'))
 const ScriptsPage = lazy(() => import('../pages/ScriptsPage'))
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
               { path: ROUTES.dashboard, element: lazyPage(DashboardPage) },
               { path: ROUTES.ativos, element: lazyPage(AtivosPage) },
               { path: ROUTES.estoque, element: lazyPage(EstoquePage) },
+              { path: ROUTES.inventarioMaquinas, element: lazyPage(InventarioPage) },
               { path: ROUTES.contatos, element: lazyPage(ContatosPage) },
               { path: ROUTES.instaladores, element: lazyPage(InstaladoresPage) },
               { path: ROUTES.scripts, element: lazyPage(ScriptsPage) },

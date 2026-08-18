@@ -13,15 +13,25 @@ const VARIANT_CLASS = {
 // Botão genérico reutilizável (.btn do sistema original). `variant` cobre as
 // mesmas variações visuais (primary/brand/ghost/dangerGhost/danger); `size="sm"`
 // reduz padding/fonte igual a .btn-sm.
+//
+// `as="a"` renderiza um link com a aparência de botão — para quando a ação é
+// NAVEGAR (abrir um endereço, disparar um esquema de URL como
+// `rustdesk://`), não executar código. Um <button> com onClick que faz
+// `location.href` quebraria abrir em nova aba, o menu de contexto e a
+// leitura por leitores de tela, que anunciam link e botão de formas
+// diferentes. `type` só é emitido no <button>: em <a> não existe e o React
+// avisaria no console.
 const Button = forwardRef(function Button(
-  { variant = 'default', size, className = '', type = 'button', ...props },
+  { as: Tag = 'button', variant = 'default', size, className = '', type = 'button', ...props },
   ref,
 ) {
   const classes = [styles.btn, VARIANT_CLASS[variant], size === 'sm' ? styles.sm : '', className]
     .filter(Boolean)
     .join(' ')
 
-  return <button ref={ref} type={type} className={classes} {...props} />
+  const extra = Tag === 'button' ? { type } : {}
+
+  return <Tag ref={ref} className={classes} {...extra} {...props} />
 })
 
 export default Button

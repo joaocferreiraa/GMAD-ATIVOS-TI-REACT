@@ -1,0 +1,112 @@
+/* Reaproveita o núcleo das fichas somente-leitura (ver
+   src/styles/viewPanel.module.css) — mesmo padrão de AssetPanel/
+   StockPanel: composes em vez de copiar as regras. */
+
+.viewHeaderRow {
+  composes: viewHeaderRowBase from '../../styles/viewPanel.module.css';
+  padding-right: 40px;
+}
+
+.viewHeadTitle {
+  composes: viewHeadTitle from '../../styles/viewPanel.module.css';
+}
+
+.viewHeadSub {
+  composes: viewHeadSub from '../../styles/viewPanel.module.css';
+}
+
+.viewHeadBadge {
+  composes: viewHeadBadge from '../../styles/viewPanel.module.css';
+}
+
+/* Não existe no núcleo compartilhado (mesma situação do StockPanel) — as
+   fichas que precisam declaram localmente. */
+.viewHeadMeta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.viewSection {
+  composes: viewSection from '../../styles/viewPanel.module.css';
+}
+
+.viewSectionTitle {
+  composes: viewSectionTitle from '../../styles/viewPanel.module.css';
+}
+
+.viewRows {
+  composes: viewRows from '../../styles/viewPanel.module.css';
+}
+
+/* Tabela interna da ficha (pentes de RAM, discos, adaptadores) — listas de
+   tamanho variável que não cabem no formato label/valor do ViewRow. */
+.subTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.subTable th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.subTable td {
+  padding: 7px 10px 7px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.subTable tr:last-child td {
+  border-bottom: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Lista de softwares: pode passar de cem itens numa máquina, então rola
+   dentro da própria seção em vez de esticar o modal. */
+.softwareList {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+}
+
+.softwareSearch {
+  margin-bottom: 10px;
+}
+
+.emptyNote {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+/* Aviso de máquina que parou de reportar — o único estado da ficha que
+   pede ação do TI. */
+.staleNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.footerActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}

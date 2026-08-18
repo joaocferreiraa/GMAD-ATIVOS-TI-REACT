@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pacote MSI do Agente de Inventário da GMAD.
+
+  POR QUE UM MSI (e não só o instalar-inventario.ps1):
+  - Deploy por GPO "Instalação de Software", que só aceita MSI — as
+    máquinas instalam sozinhas ao entrar na OU, sem script de logon.
+  - Desinstalação pelo Painel de Controle / Intune / winget, com remoção
+    da tarefa agendada e dos arquivos.
+  - Atualização por versão: instalar um MSI mais novo substitui o antigo
+    no lugar (MajorUpgrade), em vez de acumular instalações paralelas.
+  - Inventariável: aparece em "Programas instalados", então o PRÓPRIO
+    agente reporta em quais máquinas ele está instalado e em que versão.
+
+  COMO COMPILAR: rode agent/msi/build.ps1. Ver agent/msi/README.md.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <!--
+    UpgradeCode NUNCA muda entre versões: é ele que faz o Windows
+    reconhecer que a versão nova substitui a antiga. Trocá-lo faria as
+    versões conviverem lado a lado, cada uma com sua tarefa agendada,
+    coletando em duplicidade.
+    Version vem do build.ps1 (-Versao), que lê do package.json do agente.
+  -->
+  <Package
+      Name="GMAD - Agente de Inventário de TI"
+      Manufacturer="GMAD Madville"
+      Version="$(var.Versao)"
+      UpgradeCode="8f3a6c2e-5d47-4b19-9e6a-1c4f7b8d2a05"
+      Scope="perMachine"
+      Compressed="yes"
+      Language="1046">
+
+    <!-- 1046 = português do Brasil: as mensagens do instalador e o texto
+         em "Programas e Recursos" saem em português. -->
+
+    <SummaryInformation
+        Description="Coleta o inventário de hardware e software desta máquina para o Painel de TI da GMAD."
+        Manufacturer="GMAD Madville" />
+
+    <!--
+      AllowSameVersionUpgrades: durante o desenvolvimento é comum
+      recompilar a MESMA versão depois de um ajuste. Sem isso, reinstalar
+      1.1.0 sobre 1.1.0 é bloqueado e obriga a desinstalar antes.
+      Schedule afterInstallExecute: os arquivos novos entram ANTES de a
+      versão antiga ser removida, então a desinstalação da antiga não leva
+      junto arquivo que as duas versões compartilham.
+    -->
+    <MajorUpgrade
+        AllowSameVersionUpgrades="yes"
+        Schedule="afterInstallExecute"
+        DowngradeErrorMessage="Já existe uma versão MAIS RECENTE do Agente de Inventário da GMAD nesta máquina. Desinstale-a antes de instalar esta versão." />
+
+    <!-- Um único .cab embutido no MSI: um arquivo só pra copiar pro
+         compartilhamento de deploy, sem pasta de dependências ao lado. -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <!--
+      PRÉ-REQUISITO: Node.js 18+.
+      Não embutimos o runtime (são ~90 MB por máquina, e distribuir runtime
+      é trabalho do pacote de software da empresa). Aqui apenas
+      verificamos: sem Node, o MSI para com uma mensagem que diz o que
+      fazer, em vez de instalar uma tarefa que falharia silenciosamente
+      todo dia.
+    -->
+    <Property Id="NODEEXE">
+      <!--
+        Registro primeiro: a instalação oficial do Node grava InstallPath
+        aqui, e é consultável mesmo quando o PATH do SYSTEM ainda não
+        refletiu a instalação.
+
+        Type="raw" (não "directory" com DirectorySearch aninhado): o
+        DirectorySearch exige um caminho literal em @Path e não aceita "."
+        para dizer "a pasta que a busca de registro achou" — a validação
+        ICE03 reprova. Aqui só nos interessa saber se a chave existe; a
+        localização real do node.exe é resolvida em tempo de execução pelo
+        executar-inventario.cmd, que cobre também nvm e instalação por zip.
+      -->
+      <RegistrySearch Id="NodeRegistrySearch"
+                      Root="HKLM"
+                      Key="SOFTWARE\Node.js"
+                      Name="InstallPath"
+                      Type="raw" />
+    </Property>
+
+    <!-- Fallback: caminho padrão da instalação x64, para o caso de a
+         chave de registro não existir (instalação via zip/nvm). -->
+    <Property Id="NODEEXEFALLBACK">
+      <DirectorySearch Id="NodeProgramFilesDir" Path="[ProgramFiles64Folder]nodejs">
+        <FileSearch Id="NodeExeInProgramFiles" Name="node.exe" />
+      </DirectorySearch>
+    </Property>
+
+    <Launch
+        Condition="Installed OR NODEEXE OR NODEEXEFALLBACK"
+        Message="O Node.js não foi encontrado nesta máquina. Instale o Node.js 18 ou superior (https://nodejs.org) e execute este instalador novamente." />
+
+    <!-- Windows apenas: a coleta usa CIM/WMI. -->
+    <Launch
+        Condition="VersionNT >= 603"
+        Message="Este agente requer Windows 8.1 / Windows Server 2012 R2 ou superior." />
+
+    <Feature Id="Main" Title="Agente de Inventário" Level="1">
+      <ComponentGroupRef Id="ArquivosDoAgente" />
+      <ComponentGroupRef Id="DependenciasNode" />
+      <ComponentRef Id="CompConfiguracao" />
+      <ComponentRef Id="CompTarefaAgendada" />
+    </Feature>
+
+    <!-- Ícone e link de suporte em "Programas e Recursos". -->
+    <Property Id="ARPPRODUCTICON" Value="IconeApp" />
+    <Property Id="ARPNOREPAIR" Value="1" />
+    <Icon Id="IconeApp" SourceFile="$(var.IconeArquivo)" />
+
+  </Package>
+
+  <Fragment>
+    <!--
+      ProgramData (não Program Files): o agente grava o próprio .env e o
+      log de execução ali. Program Files é somente-leitura para processos
+      sem elevação, o que quebraria a gravação de log da tarefa.
+    -->
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="DirGmad" Name="GMAD">
+        <Directory Id="INSTALLFOLDER" Name="inventario">
+          <Directory Id="DirNodeModules" Name="node_modules" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <!--
+      Arquivos do agente. Só os do INVENTÁRIO: index.js/hostMetrics.js são
+      do agente de REDE, que roda num servidor só e não tem o que fazer
+      numa estação de trabalho.
+    -->
+    <ComponentGroup Id="ArquivosDoAgente" Directory="INSTALLFOLDER">
+      <Component Id="CompInventarioJs" Guid="*">
+        <File Id="FileInventarioJs" Source="$(var.PastaAgente)\inventario.js" KeyPath="yes" />
+      </Component>
+      <Component Id="CompInventoryJs" Guid="*">
+        <File Id="FileInventoryJs" Source="$(var.PastaAgente)\inventory.js" KeyPath="yes" />
+      </Component>
+      <Component Id="CompPackageJson" Guid="*">
+        <File Id="FilePackageJson" Source="$(var.PastaAgente)\package.json" KeyPath="yes" />
+      </Component>
+
+      <!-- Wrapper que a tarefa agendada executa: descobre o node.exe na
+           própria máquina e escreve o log da coleta. Ver
+           executar-inventario.cmd. -->
+      <Component Id="CompWrapperCmd" Guid="*">
+        <File Id="FileWrapperCmd" Source="$(var.PastaMsi)\executar-inventario.cmd" KeyPath="yes" />
+      </Component>
+
+      <!--
+        Pasta de instalação removida na desinstalação. Necessário porque o
+        agente pode criar arquivos que o MSI não conhece (log da tarefa),
+        e o Windows não remove diretório com conteúdo desconhecido.
+      -->
+      <Component Id="CompLimpezaPasta" Guid="c4e81d6a-9b25-4f38-a7c1-6e05d3b94218">
+        <RegistryValue Root="HKLM"
+                       Key="SOFTWARE\GMAD\InventarioTI"
+                       Name="InstallFolder"
+                       Type="string"
+                       Value="[INSTALLFOLDER]"
+                       KeyPath="yes" />
+        <util:RemoveFolderEx On="uninstall" Property="INSTALLFOLDER" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <!--
+      O arquivo .env com as credenciais.
+
+      NÃO vai como <File> comum: a ACL restrita (só SYSTEM e
+      Administradores) é o que impede o usuário da estação de ler a senha
+      da conta do agente. Com PermissionEx do WiX, a permissão é aplicada
+      pelo próprio instalador, de forma idempotente, e não depende de um
+      script pós-instalação ter rodado.
+
+      Never overwrite: numa REINSTALAÇÃO/atualização, o .env da máquina é
+      preservado — quem já ajustou algo localmente não perde a
+      configuração ao atualizar a versão do agente.
+    -->
+    <Component Id="CompConfiguracao" Directory="INSTALLFOLDER" Guid="a71f2b84-3c69-4d05-8e17-5b920fa6c34d" NeverOverwrite="yes">
+      <File Id="FileEnv" Source="$(var.ArquivoEnv)" Name=".env" KeyPath="yes">
+        <!-- Herança cortada: sem isso, as permissões amplas do ProgramData
+             (usuários leem tudo) continuariam valendo sobre o arquivo. -->
+        <util:PermissionEx User="SYSTEM" GenericAll="yes" Inheritable="no" />
+        <util:PermissionEx User="Administrators" GenericAll="yes" Inheritable="no" />
+      </File>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <!--
+      A tarefa agendada é criada importando um XML pronto (schtasks /XML)
+      em vez de montada por parâmetros de linha de comando: dois gatilhos
+      (logon + diário) e execução como SYSTEM não cabem bem em
+      `schtasks /Create` com flags, e o XML fica legível/versionado.
+
+      Impersonate=no + Execute deferred: precisa rodar elevado, no
+      contexto do instalador, não do usuário que clicou.
+      Return=check na criação (falhou = instalação falhou, em vez de
+      instalar um agente que nunca coleta); Return=ignore na remoção
+      (tarefa já apagada à mão não deve travar a desinstalação).
+    -->
+    <Component Id="CompTarefaAgendada" Directory="INSTALLFOLDER" Guid="5d9c07b3-8e41-4a26-b0f9-2c73e58d1a6f">
+      <File Id="FileTarefaXml" Source="$(var.ArquivoTarefa)" Name="tarefa-inventario.xml" KeyPath="yes" />
+    </Component>
+
+    <SetProperty Id="CriarTarefa"
+                 Value="&quot;[System64Folder]schtasks.exe&quot; /Create /TN &quot;GMAD - Inventario de TI&quot; /XML &quot;[INSTALLFOLDER]tarefa-inventario.xml&quot; /F"
+                 Before="CriarTarefa"
+                 Sequence="execute" />
+
+    <SetProperty Id="RemoverTarefa"
+                 Value="&quot;[System64Folder]schtasks.exe&quot; /Delete /TN &quot;GMAD - Inventario de TI&quot; /F"
+                 Before="RemoverTarefa"
+                 Sequence="execute" />
+
+    <SetProperty Id="ColetaInicial"
+                 Value="&quot;[System64Folder]schtasks.exe&quot; /Run /TN &quot;GMAD - Inventario de TI&quot;"
+                 Before="ColetaInicial"
+                 Sequence="execute" />
+
+    <CustomAction Id="CriarTarefa" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec64"
+                  Execute="deferred" Return="check" Impersonate="no" />
+
+    <CustomAction Id="RemoverTarefa" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec64"
+                  Execute="deferred" Return="ignore" Impersonate="no" />
+
+    <!-- Primeira coleta logo após instalar, pra máquina já aparecer no
+         painel em vez de esperar o próximo logon. Return=ignore: se
+         falhar (rede fora no momento da instalação), a instalação
+         continua válida — a tarefa agendada tentará de novo. -->
+    <CustomAction Id="ColetaInicial" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec64"
+                  Execute="deferred" Return="ignore" Impersonate="no" />
+
+    <InstallExecuteSequence>
+      <!--
+        Na instalação/atualização não removemos a tarefa antes: o
+        `schtasks /Create` usa /F, que já sobrescreve uma tarefa existente
+        de forma atômica. Remover antes abriria uma janela em que a máquina
+        fica sem tarefa nenhuma se a criação falhasse no meio.
+      -->
+      <Custom Action="CriarTarefa" After="InstallFiles" Condition="NOT REMOVE" />
+      <Custom Action="ColetaInicial" After="CriarTarefa" Condition="NOT REMOVE" />
+      <!-- Só na desinstalação de verdade. REMOVE="ALL" exclui o
+           passo de remoção que faz parte de uma ATUALIZAÇÃO, que não deve
+           apagar a tarefa recém-criada pela versão nova. -->
+      <Custom Action="RemoverTarefa" After="InstallInitialize" Condition="REMOVE=&quot;ALL&quot;" />
+    </InstallExecuteSequence>
+  </Fragment>
+
+</Wix>

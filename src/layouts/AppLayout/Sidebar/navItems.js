@@ -52,6 +52,7 @@ export const NAV_ITEMS = [
     items: [
       { to: ROUTES.ativos, label: 'Ativos cadastrados', icon: AssetsIcon },
       { to: ROUTES.estoque, label: 'Estoque', icon: StockIcon },
+      { to: ROUTES.inventarioMaquinas, label: 'Máquinas (agente)', icon: ServerIcon },
     ],
   },
   {

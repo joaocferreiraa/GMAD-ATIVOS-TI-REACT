@@ -14,6 +14,9 @@ export const queryKeys = {
   medicoes: ['monitoramento', 'medicoes'],
   alertas: ['monitoramento', 'alertas'],
   hostMetrics: ['monitoramento', 'hostMetrics'],
+  // Inventário das máquinas do parque (tabela host_inventory) — cadastro,
+  // não série temporal, ver 0008_host_inventory.sql.
+  inventario: ['inventario'],
   chamados: ['chamados'],
   chamadoTimeline: ['chamados', 'timeline'], // + ticketId
 }

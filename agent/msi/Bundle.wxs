@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Bundle (.exe) do Agente de Inventário da GMAD — o "instalador completo".
+
+  O QUE ELE FAZ A MAIS QUE O MSI:
+  1. instala o Node.js antes do agente, quando a máquina não tem. O MSI
+     sozinho apenas VERIFICA o pré-requisito e para com uma mensagem; aqui o
+     pré-requisito é resolvido, o que torna a instalação viável em máquina
+     recém-formatada sem preparo manual;
+  2. instala o RustDesk, para o acesso remoto do painel funcionar de
+     imediato (pode ser pulado com INSTALARRUSTDESK=0).
+
+  Os três instaladores ficam EMBUTIDOS no .exe (Compressed="yes"), então a
+  estação não precisa de acesso à internet nem ao compartilhamento durante a
+  instalação — importante para GPO, onde a ordem de disponibilidade da rede
+  não é garantida.
+
+  COMO COMPILAR: rode build-exe.ps1 nesta pasta.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+  <!--
+    UpgradeCode PRÓPRIO, diferente do UpgradeCode do MSI: são dois produtos
+    distintos aos olhos do Windows (o bundle e o pacote que ele carrega).
+    Reaproveitar o mesmo faria o bundle tentar "atualizar" o MSI que ele
+    mesmo instala.
+  -->
+  <Bundle
+      Name="GMAD - Agente de Inventário de TI"
+      Manufacturer="GMAD Madville"
+      Version="$(var.Versao)"
+      UpgradeCode="3b7e94d1-6a28-4c53-8f01-9d62ae475c38"
+      IconSourceFile="$(var.IconeArquivo)"
+      Compressed="yes"
+      DisableModify="yes">
+
+    <!--
+      Interface: bal:WixStandardBootstrapperApplication no tema
+      "hyperlinkLicense", sem licença exibida (SuppressOptionsUI + nenhum
+      LicenseUrl) — é software interno, não há EULA para aceitar, e uma tela
+      de licença vazia só adicionaria um clique.
+
+      Mesmo com interface definida, o uso normal em escala é silencioso
+      (/quiet), onde nada disso aparece. A UI existe para a instalação
+      manual numa máquina avulsa e para as mensagens de erro.
+    -->
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+          Theme="hyperlinkLicense"
+          LicenseUrl=""
+          SuppressOptionsUI="yes"
+          LogoFile="$(var.IconeArquivo)" />
+    </BootstrapperApplication>
+
+    <!--
+      Windows 8.1 / Server 2012 R2 ou superior. A checagem também existe
+      dentro do MSI; repetida aqui para o bundle falhar CEDO, com mensagem
+      legível, em vez de só na hora de aplicar o pacote.
+    -->
+    <bal:Condition
+        Condition="VersionNT &gt;= v6.3"
+        Message="Este agente requer Windows 8.1 / Windows Server 2012 R2 ou superior." />
+
+    <!--
+      Detecção do Node.js já instalado.
+
+      util:ProductSearch por UpgradeCode (não busca de registro por caminho
+      fixo): é a API que o próprio Windows Installer usa para achar um
+      produto, então funciona independente da VERSÃO instalada e da chave de
+      desinstalação em que ela caiu. O UpgradeCode abaixo é o do MSI oficial
+      do Node.js (extraído do próprio pacote) e é estável entre versões —
+      é justamente o identificador que faz o Node 24 reconhecer que
+      substitui o 22.
+
+      Result="version" devolve a versão encontrada, que é o que permite
+      distinguir "não tem Node" de "tem, mas antigo demais".
+    -->
+    <util:ProductSearch xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+        Id="BuscaNodeVersao"
+        UpgradeCode="{47C07A3A-42EF-4213-A85D-8F5A59077C28}"
+        Result="version"
+        Variable="NodeVersaoInstalada" />
+
+    <!--
+      Detecção do RustDesk, pelo mesmo mecanismo (UpgradeCode do MSI oficial
+      da Purslane Tech, extraído do próprio pacote).
+    -->
+    <util:ProductSearch xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+        Id="BuscaRustDeskVersao"
+        UpgradeCode="{D3DC41E3-3C37-5D52-BB47-F6673705C01B}"
+        Result="version"
+        Variable="RustDeskVersaoInstalada" />
+
+    <!--
+      INSTALARRUSTDESK: liga/desliga a instalação do RustDesk.
+
+      Padrão 1 (instala). Para pular numa máquina específica:
+        instalador.exe /quiet INSTALARRUSTDESK=0
+
+      Existe como propriedade (e não como decisão fixa em tempo de
+      compilação) para não precisar de dois instaladores diferentes: o
+      servidor que só quer o agente e a estação que quer os dois usam o
+      MESMO arquivo, com um parâmetro de diferença.
+    -->
+    <Variable Name="INSTALARRUSTDESK" Value="1" bal:Overridable="yes" Type="numeric" />
+
+    <Chain>
+      <!--
+        Node.js LTS.
+
+        InstallCondition (não DetectCondition, que MsiPackage não aceita —
+        um MSI já se detecta pelo próprio ProductCode): só instala quando o
+        Node está ausente OU é mais antigo que o mínimo. Numa máquina que já
+        tem Node 20 ou 24 (comum em quem usa ferramentas de
+        desenvolvimento), o pacote é PULADO — não rebaixamos nem
+        reinstalamos por cima do que já funciona.
+
+        A variável NodeVersaoInstalada vem do util:ProductSearch acima.
+
+        Permanent="yes": desinstalar o agente NÃO remove o Node. Outras
+        coisas na máquina podem depender dele, e um desinstalador que leva
+        junto um runtime compartilhado é um jeito clássico de quebrar o
+        ambiente de alguém.
+
+        Vital="yes": sem Node o agente não roda, então falha aqui aborta a
+        instalação inteira (com rollback), em vez de deixar um agente
+        instalado que nunca coleta.
+
+        /qn no InstallArguments: o instalador do Node abriria a própria
+        interface, o que travaria uma instalação por GPO esperando clique.
+      -->
+      <MsiPackage
+          Id="NodeJs"
+          SourceFile="$(var.NodeMsi)"
+          DisplayName="Node.js 22 LTS (necessário para o agente)"
+          Compressed="yes"
+          Permanent="yes"
+          Vital="yes"
+          InstallCondition="NOT NodeVersaoInstalada OR (NodeVersaoInstalada &lt; v18.0.0)" />
+
+      <!--
+        RustDesk — acesso remoto às máquinas do parque.
+
+        ANTES do agente, de propósito: a primeira coleta roda logo depois da
+        instalação, e nessa ordem ela já encontra o RustDesk instalado e
+        reporta o ID. Instalando depois, a máquina apareceria no painel como
+        "sem acesso remoto" até a coleta do dia seguinte.
+
+        Permanent="yes": desinstalar o agente NÃO remove o RustDesk. Ele é
+        ferramenta de acesso independente — pode haver uma sessão de suporte
+        em andamento no exato momento em que alguém desinstala o agente, e
+        derrubá-la seria péssimo. Removê-lo é decisão separada.
+
+        Vital="no": diferente do Node, o agente FUNCIONA sem RustDesk — só
+        não terá acesso remoto. Falha aqui (rede oscilando, antivírus
+        bloqueando) não deve abortar a instalação do inventário inteiro.
+
+        InstallCondition: respeita INSTALARRUSTDESK e pula se já houver
+        versão igual ou mais nova, para não reinstalar por cima do que já
+        funciona.
+      -->
+      <?if $(var.ComRustDesk) = "1" ?>
+      <MsiPackage
+          Id="RustDesk"
+          SourceFile="$(var.RustDeskMsi)"
+          DisplayName="RustDesk (acesso remoto)"
+          Compressed="yes"
+          Permanent="yes"
+          Vital="no"
+          InstallCondition="INSTALARRUSTDESK = 1 AND (NOT RustDeskVersaoInstalada OR (RustDeskVersaoInstalada &lt; v$(var.RustDeskVersao)))" />
+      <?endif?>
+
+      <!--
+        O agente. Vital por definição — é o produto.
+        Compressed: embutido no .exe, sem arquivo separado ao lado.
+      -->
+      <MsiPackage
+          Id="AgenteInventario"
+          SourceFile="$(var.MsiAgente)"
+          DisplayName="Agente de Inventário de TI"
+          Compressed="yes"
+          Vital="yes" />
+    </Chain>
+
+  </Bundle>
+</Wix>

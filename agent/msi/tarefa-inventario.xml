@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<!--
+  Definição da tarefa agendada que roda o agente de inventário.
+  Importada pelo MSI com `schtasks /Create /XML` (ver Package.wxs).
+
+  {INSTALL_DIR} é substituído pelo build.ps1 no momento de compilar o MSI:
+  o Agendador de Tarefas não expande variáveis de ambiente no campo
+  Command, então o caminho precisa ser absoluto.
+
+  A tarefa chama o executar-inventario.cmd, não o node.exe diretamente. O
+  caminho do Node varia por máquina (Program Files, nvm, zip) e fixá-lo
+  aqui daria uma tarefa quebrada onde ele estivesse em outro lugar — o
+  wrapper descobre o Node na hora da execução. Ver executar-inventario.cmd.
+-->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Coleta o inventário de hardware e software desta máquina e envia ao Painel de TI da GMAD.</Description>
+    <URI>\GMAD - Inventario de TI</URI>
+  </RegistrationInfo>
+  <Triggers>
+    <!--
+      Dois gatilhos complementares:
+      - Logon: pega a máquina assim que alguém começa a usar, o que mantém
+        "usuário logado" atualizado no painel.
+      - Diário: cobre a máquina que fica ligada a semana toda sem novo
+        logon.
+      Sem Delay aqui de propósito: o próprio agente sorteia um atraso
+      aleatório antes de coletar (INVENTARIO_ATRASO_MAXIMO_SEGUNDOS), o
+      que espalha melhor a carga do que um atraso fixo igual em todas as
+      máquinas.
+    -->
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T12:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <!--
+      SYSTEM: a coleta lê WMI e o registro de software da máquina inteira,
+      e a tarefa precisa rodar mesmo sem ninguém logado.
+    -->
+    <Principal id="Author">
+      <UserId>S-1-5-18</UserId>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <!-- Notebook: coletar mesmo na bateria, e não abortar se a pessoa
+         desplugar no meio. Sem isso, máquina de quem trabalha sem fonte
+         quase nunca reportaria. -->
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <!-- 30 min é folga larga sobre os ~7s da coleta: cobre máquina lenta
+         ou WMI degradado, e ainda assim mata um processo travado em vez de
+         deixá-lo pendurado até o próximo logon. -->
+    <ExecutionTimeLimit>PT30M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <!-- Falha de rede no logon é comum (Wi-Fi ainda conectando). Três
+         tentativas espaçadas resolvem sem precisar esperar o dia seguinte. -->
+    <RestartOnFailure>
+      <Interval>PT5M</Interval>
+      <Count>3</Count>
+    </RestartOnFailure>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>{INSTALL_DIR}\executar-inventario.cmd</Command>
+      <WorkingDirectory>{INSTALL_DIR}</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
