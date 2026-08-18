@@ -218,6 +218,50 @@ Descobrir quais máquinas do parque **pararam de reportar**: no painel,
 filtre por *"Sem reportar há 7+ dias"*. É como se acha agente quebrado,
 máquina desligada ou PC que saiu do parque sem baixa.
 
+## 6-B. Atualizar o agente em todo o parque
+
+O agente **se atualiza sozinho**. Depois de corrigir algo em
+`inventory.js`, suba a versão em `AGENTE_VERSAO` e publique uma vez:
+
+```powershell
+cd agent
+node publicar.js
+```
+
+Cada máquina compara sua versão na coleta seguinte, baixa a nova e passa a
+usá-la a partir da execução posterior. Em até 24h o parque inteiro está
+atualizado, sem passar em PC nenhum.
+
+Acompanhe o rollout:
+
+```powershell
+node publicar.js --status
+```
+
+Mostra a versão publicada, quantas máquinas estão em cada versão e quais
+ainda faltam.
+
+Se uma versão publicada se revelar problemática, o freio é:
+
+```powershell
+node publicar.js --remover
+```
+
+As máquinas param de atualizar e ficam na versão que já têm.
+
+**O que o auto-update NÃO faz:** trocar Node, RustDesk ou a tarefa
+agendada. Só os arquivos `.js` do agente. Mexer em runtime e agendamento é
+trabalho do instalador, que roda com um humano por perto — um agente que se
+reconfigura sozinho pode se desligar sozinho sem ninguém saber.
+
+**Sobre segurança:** isto é, por construção, execução remota de código —
+quem escrever na chave `gmad_agente_inventario_release` do `kv_store` roda
+o que quiser como SYSTEM em todas as máquinas. O agente recusa pacotes
+malformados (nome de arquivo fora da lista permitida, caminho com `..`,
+conteúdo que não é módulo ESM, arquivo acima de 512 KB), mas a proteção
+real é o RLS do Supabase: só sessão autenticada escreve ali. Trate essa
+chave com o mesmo cuidado da senha do agente.
+
 ## 7. Desinstalar
 
 ```powershell

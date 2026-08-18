@@ -8,8 +8,11 @@
 //   node inventario.js            grava no Supabase
 //   node inventario.js --dry-run  só imprime o que coletou (não grava)
 import 'dotenv/config'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createClient } from '@supabase/supabase-js'
 import { collectInventory, AGENTE_VERSAO } from './inventory.js'
+import { verificarAtualizacao } from './autoUpdate.js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
@@ -81,6 +84,12 @@ async function main() {
     password: AGENT_PASSWORD,
   })
   if (erroLogin) throw new Error(`falha ao autenticar: ${erroLogin.message}`)
+
+  // Auto-atualização ANTES de gravar, mas DEPOIS de coletar: assim uma
+  // versão nova publicada hoje já vale na próxima execução, e a coleta de
+  // agora acontece de qualquer jeito — mesmo que a atualização falhe.
+  // Ver autoUpdate.js.
+  await verificarAtualizacao(supabase, path.dirname(fileURLToPath(import.meta.url)))
 
   // Via RPC (não upsert direto na tabela) pra preservar `criado_em` na
   // atualização — ver upsert_host_inventory em
