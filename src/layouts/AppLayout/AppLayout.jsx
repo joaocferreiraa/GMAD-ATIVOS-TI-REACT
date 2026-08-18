@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { SidebarProvider } from '../../contexts/SidebarProvider'
 import { useSidebarState } from '../../hooks/layout/useSidebarState'
 import Sidebar from './Sidebar/Sidebar'
+import Breadcrumb from './Breadcrumb/Breadcrumb'
 import Topbar from './Topbar/Topbar'
 import Footer from './Footer/Footer'
 import styles from './AppLayout.module.css'
@@ -14,6 +15,7 @@ function AppShell() {
       <Topbar />
       <Sidebar />
       <div className={styles.content}>
+        <Breadcrumb />
         <div className={styles.view}>
           <Outlet />
         </div>

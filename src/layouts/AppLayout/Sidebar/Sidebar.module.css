@@ -19,11 +19,12 @@
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  /* padding-top maior que o horizontal/inferior de propósito: alinha o topo
-     do ícone do primeiro botão com o topo do "Bom dia" do Dashboard. Ajuste
-     por tentativa (não dá pra calcular certo sem ver renderizado — métrica
-     de fonte real do Poppins/entrelinha do h1 não é exata no papel). */
-  padding: 33px 14px 20px;
+  /* 17px = os 26px de padding-top do conteúdo (ver .content em
+     AppLayout.module.css, que começa na mesma altura da barra) menos os 9px
+     de padding do próprio .navButton: assim o topo do ícone do primeiro
+     botão encosta na mesma linha em que o conteúdo começa, em vez de no
+     topo do texto do "Bom dia". */
+  padding: 17px 14px 20px;
   transition: width 0.28s ease;
 }
 
