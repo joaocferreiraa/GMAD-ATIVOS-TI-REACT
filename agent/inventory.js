@@ -25,7 +25,7 @@ const execAsync = promisify(exec)
 // instalados, eles nunca estão todos na mesma versão ao mesmo tempo — sem
 // isso, não dá pra saber se um campo vazio é "a máquina não tem" ou "esse
 // agente é velho demais pra coletar isso".
-export const AGENTE_VERSAO = '1.2.1'
+export const AGENTE_VERSAO = '1.3.0'
 
 // Buffer generoso: a consulta de software instalado devolve algumas
 // centenas de KB numa máquina com muitos programas, e o padrão do
@@ -54,8 +54,30 @@ async function runPs(script) {
   try {
     const { stdout } = await execFileAsync(
       'powershell',
-      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script],
-      { timeout: TIMEOUT_MS, maxBuffer: MAX_BUFFER, windowsHide: true },
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-Command',
+        // Força a saída em UTF-8 antes de rodar o script. Sem isto, o
+        // PowerShell escreve na code page OEM do console (CP850 no Windows
+        // em português) e todo acento chega corrompido: "Fisco Contábil"
+        // vira "Fisco Cont�bil" no banco, e um programa renomeado assim
+        // apareceria como "removido + instalado" a cada coleta.
+        // (O mesmo problema de code page já documentado no parse do ping,
+        // em index.js — lá a solução foi não depender de texto acentuado;
+        // aqui o texto É o dado, então convertemos a saída.)
+        `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; ${script}`,
+      ],
+      {
+        timeout: TIMEOUT_MS,
+        maxBuffer: MAX_BUFFER,
+        windowsHide: true,
+        // Casa com o OutputEncoding acima: sem declarar aqui, o Node
+        // decodificaria os bytes UTF-8 como latin1.
+        encoding: 'utf8',
+      },
     )
     const texto = stdout.trim()
     if (!texto) return null
@@ -342,11 +364,30 @@ async function coletarSoftwares() {
   // de CADA pacote MSI instalado ao ser consultada — é lenta (minutos) e
   // chega a gerar eventos de reparo no visualizador de eventos da máquina.
   // O registro é a fonte que o próprio "Programas e Recursos" usa.
+  //
+  // ALÉM DE HKLM, VARRE OS PERFIS DE USUÁRIO em HKEY_USERS. Instalação
+  // "por usuário" (VS Code, Figma, Notion, uTorrent, navegadores...) grava
+  // só no ramo do próprio usuário e não aparece em HKLM — e é justamente
+  // o tipo de programa que entra na máquina sem passar pelo TI, ou seja, o
+  // que mais importa num inventário.
+  //
+  // Não dá para usar `HKCU:` aqui: a tarefa agendada roda como SYSTEM, e
+  // HKCU apontaria para o perfil do SYSTEM (praticamente vazio). Por isso
+  // enumeramos os SIDs carregados em HKU e lemos cada um. Os SIDs de
+  // serviço (S-1-5-18/19/20) e as ramificações _Classes ficam de fora
+  // porque não correspondem a pessoas.
   const lista = comoArray(
     await runPs(
-      "Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*', " +
-        "'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' " +
-        '-ErrorAction SilentlyContinue | ' +
+      "$caminhos = @('HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*', " +
+        "'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'); " +
+        'if (-not (Get-PSDrive HKU -ErrorAction SilentlyContinue)) { ' +
+        'New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null }; ' +
+        "Get-ChildItem 'HKU:\\' -ErrorAction SilentlyContinue | " +
+        "Where-Object { $_.PSChildName -match '^S-1-5-21-' -and $_.PSChildName -notmatch '_Classes$' } | " +
+        'ForEach-Object { ' +
+        '$caminhos += "HKU:\\$($_.PSChildName)\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*"; ' +
+        '$caminhos += "HKU:\\$($_.PSChildName)\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*" }; ' +
+        'Get-ItemProperty $caminhos -ErrorAction SilentlyContinue | ' +
         // SystemComponent/ParentKeyName filtram atualizações e componentes
         // que não aparecem como "programa instalado" pro usuário.
         'Where-Object { $_.DisplayName -and -not $_.SystemComponent -and -not $_.ParentKeyName } | ' +

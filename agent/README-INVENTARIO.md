@@ -242,8 +242,10 @@ removê-la pela ficha, em **Remover do inventário**.
   (visível na ficha como `serie:` ou `host:`). Só nesse caso renomear a
   máquina cria um registro novo.
 - **Programas instalados vêm do registro**, a mesma fonte do "Programas e
-  Recursos". Aplicativos da Store e instalações por usuário (que gravam em
-  `HKCU`) não aparecem.
+  Recursos" — incluindo os instalados **por usuário** (VS Code, Figma,
+  Notion, navegadores), que ficam no perfil de cada pessoa e não em HKLM.
+  Aplicativos da Microsoft Store continuam fora: usam outro mecanismo de
+  registro.
 - **O ID do RustDesk é lido do executável**, não do arquivo de configuração
   (que guarda o ID criptografado, em `enc_id`). Numa versão do RustDesk sem
   suporte a `--get-id`, a máquina aparece como "Sem ID" — instalado, mas sem
