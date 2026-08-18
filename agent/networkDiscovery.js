@@ -247,6 +247,67 @@ async function lerIdentificacaoHttp(host, porta) {
   return { titulo: titulo || null, servidor: servidor || null, assinatura }
 }
 
+// DESATIVADO — NÃO REATIVE SEM LER ISTO.
+//
+// A ideia era perguntar o modelo à própria impressora pela porta 9100, com
+// o comando PJL `@PJL INFO ID`. Funciona: identificou uma Samsung M337x que
+// nenhum outro método pegava.
+//
+// MAS: numa das impressoras deste parque, a consulta fez o aparelho PUXAR
+// UMA FOLHA E TRAVAR. A porta 9100 é a porta de TRABALHO da impressora —
+// tudo que chega ali é tratado como material a imprimir. O prefixo
+// "universal exit language" deveria fazer o firmware entender que é
+// comando, e não papel, mas nem toda impressora respeita isso: as que não
+// implementam PJL imprimem o texto cru, ou engasgam esperando o resto de um
+// trabalho que nunca vem.
+//
+// Um inventário que atrapalha o trabalho de alguém não vale o dado que
+// coleta. O ganho era identificar 2 ou 3 impressoras sem interface web —
+// dá para cadastrá-las à mão em cinco minutos, uma única vez.
+//
+// Se um dia isto voltar, que seja com lista explícita de IPs autorizados
+// pelo TI, testados um a um, e nunca como parte da varredura automática.
+//
+// A função fica aqui porque a informação de COMO fazer tem valor; o que
+// não pode voltar é a chamada automática.
+//
+// ---------------------------------------------------------------------
+// Pergunta o modelo diretamente à impressora, pela porta de impressão.
+//
+// PJL (Printer Job Language) é o dialeto que a própria porta 9100 entende:
+// `@PJL INFO ID` faz a impressora responder o próprio modelo. É o único
+// caminho para impressora que NÃO tem interface web — neste parque, duas
+// só responderam por aqui, e uma delas revelou-se uma Samsung M337x que
+// ficaria para sempre como "modelo não identificado".
+//
+// latin1 na leitura: o protocolo é anterior ao UTF-8 e responde em ASCII
+// estendido; decodificar como UTF-8 corromperia nomes acentuados.
+function consultarPjl(host, timeout = 5000) {
+  return new Promise((resolve) => {
+    const socket = new net.Socket()
+    let resposta = ''
+    socket.setTimeout(timeout)
+    socket.on('connect', () => {
+      // ESC %-12345X e o "universal exit language": tira a impressora de
+      // qualquer modo em que esteja antes de aceitar o comando PJL. Sem
+      // isso, ela pode interpretar o texto como algo a imprimir.
+      socket.write('\x1b%-12345X@PJL INFO ID\r\n\x1b%-12345X\r\n')
+    })
+    socket.on('data', (d) => {
+      resposta += d.toString('latin1')
+      if (resposta.length > 512) socket.destroy()
+    })
+    socket.on('timeout', () => socket.destroy())
+    socket.on('error', () => resolve(null))
+    socket.on('close', () => {
+      // A resposta vem como: @PJL INFO ID "HP LaserJet M402dn"
+      const modelo = resposta.match(/@PJL INFO ID\s*"?([^"\r\n]{2,80})"?/i)?.[1]?.trim()
+      resolve(modelo || null)
+    })
+    socket.connect(9100, host)
+  })
+}
+
 // Prefixos de MAC (OUI) dos fabricantes que aparecem neste parque. A lista
 // completa da IEEE tem 30 mil entradas e viraria uma dependência; estes são
 // os que efetivamente respondem aqui, e o resto simplesmente não é
@@ -254,6 +315,7 @@ async function lerIdentificacaoHttp(host, porta) {
 const OUI = {
   '180D2C': 'Intelbras',
   '3CEF8C': 'Intelbras',
+  '24FD0D': 'Intelbras',
   '4C11BF': 'Dahua',
   E0508B: 'Dahua',
   BCAD28: 'Hikvision',
@@ -270,6 +332,17 @@ const OUI = {
 //
 // Descoberto testando as câmeras reais deste parque, que apareciam como
 // "modelo não identificado" por servirem página de título vazio.
+//
+// SÓ LÊ, NÃO ALTERA — diferente da consulta PJL logo acima (desativada
+// depois de fazer uma impressora puxar papel): aqui a requisição vai para
+// a interface WEB da câmera, não para uma porta de trabalho, e o que
+// obtemos é a resposta de ERRO de uma autenticação que nunca se completa.
+// Nada é configurado, gravado ou movido no aparelho.
+//
+// Uma tentativa por varredura, e só em quem já foi reconhecido como dessa
+// família pela assinatura do HTML: alguns firmwares bloqueiam o IP de
+// origem após várias tentativas de login seguidas, e uma varredura que
+// tranca o TI para fora das próprias câmeras seria péssima.
 function consultarCameraDahua(host, timeout = 4000) {
   return new Promise((resolve) => {
     const corpo = JSON.stringify({
@@ -414,6 +487,12 @@ export async function sondarHost(host, { comunidadeSnmp = 'public' } = {}) {
     ? await consultarCameraDahua(host)
     : null
 
+  // Impressora: pergunta o modelo pela porta de impressão. Só quando a
+  // 9100 está aberta e o HTTP não resolveu — a consulta abre uma conexão
+  // na porta de trabalho da impressora, então não se faz à toa.
+  // PJL DESATIVADO — ver o comentário em consultarPjl.
+  const modeloPjl = null
+
   return {
     host,
     online: true,
@@ -426,6 +505,7 @@ export async function sondarHost(host, { comunidadeSnmp = 'public' } = {}) {
     httpTitulo: http?.titulo ?? null,
     httpServidor: http?.servidor ?? null,
     httpAssinatura: http?.assinatura ?? null,
+    modeloPjl,
     mac: formatarMac(camera?.mac),
     serie: camera?.serie ?? null,
     fabricante: camera?.fabricante ?? null,

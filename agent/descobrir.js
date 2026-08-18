@@ -95,6 +95,9 @@ function identificacao(achado) {
     }
   }
 
+  // PJL vem antes do cabeçalho HTTP: a impressora respondendo o próprio
+  // modelo é mais confiável que o nome do servidor web embarcado.
+  if (achado.modeloPjl) return { modelo: achado.modeloPjl, origem: 'pjl' }
   if (achado.httpTitulo) return { modelo: achado.httpTitulo, origem: 'http' }
   if (achado.httpServidor) return { modelo: achado.httpServidor, origem: 'http' }
   if (achado.nomeDns) return { modelo: achado.nomeDns, origem: 'dns' }
