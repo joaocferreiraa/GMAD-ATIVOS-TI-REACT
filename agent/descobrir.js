@@ -27,7 +27,9 @@ function log(msg) {
 async function conectar() {
   const { SUPABASE_URL, SUPABASE_ANON_KEY, AGENT_EMAIL, AGENT_PASSWORD } = process.env
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AGENT_EMAIL || !AGENT_PASSWORD) {
-    throw new Error('Faltam variáveis no .env (SUPABASE_URL, SUPABASE_ANON_KEY, AGENT_EMAIL, AGENT_PASSWORD).')
+    throw new Error(
+      'Faltam variáveis no .env (SUPABASE_URL, SUPABASE_ANON_KEY, AGENT_EMAIL, AGENT_PASSWORD).',
+    )
   }
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -64,7 +66,8 @@ async function ipsCadastrados(sb) {
     .eq('key', 'gmad_network_monitors')
     .maybeSingle()
   for (const m of monitores?.value ?? []) {
-    if (m?.host && /^\d+\.\d+\.\d+\.\d+$/.test(String(m.host).trim())) ips.add(String(m.host).trim())
+    if (m?.host && /^\d+\.\d+\.\d+\.\d+$/.test(String(m.host).trim()))
+      ips.add(String(m.host).trim())
   }
 
   // Equipamentos já descobertos antes: continuam sendo verificados mesmo
@@ -81,10 +84,39 @@ async function ipsCadastrados(sb) {
 // web é palpite educado).
 function identificacao(achado) {
   if (achado.snmpDescricao) return { modelo: achado.snmpDescricao, origem: 'snmp' }
+
+  // Câmera que respondeu a consulta específica: fabricante + série é uma
+  // identificação melhor que o título da página (que nessas câmeras vem
+  // vazio), então vem antes do HTTP.
+  if (achado.fabricante || achado.serie) {
+    return {
+      modelo: [achado.fabricante, achado.serie].filter(Boolean).join(' '),
+      origem: 'api',
+    }
+  }
+
   if (achado.httpTitulo) return { modelo: achado.httpTitulo, origem: 'http' }
   if (achado.httpServidor) return { modelo: achado.httpServidor, origem: 'http' }
   if (achado.nomeDns) return { modelo: achado.nomeDns, origem: 'dns' }
+  // Assinatura do HTML é o último recurso: diz a família, não o aparelho.
+  if (achado.httpAssinatura) return { modelo: achado.httpAssinatura, origem: 'http' }
   return { modelo: null, origem: null }
+}
+
+// IPs que o agente de inventário já reporta. Uma máquina Windows com o
+// agente instalado NÃO precisa aparecer na lista de equipamentos de rede:
+// lá se sabe tudo dela (RAM, disco, programas), aqui só se veria "responde
+// ping". Duplicar confunde a contagem e enche a tela de nomes que já estão
+// na aba de máquinas.
+async function ipsDoInventario(sb) {
+  const { data } = await sb.from('host_inventory').select('adaptadores_rede')
+  const ips = new Set()
+  for (const m of data ?? []) {
+    for (const adaptador of m.adaptadores_rede ?? []) {
+      for (const ip of adaptador.ips ?? []) ips.add(ip)
+    }
+  }
+  return ips
 }
 
 async function main() {
@@ -95,7 +127,10 @@ async function main() {
     for (const faixa of argumentos) alvos.push(...expandirFaixa(faixa))
     log(`varrendo ${alvos.length} endereço(s) de ${argumentos.join(', ')}`)
   } else {
-    if (!sb) throw new Error('Sem faixa informada, é preciso conectar ao Supabase para ler os IPs cadastrados.')
+    if (!sb)
+      throw new Error(
+        'Sem faixa informada, é preciso conectar ao Supabase para ler os IPs cadastrados.',
+      )
     alvos = await ipsCadastrados(sb)
     if (!alvos.length) {
       log('nenhum IP cadastrado no painel. Informe uma faixa: node descobrir.js 172.25.251.0/24')
@@ -128,7 +163,17 @@ async function main() {
     console.log(`   ${String(n).padStart(3)}  ${tipo}`)
   }
 
-  const registros = achados.map((a) => {
+  // Descarta o que o agente de inventário já cobre — ver ipsDoInventario.
+  const jaInventariados = sb ? await ipsDoInventario(sb) : new Set()
+  const paraGravar = achados.filter((a) => !jaInventariados.has(a.host))
+  const descartados = achados.length - paraGravar.length
+  if (descartados) {
+    log(
+      `${descartados} já aparecem no inventário de máquinas (agente instalado) — não duplicados aqui`,
+    )
+  }
+
+  const registros = paraGravar.map((a) => {
     const { modelo, origem } = identificacao(a)
     return {
       ip: a.host,
@@ -137,6 +182,8 @@ async function main() {
       modelo,
       identificacaoOrigem: origem,
       local: a.snmpLocal,
+      mac: a.mac,
+      serie: a.serie,
       portas: a.portas,
       respondePing: a.respondeuPing,
     }

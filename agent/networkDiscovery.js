@@ -18,6 +18,8 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import net from 'node:net'
 import os from 'node:os'
+import http from 'node:http'
+import https from 'node:https'
 
 const execFileAsync = promisify(execFile)
 
@@ -121,11 +123,79 @@ async function consultarSnmp(host, comunidade = 'public') {
   return Object.keys(resultado).length ? resultado : null
 }
 
+// Busca uma página HTTP(S) aceitando certificado autoassinado.
+//
+// POR QUE NÃO fetch(): praticamente todo equipamento de rede serve HTTPS
+// com certificado que ele mesmo emitiu, e o fetch do Node recusa
+// (SELF_SIGNED_CERT_IN_CHAIN) sem oferecer como desligar essa verificação
+// — o `dispatcher` exigiria importar undici, que não é exposto como
+// módulo. Com http/https nativos, `rejectUnauthorized: false` resolve.
+//
+// O risco de aceitar certificado não verificado é alguém no meio da
+// conexão se passar pelo equipamento. Aqui isso não muda nada: a
+// requisição não envia credencial, não recebe dado sigiloso e só lê o
+// título de uma página pública para adivinhar o modelo. O pior caso é o
+// inventário registrar um modelo errado.
+//
+// Duas impressoras deste parque (uma Epson) só foram identificadas depois
+// disto — redirecionam HTTP para HTTPS e ficavam completamente invisíveis.
+function buscarPagina(url, timeout = 4000, saltos = 3) {
+  return new Promise((resolve) => {
+    let endereco
+    try {
+      endereco = new URL(url)
+    } catch {
+      return resolve(null)
+    }
+    const mod = endereco.protocol === 'https:' ? https : http
+    const req = mod.request(
+      {
+        hostname: endereco.hostname,
+        port: endereco.port || (endereco.protocol === 'https:' ? 443 : 80),
+        path: endereco.pathname || '/',
+        method: 'GET',
+        rejectUnauthorized: false,
+        timeout,
+      },
+      (res) => {
+        // Redirecionamento é a regra em equipamento que força HTTPS.
+        if (
+          [301, 302, 303, 307, 308].includes(res.statusCode) &&
+          res.headers.location &&
+          saltos > 0
+        ) {
+          res.destroy()
+          const destino = new URL(res.headers.location, url).href
+          return resolve(buscarPagina(destino, timeout, saltos - 1))
+        }
+        let corpo = ''
+        res.setEncoding('utf8')
+        // 32 KB bastam para o <title> e para as assinaturas, que ficam no
+        // início do documento — a página de um roteador pode ter megabytes
+        // de JavaScript que não interessam.
+        res.on('data', (pedaco) => {
+          if (corpo.length < 32768) corpo += pedaco
+        })
+        res.on('end', () => resolve({ servidor: res.headers.server ?? null, corpo }))
+      },
+    )
+    req.on('error', () => resolve(null))
+    req.on('timeout', () => {
+      req.destroy()
+      resolve(null)
+    })
+    req.end()
+  })
+}
+
 // Marcas no HTML que identificam famílias de equipamento cuja página não
 // tem <title> preenchido. Cada padrão veio de observar o aparelho real —
 // não é heurística genérica, e por isso são poucos e específicos.
 const ASSINATURAS_HTML = [
-  { padrao: /jsBase\/lib\/|\/js\/dhwebsdk|WebPluginLoader/i, rotulo: 'Câmera/DVR (Intelbras/Dahua)' },
+  {
+    padrao: /jsBase\/lib\/|\/js\/dhwebsdk|WebPluginLoader/i,
+    rotulo: 'Câmera/DVR (Intelbras/Dahua)',
+  },
   { padrao: /hikvision|doc\/page\/login/i, rotulo: 'Câmera/DVR (Hikvision)' },
   { padrao: /unifi|ubnt/i, rotulo: 'Equipamento Ubiquiti' },
   { padrao: /mikrotik|webfig/i, rotulo: 'Equipamento MikroTik' },
@@ -145,66 +215,120 @@ const ASSINATURAS_HTML = [
 // de um roteador pode ter megabytes de JS que não nos interessam.
 async function lerIdentificacaoHttp(host, porta) {
   const protocolo = porta === 443 ? 'https' : 'http'
-  try {
-    const controlador = new AbortController()
-    const timer = setTimeout(() => controlador.abort(), 3500)
-    const resposta = await fetch(`${protocolo}://${host}:${porta}/`, {
-      signal: controlador.signal,
-      redirect: 'follow',
-      // Equipamento de rede quase sempre tem certificado autoassinado; a
-      // verificação é desligada só aqui, para leitura de título — não há
-      // credencial nem dado sensível nesta requisição.
-      // eslint-disable-next-line no-undef
-      dispatcher: undefined,
-    }).catch(() => null)
-    clearTimeout(timer)
-    if (!resposta) return null
+  const pagina = await buscarPagina(`${protocolo}://${host}:${porta}/`)
+  if (!pagina) return null
 
-    // Cabeçalho Server identifica muitos equipamentos sem nem ler o corpo.
-    const servidor = resposta.headers.get('server')
+  const { corpo: html, servidor } = pagina
 
-    const leitor = resposta.body?.getReader()
-    let html = ''
-    if (leitor) {
-      const decoder = new TextDecoder('utf-8', { fatal: false })
-      // 32 KB bastam para o <title>, que fica no início do documento.
-      while (html.length < 32768) {
-        const { done, value } = await leitor.read()
-        if (done) break
-        html += decoder.decode(value, { stream: true })
-      }
-      leitor.cancel().catch(() => {})
-    }
-    const bruto = html.match(/<title[^>]*>([^<]{1,200})<\/title>/i)?.[1]
-    // Títulos de equipamento vêm cheios de &nbsp; e do próprio IP como
-    // preenchimento ("HP LaserJet M402dne&nbsp;&nbsp;172.25.251.24"). Sem
-    // limpar, a tela mostra lixo e a comparação entre coletas nunca bate.
-    const titulo = bruto
-      ? bruto
-          .replace(/&nbsp;|&#160;/gi, ' ')
-          .replace(/&amp;/gi, '&')
-          .replace(/&quot;/gi, '"')
-          .replace(/\s+/g, ' ')
-          // Remove o próprio IP, que vários equipamentos repetem no título
-          // ("HP LaserJet M402dne 172.25.251.24") — informação redundante,
-          // já que o IP é a chave da linha na tela.
-          .split(host)
-          .join('')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .slice(0, 120)
-      : null
-    // Impressão digital do corpo, para equipamento que serve uma página
-    // com <title> vazio — comum em câmera e DVR, cuja interface monta o
-    // título por JavaScript depois de carregar. Sem isto, dezenas de
-    // aparelhos idênticos ficariam como "Painel web" sem identificação.
-    const assinatura = ASSINATURAS_HTML.find((a) => a.padrao.test(html))?.rotulo ?? null
+  const bruto = html.match(/<title[^>]*>([^<]{1,200})<\/title>/i)?.[1]
+  // Títulos de equipamento vêm cheios de &nbsp; e do próprio IP como
+  // preenchimento ("HP LaserJet M402dne&nbsp;&nbsp;172.25.251.24"). Sem
+  // limpar, a tela mostra lixo e a comparação entre coletas nunca bate.
+  const titulo = bruto
+    ? bruto
+        .replace(/&nbsp;|&#160;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&quot;/gi, '"')
+        .replace(/\s+/g, ' ')
+        .split(host)
+        .join('')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 120)
+    : null
 
-    if (!titulo && !servidor && !assinatura) return null
-    return { titulo: titulo || null, servidor: servidor || null, assinatura }
-  } catch {
-    return null
-  }
+  // Impressão digital do corpo, para equipamento que serve uma página com
+  // <title> vazio — comum em câmera e DVR, cuja interface monta o título
+  // por JavaScript. Sem isto, dezenas de aparelhos idênticos ficariam como
+  // "Painel web" sem identificação.
+  const assinatura = ASSINATURAS_HTML.find((a) => a.padrao.test(html))?.rotulo ?? null
+
+  if (!titulo && !servidor && !assinatura) return null
+  return { titulo: titulo || null, servidor: servidor || null, assinatura }
+}
+
+// Prefixos de MAC (OUI) dos fabricantes que aparecem neste parque. A lista
+// completa da IEEE tem 30 mil entradas e viraria uma dependência; estes são
+// os que efetivamente respondem aqui, e o resto simplesmente não é
+// traduzido — melhor mostrar o MAC cru do que nada.
+const OUI = {
+  '180D2C': 'Intelbras',
+  '3CEF8C': 'Intelbras',
+  '4C11BF': 'Dahua',
+  E0508B: 'Dahua',
+  BCAD28: 'Hikvision',
+  '44476E': 'Hikvision',
+  C0560E: 'Hikvision',
+}
+
+// Consulta a API de câmeras Dahua/Intelbras SEM autenticar.
+//
+// O desafio de login dessas câmeras devolve, antes de qualquer senha, o
+// MAC e um `realm` que contém o número de série do aparelho — o suficiente
+// para identificar o equipamento no inventário. Nenhuma credencial é
+// enviada nem necessária: pedimos o desafio e lemos o que vem junto dele.
+//
+// Descoberto testando as câmeras reais deste parque, que apareciam como
+// "modelo não identificado" por servirem página de título vazio.
+function consultarCameraDahua(host, timeout = 4000) {
+  return new Promise((resolve) => {
+    const corpo = JSON.stringify({
+      method: 'global.login',
+      params: { userName: 'admin', password: '', clientType: 'Web3.0' },
+      id: 1,
+    })
+    const req = http.request(
+      {
+        hostname: host,
+        port: 80,
+        path: '/RPC2_Login',
+        method: 'POST',
+        timeout,
+        headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(corpo) },
+      },
+      (res) => {
+        let dados = ''
+        res.setEncoding('utf8')
+        res.on('data', (p) => {
+          if (dados.length < 8192) dados += p
+        })
+        res.on('end', () => {
+          try {
+            const params = JSON.parse(dados)?.params
+            if (!params) return resolve(null)
+            const mac = params.mac ? String(params.mac).toUpperCase() : null
+            // O realm vem como "Login to <serie>"; a série é o que importa.
+            const serie = params.realm
+              ? String(params.realm)
+                  .replace(/^login to\s*/i, '')
+                  .trim()
+              : null
+            const fabricante = mac ? (OUI[mac.slice(0, 6)] ?? null) : null
+            resolve(mac || serie ? { mac, serie, fabricante } : null)
+          } catch {
+            resolve(null)
+          }
+        })
+      },
+    )
+    req.on('error', () => resolve(null))
+    req.on('timeout', () => {
+      req.destroy()
+      resolve(null)
+    })
+    req.write(corpo)
+    req.end()
+  })
+}
+
+// Formata MAC cru (180D2C0236C1) no padrão legível 18:0D:2C:02:36:C1.
+function formatarMac(mac) {
+  if (!mac) return null
+  const limpo = String(mac)
+    .replace(/[^0-9a-f]/gi, '')
+    .toUpperCase()
+  if (limpo.length !== 12) return mac
+  return limpo.match(/.{2}/g).join(':')
 }
 
 // Deduz o tipo do equipamento a partir dos sinais coletados. Ordem
@@ -241,6 +365,15 @@ function classificar({ portas, snmp, nomeDns, http }) {
   // "Desconhecido" some numa lista longa. Dizer que tem painel web indica
   // o próximo passo — abrir o endereço no navegador e ver.
   if (abertas.has(80) || abertas.has(443)) return 'Painel web'
+
+  // Responde ping e NENHUMA porta: é o retrato de um computador com o
+  // firewall do Windows no padrão, que bloqueia tudo de entrada e deixa
+  // só o ICMP passar. Chamar isso de "Desconhecido" é enganoso — o
+  // aparelho é conhecido, o que não dá é para inspecioná-lo de fora.
+  // Nomear certo evita que alguém saia investigando 12 "desconhecidos"
+  // que são só os PCs da própria empresa.
+  if (!portas.length) return 'Computador ou dispositivo pessoal'
+
   return 'Desconhecido'
 }
 
@@ -265,13 +398,21 @@ export async function sondarHost(host, { comunidadeSnmp = 'public' } = {}) {
   const temSnmp = portas.some((p) => p.porta === 161)
   // Prefere HTTP a HTTPS para ler o título: equipamento de rede quase
   // sempre tem certificado autoassinado, que a porta 80 evita.
-  const portaWeb = portas.find((p) => p.porta === 80)?.porta ?? portas.find((p) => p.porta === 443)?.porta
+  const portaWeb =
+    portas.find((p) => p.porta === 80)?.porta ?? portas.find((p) => p.porta === 443)?.porta
 
   const [snmp, nomeDns, http] = await Promise.all([
     temSnmp ? consultarSnmp(host, comunidadeSnmp) : Promise.resolve(null),
     resolverNome(host),
     portaWeb ? lerIdentificacaoHttp(host, portaWeb) : Promise.resolve(null),
   ])
+
+  // Câmera Dahua/Intelbras: consulta específica que revela MAC e número de
+  // série sem autenticar. Só é tentada quando a assinatura do HTML indicou
+  // essa família — não vale fazer um POST em todo equipamento da rede.
+  const camera = /intelbras|dahua/i.test(http?.assinatura ?? '')
+    ? await consultarCameraDahua(host)
+    : null
 
   return {
     host,
@@ -285,6 +426,9 @@ export async function sondarHost(host, { comunidadeSnmp = 'public' } = {}) {
     httpTitulo: http?.titulo ?? null,
     httpServidor: http?.servidor ?? null,
     httpAssinatura: http?.assinatura ?? null,
+    mac: formatarMac(camera?.mac),
+    serie: camera?.serie ?? null,
+    fabricante: camera?.fabricante ?? null,
     tipo: classificar({ portas, snmp, nomeDns, http }),
   }
 }
@@ -295,7 +439,10 @@ export async function sondarHost(host, { comunidadeSnmp = 'public' } = {}) {
 // a tabela de conexões da máquina e, em rede com firewall, parece varredura
 // hostil — o que pode acionar bloqueio. 12 em paralelo mantém a varredura
 // rápida sem parecer ataque.
-export async function sondarLista(hosts, { concorrencia = 12, comunidadeSnmp = 'public', aoProgredir } = {}) {
+export async function sondarLista(
+  hosts,
+  { concorrencia = 12, comunidadeSnmp = 'public', aoProgredir } = {},
+) {
   const fila = [...new Set(hosts.filter(Boolean))]
   const encontrados = []
   let concluidos = 0
@@ -326,7 +473,8 @@ export function expandirFaixa(faixa) {
   const cidr = texto.match(/^(\d+\.\d+\.\d+)\.(\d+)\/(\d+)$/)
   if (cidr) {
     const prefixo = Number(cidr[3])
-    if (prefixo < 22) throw new Error('Faixa grande demais. Use /22 ou menor (ex.: 172.25.251.0/24).')
+    if (prefixo < 22)
+      throw new Error('Faixa grande demais. Use /22 ou menor (ex.: 172.25.251.0/24).')
     const base = cidr[1]
     const total = 2 ** (32 - prefixo)
     // Só cobre faixas alinhadas em /24 ou menores, que é o formato usado
