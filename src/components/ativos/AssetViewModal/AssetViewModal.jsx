@@ -8,11 +8,20 @@ import { StockIcon } from '../../ui/Icon/icons'
 import { fmtDate, fmtMoney, unitDisplayName, assetWarrantyInfo } from '../../../utils/formatters'
 import { assetStatusVariant, warrantyVariant } from '../../../utils/statusBadge'
 import { DEPARTAMENTO_VENDAS, DEPARTAMENTO_ALMOXARIFADO } from '../../../utils/departamentos'
+import AssetAgentSection from '../AssetAgentSection/AssetAgentSection'
 import panelStyles from '../AssetPanel.module.css'
 
 // Ficha de visualização de um ativo (.view-panel do sistema original) —
 // somente leitura, com atalho para abrir a edição.
-export default function AssetViewModal({ open, asset, onClose, onEdit }) {
+export default function AssetViewModal({
+  open,
+  asset,
+  onClose,
+  onEdit,
+  maquina,
+  onPreencherComDetectado,
+  preenchendo,
+}) {
   if (!asset) return null
 
   const groups = (FIELD_GROUPS[asset.categoria] || []).filter((g) => g.key !== 'nf')
@@ -119,6 +128,16 @@ export default function AssetViewModal({ open, asset, onClose, onEdit }) {
               {asset.nf && <ViewRow label="Nota fiscal" value={asset.nf} />}
             </div>
           </div>
+
+          {/* Metade técnica da ficha: o que o agente detectou nesta
+              máquina. Some inteiro quando não há agente casado (impressora,
+              celular, ou PC que ainda não reportou). */}
+          <AssetAgentSection
+            asset={asset}
+            maquina={maquina}
+            onPreencher={onPreencherComDetectado}
+            preenchendo={preenchendo}
+          />
         </div>
       </div>
     </Modal>

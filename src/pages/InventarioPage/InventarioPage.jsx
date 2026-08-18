@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useInventario } from '../../hooks/data/useInventario'
 import { useInventarioData } from './useInventarioData'
 import { useToast } from '../../hooks/useToast'
 import { removeMachine } from '../../services/inventario/inventarioService'
 import { queryKeys } from '../../constants/queryKeys'
+import { ROUTES } from '../../constants/routes'
+import Button from '../../components/ui/Button/Button'
 import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import SummaryBar from '../../components/ui/SummaryBar/SummaryBar'
@@ -68,11 +71,19 @@ export default function InventarioPage() {
     <div>
       <div className={styles.heading}>
         <div>
-          <h2>Inventário de máquinas</h2>
+          <h2>Máquinas detectadas</h2>
           <p>
-            Especificações completas coletadas automaticamente pelo agente instalado em cada
-            máquina. Atualiza sozinho quando um agente reporta.
+            O que o agente encontrou em cada máquina do parque: specs reais, acesso remoto e quem
+            parou de reportar. O cadastro administrativo (unidade, departamento, responsável) fica
+            em Ativos.
           </p>
+        </div>
+        <div className={styles.actionsRow}>
+          {/* Caminho de volta: esta tela não está no menu (é acessada pelo
+              botão em Ativos), então sem isto viraria um beco sem saída. */}
+          <Button size="sm" as={Link} to={ROUTES.ativos}>
+            Voltar para Ativos
+          </Button>
         </div>
       </div>
 

@@ -14,13 +14,13 @@ const VARIANT_CLASS = {
 // mesmas variações visuais (primary/brand/ghost/dangerGhost/danger); `size="sm"`
 // reduz padding/fonte igual a .btn-sm.
 //
-// `as="a"` renderiza um link com a aparência de botão — para quando a ação é
-// NAVEGAR (abrir um endereço, disparar um esquema de URL como
-// `rustdesk://`), não executar código. Um <button> com onClick que faz
-// `location.href` quebraria abrir em nova aba, o menu de contexto e a
-// leitura por leitores de tela, que anunciam link e botão de formas
-// diferentes. `type` só é emitido no <button>: em <a> não existe e o React
-// avisaria no console.
+// `as` renderiza outro elemento com a aparência de botão — para quando a
+// ação é NAVEGAR, não executar código: `as="a"` para endereços externos e
+// esquemas de URL (`rustdesk://`), `as={Link}` para rotas internas do
+// router. Um <button> com onClick que faz `location.href` quebraria abrir
+// em nova aba, o menu de contexto e a leitura por leitores de tela, que
+// anunciam link e botão de formas diferentes. `type` só é emitido no
+// <button>: em <a> não existe e o React avisaria no console.
 const Button = forwardRef(function Button(
   { as: Tag = 'button', variant = 'default', size, className = '', type = 'button', ...props },
   ref,

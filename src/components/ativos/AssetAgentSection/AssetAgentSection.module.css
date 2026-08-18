@@ -1,0 +1,32 @@
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Complemento do valor principal (slots de RAM, tipo de disco): presente,
+   mas sem competir com o número que a pessoa veio ler. */
+.detalhe {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.sugestao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.sugestaoTexto {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 180px;
+}

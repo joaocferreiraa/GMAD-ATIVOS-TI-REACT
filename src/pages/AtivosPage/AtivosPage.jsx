@@ -1,25 +1,34 @@
-import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAssets } from '../../hooks/data/useAssets'
 import { useAssetMutations } from '../../hooks/data/useAssetMutations'
 import { useContatos } from '../../hooks/data/useContatos'
 import { useAtivosData } from './useAtivosData'
+import { useInventario } from '../../hooks/data/useInventario'
 import { useToast } from '../../hooks/useToast'
 import { useCrudPanelState } from '../../hooks/useCrudPanelState'
 import { useHoverTooltip } from '../../hooks/overlay/useHoverTooltip'
 import { exportAssetsCsv } from '../../services/ativos/assetsService'
+import { ROUTES } from '../../constants/routes'
 import { MADVILLE_GROUP, getDepartamentos, matchesUnitValue } from '../../utils/units'
 import { getUsuarios } from '../../utils/assetsFilter'
+import {
+  indexarInventario,
+  maquinaDoAtivo,
+  maquinasSemCadastro,
+  camposDetectados,
+} from '../../utils/inventarioMatch'
 import Button from '../../components/ui/Button/Button'
 import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import Tabs, { Tab, TabGroupLabel } from '../../components/ui/Tabs/Tabs'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
-import { RefreshIcon, DownloadIcon } from '../../components/ui/Icon/icons'
+import { RefreshIcon, DownloadIcon, ServerIcon } from '../../components/ui/Icon/icons'
 import AssetFilters from '../../components/ativos/AssetFilters/AssetFilters'
 import AssetTable from '../../components/ativos/AssetTable/AssetTable'
 import AssetViewModal from '../../components/ativos/AssetViewModal/AssetViewModal'
 import AssetFormModal from '../../components/ativos/AssetFormModal/AssetFormModal'
+import MaquinasSemCadastro from '../../components/ativos/MaquinasSemCadastro/MaquinasSemCadastro'
 import styles from './AtivosPage.module.css'
 
 const DEFAULT_FILTERS = {
@@ -58,6 +67,11 @@ function clampDeptUsuario(assets, unidade, categoria, dept, usuario) {
 export default function AtivosPage() {
   const { data: assets, isLoading, isError, refetch } = useAssets()
   const { data: contatos } = useContatos()
+  // Inventário do agente: a metade técnica das fichas. Falha aqui (tabela
+  // ainda não criada, agente nunca instalado) não pode derrubar a tela de
+  // Ativos, que funcionava sozinha antes disso existir — por isso só o
+  // `data` é consumido, sem isError.
+  const { data: inventario } = useInventario()
   const assetMutations = useAssetMutations()
   const { showToast } = useToast()
   const location = useLocation()
@@ -65,9 +79,21 @@ export default function AtivosPage() {
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
 
-  const list = assets ?? []
+  // `list` e `inventarioList` em useMemo (e não `assets ?? []` solto): o
+  // literal `[]` do fallback é um array NOVO a cada render, o que
+  // invalidaria os useMemo abaixo em todo teclar de filtro.
+  const list = useMemo(() => assets ?? [], [assets])
   const contatosList = contatos ?? []
+  const inventarioList = useMemo(() => inventario ?? [], [inventario])
   const data = useAtivosData(list, filters)
+
+  // Índice por hostname/serial, recalculado só quando o inventário muda —
+  // não a cada tecla digitada num filtro.
+  const indiceInventario = useMemo(() => indexarInventario(inventarioList), [inventarioList])
+  const semCadastro = useMemo(
+    () => maquinasSemCadastro(inventarioList, list),
+    [inventarioList, list],
+  )
   const panel = useCrudPanelState({
     list,
     uidParam: 'assetUid',
@@ -141,6 +167,37 @@ export default function AtivosPage() {
     showToast('Dados atualizados.')
   }
 
+  // Cadastra uma máquina detectada: abre o formulário de novo ativo já
+  // preenchido com o que o agente sabe, e com o ID sugerido igual ao
+  // hostname — que é como as máquinas deste parque são nomeadas, e o que
+  // faz o casamento funcionar na próxima leitura.
+  function handleCadastrarDetectada(maquina) {
+    const detectado = camposDetectados(maquina)
+    panel.openEdit({
+      // Sem `uid`: é registro NOVO. O formulário trata item sem uid como
+      // criação (ver useCrudPanelState.handleSaveForm).
+      id: maquina.hostname,
+      categoria: maquina.tipoChassi === 'Notebook' ? 'Notebook' : 'Desktop',
+      ...detectado,
+    })
+  }
+
+  // Preenche os campos vazios da ficha com o que o agente detectou. Só o
+  // que está em branco chega aqui (ver camposParaPreencher) — valor
+  // digitado por uma pessoa nunca é sobrescrito.
+  async function handlePreencherComDetectado(campos) {
+    const alvo = panel.viewingItem
+    if (!alvo) return
+    try {
+      await assetMutations.updateAsset.mutateAsync({
+        assetUid: alvo.uid,
+        record: { ...alvo, ...campos },
+      })
+    } catch {
+      // createCrudMutations já mostra o toast de erro.
+    }
+  }
+
   function handleExport() {
     if (!data.rows.length) {
       showToast('Nada para exportar com os filtros atuais.', 'danger')
@@ -158,17 +215,40 @@ export default function AtivosPage() {
           <p>Gerencie, filtre e edite os equipamentos de TI da empresa.</p>
         </div>
         <div className={styles.actionsRow}>
-          <Button size="sm" onClick={handleRefresh} {...bindTooltip('Buscar atualizações da equipe')}>
+          <Button
+            size="sm"
+            onClick={handleRefresh}
+            {...bindTooltip('Buscar atualizações da equipe')}
+          >
             <RefreshIcon /> Atualizar
           </Button>
           <Button size="sm" onClick={handleExport}>
             <DownloadIcon /> Exportar CSV
           </Button>
+          {/* Atalho para a visão técnica das máquinas (quem parou de
+              reportar, quem ainda tem HDD, busca por IP, programas
+              instalados) — perguntas que a lista de ativos não responde.
+              Só aparece quando há agente reportando: sem isso, levaria a
+              uma tela vazia. */}
+          {inventarioList.length > 0 && (
+            <Button
+              size="sm"
+              as={Link}
+              to={ROUTES.inventarioMaquinas}
+              {...bindTooltip('Ver o que o agente detectou em cada máquina')}
+            >
+              <ServerIcon /> Máquinas detectadas
+            </Button>
+          )}
           <Button variant="primary" onClick={panel.openNew}>
             + Novo ativo
           </Button>
         </div>
       </div>
+
+      {/* Máquinas rodando na rede que ninguém cadastrou — some sozinho
+          quando não há nenhuma. */}
+      <MaquinasSemCadastro maquinas={semCadastro} onCadastrar={handleCadastrarDetectada} />
 
       <Tabs value={filters.unidade} onChange={handleUnitChange}>
         <Tab
@@ -251,6 +331,9 @@ export default function AtivosPage() {
         asset={panel.viewingItem}
         onClose={panel.closeView}
         onEdit={panel.openEditFromView}
+        maquina={maquinaDoAtivo(panel.viewingItem, indiceInventario)}
+        onPreencherComDetectado={handlePreencherComDetectado}
+        preenchendo={assetMutations.updateAsset.isPending}
       />
 
       <AssetFormModal
