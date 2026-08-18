@@ -1,0 +1,61 @@
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Marcador circular colorido por severidade — permite varrer a coluna
+   esquerda e achar o que pede ação sem ler cada linha. */
+.marcador {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  background: var(--text-muted);
+}
+
+.alerta {
+  background: var(--danger);
+}
+
+.atencao {
+  background: var(--warn);
+}
+
+.info {
+  background: var(--text-muted);
+}
+
+.conteudo {
+  flex: 1;
+  min-width: 0;
+}
+
+.descricao {
+  font-size: 13px;
+  color: var(--text);
+  /* Nome de programa pode ser longo e não tem espaços para quebrar. */
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}

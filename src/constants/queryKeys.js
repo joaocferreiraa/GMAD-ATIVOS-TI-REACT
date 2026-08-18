@@ -17,6 +17,9 @@ export const queryKeys = {
   // Inventário das máquinas do parque (tabela host_inventory) — cadastro,
   // não série temporal, ver 0008_host_inventory.sql.
   inventario: ['inventario'],
+  // Histórico de mudanças detectadas pelo agente (tabela
+  // host_inventory_changes, ver 0010).
+  inventarioMudancas: ['inventario', 'mudancas'],
   chamados: ['chamados'],
   chamadoTimeline: ['chamados', 'timeline'], // + ticketId
 }

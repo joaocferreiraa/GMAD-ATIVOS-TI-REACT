@@ -113,3 +113,39 @@ export async function removeMachine(machineUid) {
   })
   if (error) throw error
 }
+
+// --- Histórico de mudanças ------------------------------------------------
+// Tabela host_inventory_changes (ver 0010_host_inventory_historico.sql): o
+// que mudou em cada máquina desde a coleta anterior. É o que revela o que
+// ninguém contou ao TI — pente de RAM retirado, disco trocado, programa
+// instalado sem autorização, máquina que mudou de dono.
+
+function rowToChange(r) {
+  return {
+    id: r.id,
+    machineUid: r.machine_uid,
+    hostname: r.hostname,
+    campo: r.campo,
+    valorAnterior: r.valor_anterior,
+    valorNovo: r.valor_novo,
+    tipo: r.tipo,
+    severidade: r.severidade,
+    createdAt: r.created_at,
+  }
+}
+
+// Mudanças recentes do parque inteiro, da mais nova para a mais antiga.
+// `limite` existe porque software instalado em 60 máquinas pode gerar
+// muitas linhas de uma vez — a tela mostra as últimas, não o histórico
+// completo de dois anos.
+export async function getInventoryChanges({ machineUid = null, limite = 200 } = {}) {
+  let query = requireSupabase()
+    .from('host_inventory_changes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limite)
+  if (machineUid) query = query.eq('machine_uid', machineUid)
+  const { data, error } = await query
+  if (error) throw error
+  return data.map(rowToChange)
+}

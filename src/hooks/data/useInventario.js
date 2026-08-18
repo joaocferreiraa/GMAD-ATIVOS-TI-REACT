@@ -1,5 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { getInventory, getMachineSoftware } from '../../services/inventario/inventarioService'
+import {
+  getInventory,
+  getMachineSoftware,
+  getInventoryChanges,
+} from '../../services/inventario/inventarioService'
 import { useRealtimeInvalidate } from './useRealtimeInvalidate'
 import { queryKeys } from '../../constants/queryKeys'
 
@@ -32,6 +36,21 @@ export function useMachineSoftware(machineUid) {
     queryKey: [...queryKeys.inventario, 'softwares', machineUid],
     queryFn: () => getMachineSoftware(machineUid),
     enabled: !!machineUid,
+    retry: false,
+  })
+}
+
+// Histórico de mudanças detectadas pelo agente. Atualiza sozinho via
+// Realtime — uma máquina que perde um pente de RAM aparece na tela sem
+// ninguém recarregar.
+export function useInventarioMudancas({ machineUid = null, limite = 200 } = {}) {
+  const queryKey = [...queryKeys.inventarioMudancas, machineUid, limite]
+
+  useRealtimeInvalidate('host_inventory_changes', queryKey)
+
+  return useQuery({
+    queryKey,
+    queryFn: () => getInventoryChanges({ machineUid, limite }),
     retry: false,
   })
 }

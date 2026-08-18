@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { useInventario } from '../../hooks/data/useInventario'
+import { useInventario, useInventarioMudancas } from '../../hooks/data/useInventario'
 import { useInventarioData } from './useInventarioData'
 import { useToast } from '../../hooks/useToast'
 import { removeMachine } from '../../services/inventario/inventarioService'
@@ -15,6 +15,8 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
 import InventarioFilters from '../../components/inventario/InventarioFilters/InventarioFilters'
 import InventarioTable from '../../components/inventario/InventarioTable/InventarioTable'
 import InventarioViewModal from '../../components/inventario/InventarioViewModal/InventarioViewModal'
+import MudancasList from '../../components/inventario/MudancasList/MudancasList'
+import Tabs from '../../components/ui/Tabs/Tabs'
 import styles from './InventarioPage.module.css'
 
 const DEFAULT_FILTERS = {
@@ -35,10 +37,12 @@ const DEFAULT_FILTERS = {
 // hook genérico.
 export default function InventarioPage() {
   const { data: inventario, isLoading, isError, error } = useInventario()
+  const { data: mudancas } = useInventarioMudancas()
   const queryClient = useQueryClient()
   const { showToast } = useToast()
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [aba, setAba] = useState('maquinas')
   const [viewingUid, setViewingUid] = useState(null)
   const [pendingRemove, setPendingRemove] = useState(null)
 
@@ -89,28 +93,49 @@ export default function InventarioPage() {
 
       {!isLoading && !isError && list.length > 0 && <SummaryBar items={data.resumo} />}
 
-      <InventarioFilters
-        filters={filters}
-        onChange={updateFilters}
-        onClear={() => setFilters(DEFAULT_FILTERS)}
-        opcoes={data.opcoes}
+      <Tabs
+        items={[
+          { value: 'maquinas', label: 'Máquinas', count: list.length },
+          {
+            value: 'mudancas',
+            label: 'O que mudou',
+            // Só o que pede ação no contador: o total incluiria cada
+            // programa instalado e viraria um número grande e inútil.
+            count: (mudancas ?? []).filter((m) => m.severidade !== 'info').length || undefined,
+          },
+        ]}
+        value={aba}
+        onChange={setAba}
       />
 
-      {isLoading && <TableSkeleton columns={9} />}
+      {aba === 'mudancas' ? (
+        <MudancasList mudancas={mudancas} />
+      ) : (
+        <>
+          <InventarioFilters
+            filters={filters}
+            onChange={updateFilters}
+            onClear={() => setFilters(DEFAULT_FILTERS)}
+            opcoes={data.opcoes}
+          />
 
-      {isError && (
-        <Alert variant="danger">
-          Não foi possível carregar o inventário
-          {/* A causa mais provável é a migration não ter sido rodada — a
+          {isLoading && <TableSkeleton columns={9} />}
+
+          {isError && (
+            <Alert variant="danger">
+              Não foi possível carregar o inventário
+              {/* A causa mais provável é a migration não ter sido rodada — a
               mensagem do Postgres já diz isso, e repeti-la aqui evita uma
               ida ao console do navegador pra descobrir. */}
-          {error?.message ? `: ${error.message}` : '.'} Se a tabela ainda não existe, rode as
-          migrations 0008 e 0009 de supabase/migrations/ no SQL Editor do Supabase.
-        </Alert>
-      )}
+              {error?.message ? `: ${error.message}` : '.'} Se a tabela ainda não existe, rode as
+              migrations 0008 e 0009 de supabase/migrations/ no SQL Editor do Supabase.
+            </Alert>
+          )}
 
-      {!isLoading && !isError && (
-        <InventarioTable rows={data.rows} onView={(m) => setViewingUid(m.machineUid)} />
+          {!isLoading && !isError && (
+            <InventarioTable rows={data.rows} onView={(m) => setViewingUid(m.machineUid)} />
+          )}
+        </>
       )}
 
       <InventarioViewModal

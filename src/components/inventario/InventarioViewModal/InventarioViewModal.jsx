@@ -4,11 +4,12 @@ import Badge from '../../ui/Badge/Badge'
 import Button from '../../ui/Button/Button'
 import SearchInput from '../../ui/SearchInput/SearchInput'
 import ViewRow from '../../ui/ViewRow/ViewRow'
-import { useMachineSoftware } from '../../../hooks/data/useInventario'
+import { useMachineSoftware, useInventarioMudancas } from '../../../hooks/data/useInventario'
 import { fmtBytes } from '../../../utils/hostFormatters'
 import { fmtRelTime } from '../../../utils/formatters'
 import { diasDesdeColeta, isDesatualizada } from '../../../utils/inventarioFilter'
 import { linkRustDesk, statusAcessoRemoto } from '../../../utils/acessoRemoto'
+import MudancasList from '../MudancasList/MudancasList'
 import styles from '../InventarioPanel.module.css'
 
 function fmtClock(mhz) {
@@ -56,6 +57,12 @@ export default function InventarioViewModal({ open, machine, onClose, onRemove }
   // grande demais pra vir junto na tabela (ver getInventory).
   const { data: softwares, isLoading: carregandoSoftwares } = useMachineSoftware(
     open ? machine?.machineUid : null,
+  )
+
+  // Histórico desta máquina — buscado junto com a ficha, pelo mesmo motivo
+  // dos softwares: não faz sentido carregar para as 60 na lista.
+  const { data: mudancas } = useInventarioMudancas(
+    open && machine?.machineUid ? { machineUid: machine.machineUid, limite: 50 } : {},
   )
 
   if (!machine) return null
@@ -294,6 +301,15 @@ export default function InventarioViewModal({ open, machine, onClose, onRemove }
           ) : null}
         </div>
         {acesso.detalhe ? <div className={styles.emptyNote}>{acesso.detalhe}</div> : null}
+      </div>
+
+      <div className={styles.viewSection}>
+        <div className={styles.viewSectionTitle}>Histórico de mudanças</div>
+        <MudancasList
+          mudancas={mudancas}
+          mostrarMaquina={false}
+          vazioMensagem="Nada mudou nesta máquina desde que o agente começou a reportar."
+        />
       </div>
 
       <div className={styles.viewSection}>
