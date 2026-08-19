@@ -34,6 +34,11 @@
   align-items: center;
 }
 
+/* Texto acima do botão de carregar do relatório sob demanda. */
+.lazyHint {
+  margin: 0 0 10px;
+}
+
 .state {
   padding: 40px 0;
   text-align: center;

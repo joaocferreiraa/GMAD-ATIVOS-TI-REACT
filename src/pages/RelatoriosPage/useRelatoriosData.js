@@ -6,8 +6,8 @@ import { buildReportMeta } from '../../services/relatorios/reportExport'
 // Agregação da tela de Relatórios, separada da renderização — equivalente
 // ao REPORTS + reportComputedRows()/reportActiveColumns()/buildReportMeta()
 // do sistema original. `data`: { assets, stock, contatos, installers,
-// scripts, wifi, construshow, logEntries, chamados } (já com fallback para
-// array vazio).
+// scripts, wifi, construshow, logEntries, chamados, inventario, dispositivos, monitores,
+// alertas, softwareParque } (já com fallback para array vazio).
 export function useRelatoriosData(data, uiState) {
   const { activeKey, filters, columns, sortKey } = uiState
 
@@ -24,6 +24,11 @@ export function useRelatoriosData(data, uiState) {
       data.construshow,
       data.logEntries,
       data.chamados,
+      data.inventario,
+      data.dispositivos,
+      data.monitores,
+      data.alertas,
+      data.softwareParque,
     ],
   )
 
