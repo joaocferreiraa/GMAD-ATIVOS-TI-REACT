@@ -322,7 +322,7 @@
   display: grid;
   /* Cartões largos o suficiente pro número de 38px e a sparkline
      conviverem sem aperto. */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 12px;
   /* Não estica: ocupa o que precisa e o resto da altura vai pros
      gráficos, que é onde a tendência longa aparece. */
@@ -337,7 +337,7 @@
      lado a lado; em tela estreita a grade quebra sozinha. minmax impede
      que um gráfico fique estreito a ponto de virar um risco ilegível de
      longe. */
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
   gap: 14px;
   flex: 1;
   min-height: 210px;

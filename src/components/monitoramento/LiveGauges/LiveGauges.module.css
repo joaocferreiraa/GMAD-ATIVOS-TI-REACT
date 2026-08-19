@@ -3,7 +3,7 @@
   /* Quatro métricas (latência, jitter, perda, disponibilidade): em tela
      larga ficam numa linha, e a grade quebra sozinha para 2x2 e depois
      uma coluna conforme aperta. */
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 12px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);

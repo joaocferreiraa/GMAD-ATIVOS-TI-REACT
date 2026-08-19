@@ -31,6 +31,15 @@
   }
 }
 
+/* Num celular de 360px sobram ~328px depois do respiro do overlay, e os
+   28px de cada lado comiam 56 deles — mais de um sexto da tela só de
+   margem interna, com os campos do formulário espremidos no que restava. */
+@media (max-width: 560px) {
+  .modal {
+    padding: 20px 16px;
+  }
+}
+
 .shake {
   animation: modalShake 0.32s ease;
 }
