@@ -1,13 +1,5 @@
 import { supabase } from './client'
-
-// Usuários autorizados são criados no painel do Supabase, em Authentication → Users.
-// O login aceita "nome.sobrenome" (sem @) e completa com este domínio.
-const LOGIN_DOMAIN = 'gmad.ti'
-
-function buildLoginEmail(rawUser) {
-  const value = rawUser.trim()
-  return value.includes('@') ? value : `${value}@${LOGIN_DOMAIN}`
-}
+import { buildLoginEmail } from '../../utils/loginEmail'
 
 export async function signInWithPassword(rawUser, password) {
   const email = buildLoginEmail(rawUser)

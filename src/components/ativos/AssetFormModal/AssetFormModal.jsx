@@ -149,12 +149,11 @@ export default function AssetFormModal({
   const isEdit = !!asset?.uid
   const { showToast } = useToast()
   const [shake, setShake] = useState(false)
-  // Guarda o último ID que o PRÓPRIO componente gerou (não um valor
-  // recalculado) — é isso que permite reconhecer "esse ID foi automático"
-  // com certeza, em vez de tentar adivinhar pela categoria/unidade
-  // anteriores (que quebra se a unidade mudou entre um auto-preenchimento e
-  // outro, ver handleUnidadeChange). `null` = nada foi auto-gerado ainda
-  // nesta sessão do formulário.
+  // Guarda o último ID que o PRÓPRIO componente gerou — é isso que permite
+  // reconhecer "esse ID foi automático" com certeza, em vez de tentar
+  // adivinhar pelo formato (que confundiria um ID digitado à mão só porque
+  // começa com um prefixo válido). `null` = nada foi auto-gerado ainda
+  // nesta sessão do formulário. Ver regerarIdAuto.
   const lastAutoId = useRef(null)
 
   const {
@@ -217,22 +216,25 @@ export default function AssetFormModal({
       setValue('valorAluguel', '')
       setValue('renovacaoAluguel', '')
     }
-    if (!isEdit) {
-      const currentId = getValues('id')
-      const unidadeVal = getValues('unidade')
-      // "Parece automático" = é exatamente o último ID que o próprio
-      // componente gerou (lastAutoId), não um valor recalculado — assim
-      // continua reconhecendo como automático mesmo que a unidade tenha
-      // mudado depois do preenchimento (ver handleUnidadeChange), e nunca
-      // confunde com um ID digitado à mão só porque começa com um prefixo
-      // de categoria válido (ex: "TV-RECEPCAO" pra uma Televisão).
-      const looksAuto = !currentId || currentId === lastAutoId.current
-      if (looksAuto && unidadeVal) {
-        const newId = nextIdFor(assets, newCategoria, unidadeVal)
-        setValue('id', newId)
-        lastAutoId.current = newId
-      }
-    }
+    if (!isEdit) regerarIdAuto(newCategoria, getValues('unidade'))
+  }
+
+  // Recalcula o ID sugerido quando categoria ou unidade mudam, mas SÓ se o
+  // valor atual for exatamente o último que o próprio componente gerou
+  // (lastAutoId) — nunca por cima de um ID digitado à mão, mesmo que ele
+  // por acaso comece com um prefixo válido (ex: "TV-RECEPCAO" numa
+  // Televisão).
+  //
+  // A unidade importa tanto quanto a categoria porque ela entra no próprio
+  // ID: trocar de Curitiba para a Madville sem recalcular deixaria um
+  // "CWB-DSK-0005" numa máquina da Loja (ver idPrefixFor).
+  function regerarIdAuto(categoria, unidade) {
+    const currentId = getValues('id')
+    const pareceAuto = !currentId || currentId === lastAutoId.current
+    if (!pareceAuto || !unidade || !categoria) return
+    const newId = nextIdFor(assets, categoria, unidade)
+    setValue('id', newId)
+    lastAutoId.current = newId
   }
 
   function handlePosseChange(newPosse, onChange) {
@@ -249,11 +251,7 @@ export default function AssetFormModal({
 
   function handleUnidadeChange(newUnidade, onChange) {
     onChange(newUnidade)
-    if (!isEdit && !getValues('id')) {
-      const newId = nextIdFor(assets, getValues('categoria'), newUnidade)
-      setValue('id', newId)
-      lastAutoId.current = newId
-    }
+    if (!isEdit) regerarIdAuto(getValues('categoria'), newUnidade)
   }
 
   function onSubmit(values) {
@@ -292,7 +290,11 @@ export default function AssetFormModal({
       renovacaoAluguel: undefined,
       ...clearedSpec,
       ...(values.categoria === 'Impressora'
-        ? { posse: values.posse, valorAluguel: values.valorAluguel, renovacaoAluguel: values.renovacaoAluguel }
+        ? {
+            posse: values.posse,
+            valorAluguel: values.valorAluguel,
+            renovacaoAluguel: values.renovacaoAluguel,
+          }
         : {}),
       ...spec,
     }
@@ -550,7 +552,12 @@ export default function AssetFormModal({
                     htmlFor="f_valorAluguel"
                     error={errors.valorAluguel?.message}
                   >
-                    <Input id="f_valorAluguel" type="number" step="0.01" {...register('valorAluguel')} />
+                    <Input
+                      id="f_valorAluguel"
+                      type="number"
+                      step="0.01"
+                      {...register('valorAluguel')}
+                    />
                   </FormField>
                   <FormField label="Renovação do contrato" htmlFor="f_renovacaoAluguel">
                     <Input id="f_renovacaoAluguel" type="date" {...register('renovacaoAluguel')} />
@@ -564,7 +571,11 @@ export default function AssetFormModal({
                   <FormField label="Garantia até" htmlFor="f_garantiaAte">
                     <Input id="f_garantiaAte" type="date" {...register('garantiaAte')} />
                   </FormField>
-                  <FormField label="Preço de compra (R$)" htmlFor="f_preco" error={errors.preco?.message}>
+                  <FormField
+                    label="Preço de compra (R$)"
+                    htmlFor="f_preco"
+                    error={errors.preco?.message}
+                  >
                     <Input
                       id="f_preco"
                       type="number"
