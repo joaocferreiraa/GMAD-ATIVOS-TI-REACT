@@ -21,9 +21,12 @@ import {
 
 // Estrutura hierárquica da navegação: itens soltos (type 'link') ficam no
 // topo; o restante é agrupado por domínio (type 'group') para caber mais
-// funções sem lotar a barra — cada grupo abre/fecha como o acordeão de
-// Infraestrutura. `key` identifica o grupo pra controle de expandido/
-// recolhido e pra saber qual grupo conter a rota ativa.
+// funções sem lotar a barra. `key` identifica o grupo pra controle de
+// aberto/fechado e pra saber qual grupo contém a rota ativa.
+//
+// Os dois layouts usam a MESMA estrutura, mudando só como o grupo se abre:
+// no desktop, num painel ao lado (SidebarGroupFlyout); no mobile, numa
+// segunda linha da faixa horizontal — ver Sidebar.jsx.
 //
 // Chamados vem logo depois do Painel geral por ser o módulo de uso diário
 // da equipe — os demais grupos são consulta pontual.
@@ -93,10 +96,3 @@ export const NAV_ITEMS = [
     ],
   },
 ]
-
-// Lista achatada de todos os itens navegáveis (sem os cabeçalhos de grupo) —
-// usada no modo recolhido, onde só cabem ícones e não há espaço pra
-// sub-menus.
-export const FLAT_NAV_ITEMS = NAV_ITEMS.flatMap((entry) =>
-  entry.type === 'group' ? entry.items : [entry],
-)

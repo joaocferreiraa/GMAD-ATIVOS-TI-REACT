@@ -186,14 +186,21 @@
 }
 
 @media (max-width: 860px) {
+  /* Coluna, e não linha: a faixa passou a ter duas linhas — os módulos em
+     cima e, quando um está aberto, as abas dele embaixo. */
   .sidebar {
     position: static;
     width: 100%;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding: 10px 12px;
+    /* Mesmo recuo lateral do cabeçalho (.heroNavInner) e do conteúdo
+       (.content em AppLayout.module.css): 24px mais a área segura. Com os
+       12px de antes, os ícones do menu começavam metade do caminho à
+       esquerda da logo e do conteúdo, e a coluna da página nascia torta. */
+    padding: 10px calc(24px + var(--safe-right)) 10px calc(24px + var(--safe-left));
   }
 
   .bottom {
@@ -204,8 +211,112 @@
     flex: initial;
     min-height: auto;
     flex-direction: row;
-    gap: 6px;
+    gap: 4px;
     overflow-x: auto;
+  }
+
+  /* Ícone menor só na fileira horizontal: com 18px os sete módulos não
+     cabiam numa tela de 390px e era preciso arrastar pra alcançar o
+     último. Vale o contrário do desktop, onde a coluna tem largura de
+     sobra e o ícone maior ajuda a leitura.
+
+     A conta que fecha em 360px (a tela mais estreita em uso): sete botões
+     de 41px (6 + 16 + 3 + 10 + 6) mais seis vãos de 4px = 311px, contra
+     312px de largura útil depois do recuo de 24px de cada lado. */
+  .nav .navIcon,
+  .nav .navIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* O modo recolhido zera padding e gap do botão (ver .sidebar.collapsed
+     .navButton): faz sentido na coluna estreita do desktop, mas aqui, numa
+     fileira horizontal, cola o ícone no chevron e transforma os sete
+     módulos num bloco só. Aqui eles precisam de ar. */
+  .navButton,
+  .sidebar.collapsed .navButton {
+    padding: 9px 6px;
+    gap: 3px;
+  }
+
+  /* Escondido de vez, e não com max-width 0: recolhido o rótulo continua
+     sendo item flex, e o gap valeria dos dois lados dele — o espaço entre
+     ícone e chevron sairia dobrado. */
+  .sidebar.collapsed .label {
+    display: none;
+  }
+
+  /* ...mas as abas da segunda linha SEMPRE mostram o texto: um ícone
+     sozinho não diz se é "Ativos cadastrados" ou "Estoque". */
+  .sidebar.collapsed .subButton .label {
+    display: inline-block;
+    opacity: 1;
+    max-width: none;
+  }
+
+  /* Segunda linha: as abas do módulo aberto. Separada por um filete para
+     ficar claro que pertencem ao módulo de cima, e não a outro nível.
+
+     Quebra em mais de uma linha em vez de rolar: aqui o rótulo é a
+     informação (um ícone sozinho não diz se é "Ativos cadastrados" ou
+     "Estoque"), e um nome escondido fora da tela não seria encontrado.
+     "Rede", com três abas de nome longo, passa de 430px e não caberia em
+     nenhum celular numa linha só. */
+  .subNav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Mesmo tamanho de ícone da fileira de cima: as duas linhas são o mesmo
+     menu, e 18px aqui contra 16px lá fazia a segunda parecer de outro
+     componente. */
+  .subNav .navIcon,
+  .subNav .navIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .subButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+
+  .subButton.active {
+    background: var(--verde-100);
+    color: var(--brand-strong);
+    font-weight: 600;
+  }
+
+  .chevron {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--text-faint);
+    transition: transform 0.18s ease;
+  }
+
+  .chevron svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .chevronAberto {
+    transform: rotate(180deg);
   }
 
   /* .navButton herda width: 100% da lista vertical do desktop — numa linha

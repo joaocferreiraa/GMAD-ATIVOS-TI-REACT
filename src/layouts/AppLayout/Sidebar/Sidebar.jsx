@@ -5,13 +5,21 @@ import { useSidebarState } from '../../../hooks/layout/useSidebarState'
 import { useHoverTooltip } from '../../../hooks/overlay/useHoverTooltip'
 import { HoverTooltipContext } from '../../../contexts/HoverTooltipContext'
 import { nameFromEmail } from '../../../utils/formatters'
-import { NAV_ITEMS, FLAT_NAV_ITEMS } from './navItems'
+import { NAV_ITEMS } from './navItems'
 import SidebarModeMenu from './SidebarModeMenu'
 import SidebarGroupFlyout from './SidebarGroupFlyout'
+import { ChevronDownIcon } from '../../../components/ui/Icon/icons'
 import styles from './Sidebar.module.css'
 
 function isGroupActive(group, pathname) {
   return group.items.some(({ to }) => pathname === to || pathname.startsWith(`${to}/`))
+}
+
+// Grupo que contém a rota atual, ou null quando a rota é um link solto
+// (Painel geral). No mobile é ele que decide qual módulo já nasce aberto.
+function grupoDaRota(pathname) {
+  const grupo = NAV_ITEMS.find((entry) => entry.type === 'group' && isGroupActive(entry, pathname))
+  return grupo?.key ?? null
 }
 
 export default function Sidebar() {
@@ -47,10 +55,18 @@ export default function Sidebar() {
   // sempre fecha o flyout aberto. Ajustado durante o render (padrão do
   // React pra "resetar estado quando algo muda") em vez de um efeito — um
   // efeito rodaria depois do paint e causaria um render em cascata.
+  //
+  // No mobile não há flyout (não há espaço ao lado): o módulo tocado abre as
+  // abas numa segunda linha, e é `mobileGroup` que guarda qual está aberto.
+  // Ao trocar de rota ele passa a seguir o grupo da rota nova — assim, ao
+  // navegar para uma aba, as irmãs dela continuam à vista, e chegar por fora
+  // (busca, notificação) abre sozinho o módulo correspondente.
   const [flyoutRoute, setFlyoutRoute] = useState(location.pathname)
+  const [mobileGroup, setMobileGroup] = useState(() => grupoDaRota(location.pathname))
   if (location.pathname !== flyoutRoute) {
     setFlyoutRoute(location.pathname)
     if (flyout) setFlyout(null)
+    setMobileGroup(grupoDaRota(location.pathname))
   }
 
   function toggleFlyout(key, anchorEl) {
@@ -60,6 +76,10 @@ export default function Sidebar() {
 
   const flyoutGroup = flyout
     ? NAV_ITEMS.find((entry) => entry.type === 'group' && entry.key === flyout.key)
+    : null
+
+  const mobileGroupItems = mobileGroup
+    ? NAV_ITEMS.find((entry) => entry.type === 'group' && entry.key === mobileGroup)?.items
     : null
 
   // Todo link/botão da barra só recebe o tooltip (bindTooltip) quando
@@ -77,8 +97,8 @@ export default function Sidebar() {
   }, [collapsed, hideTooltip])
 
   // A barra vira uma faixa horizontal abaixo de 861px (ver Sidebar.module.css)
-  // — nesse layout não há como abrir um flyout ao lado, então usa a lista
-  // achatada (sem agrupamento) independente do modo da sidebar.
+  // — nesse layout não há como abrir um flyout ao lado, então o módulo tocado
+  // revela as abas numa segunda linha logo abaixo.
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 860px)')
     const handleChange = (event) => setIsMobile(event.matches)
@@ -113,20 +133,51 @@ export default function Sidebar() {
     >
       <div className={styles.nav}>
         {isMobile
-          ? FLAT_NAV_ITEMS.map(({ to, label, icon: Icon, end, truncates }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) => `${styles.navButton} ${isActive ? styles.active : ''}`}
-                {...(truncates ? bindTooltip(label) : {})}
-              >
-                <span className={styles.navIcon}>
-                  <Icon />
-                </span>
-                <span className={styles.label}>{label}</span>
-              </NavLink>
-            ))
+          ? NAV_ITEMS.map((entry) => {
+              if (entry.type === 'link') {
+                const { to, label, icon: Icon, end } = entry
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    className={({ isActive }) =>
+                      `${styles.navButton} ${isActive ? styles.active : ''}`
+                    }
+                  >
+                    <span className={styles.navIcon}>
+                      <Icon />
+                    </span>
+                    <span className={styles.label}>{label}</span>
+                  </NavLink>
+                )
+              }
+
+              const { key, label, icon: Icon } = entry
+              const aberto = mobileGroup === key
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={`${styles.navButton} ${isGroupActive(entry, location.pathname) ? styles.active : ''}`}
+                  aria-expanded={aberto}
+                  onClick={() => setMobileGroup(aberto ? null : key)}
+                >
+                  <span className={styles.navIcon}>
+                    <Icon />
+                  </span>
+                  <span className={styles.label}>{label}</span>
+                  {/* Chevron: sem ele nada distingue um módulo, que abre as
+                      abas, de "Painel geral", que navega direto. */}
+                  <span
+                    className={`${styles.chevron} ${aberto ? styles.chevronAberto : ''}`}
+                    aria-hidden="true"
+                  >
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+              )
+            })
           : NAV_ITEMS.map((entry) => {
               if (entry.type === 'link') {
                 const { to, label, icon: Icon, end, truncates } = entry
@@ -135,7 +186,9 @@ export default function Sidebar() {
                     key={to}
                     to={to}
                     end={end}
-                    className={({ isActive }) => `${styles.navButton} ${isActive ? styles.active : ''}`}
+                    className={({ isActive }) =>
+                      `${styles.navButton} ${isActive ? styles.active : ''}`
+                    }
                     {...(collapsed || truncates ? bindTooltip(label) : {})}
                   >
                     <span className={styles.navIcon}>
@@ -168,6 +221,26 @@ export default function Sidebar() {
               )
             })}
       </div>
+
+      {/* Abas do módulo aberto, só no mobile: no desktop elas moram no painel
+          lateral (SidebarGroupFlyout), que aqui não teria espaço ao lado. */}
+      {isMobile && mobileGroupItems && (
+        <div className={styles.subNav}>
+          {mobileGroupItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end
+              className={({ isActive }) => `${styles.subButton} ${isActive ? styles.active : ''}`}
+            >
+              <span className={styles.navIcon}>
+                <Icon />
+              </span>
+              <span className={styles.label}>{label}</span>
+            </NavLink>
+          ))}
+        </div>
+      )}
 
       <div className={styles.bottom}>
         {!collapsed && <div className={styles.greeting}>Olá, {displayName}</div>}
