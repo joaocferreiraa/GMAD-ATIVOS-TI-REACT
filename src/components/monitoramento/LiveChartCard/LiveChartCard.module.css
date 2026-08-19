@@ -6,9 +6,9 @@
 }
 
 /* Mesmo tamanho/peso das pastilhas de rede em Infraestrutura (.netTab em
-   InfraAccordion.module.css) — mesmo papel (alternar entre itens
-   relacionados). Peso 600 fixo em vez de só na ativa: só a cor/fundo marcam
-   qual está selecionada, texto não "pisca" mais fino/mais grosso ao trocar. */
+   UnitCard.module.css) — mesmo papel (alternar entre itens relacionados).
+   Peso 600 fixo em vez de só na ativa: só a cor/fundo marcam qual está
+   selecionada, texto não "pisca" mais fino/mais grosso ao trocar. */
 .pill {
   display: flex;
   align-items: center;

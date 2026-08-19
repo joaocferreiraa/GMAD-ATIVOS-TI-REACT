@@ -47,10 +47,50 @@
   padding-left: 40px;
 }
 
-.accordion {
+/* Faixa de resumo do cadastro, entre o título e a busca. */
+.stats {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+  align-items: baseline;
+  padding: 0 0 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+
+/* Só destaca quando há de fato o que fazer: zero pendência em laranja
+   permanente vira ruído e a cor deixa de significar alguma coisa. */
+.statAttn {
+  color: var(--accent);
+}
+
+.statLabel {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* Uma coluna por unidade enquanto couber. 340px é o ponto em que o rótulo
+   de 150px do InfraRow (ver InfraRow.module.css) ainda deixa espaço legível
+   pro valor ao lado — abaixo disso a linha fica apertada demais. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+  gap: 16px;
+  align-items: start;
 }
 
 .state {

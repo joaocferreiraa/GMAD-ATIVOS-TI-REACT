@@ -1,32 +1,34 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useInfra } from '../../hooks/data/useInfra'
 import { useInfraMutations } from '../../hooks/data/useInfraMutations'
 import Input from '../../components/ui/Input/Input'
-import Card from '../../components/ui/Card/Card'
 import Loading from '../../components/ui/Loading/Loading'
 import Alert from '../../components/ui/Alert/Alert'
+import EmptyHint from '../../components/dashboard/EmptyHint/EmptyHint'
 import { SearchIcon } from '../../components/ui/Icon/icons'
-import WifiSection from '../../components/infraestrutura/WifiSection/WifiSection'
-import ConstrushowSection from '../../components/infraestrutura/ConstrushowSection/ConstrushowSection'
+import UnitCard from '../../components/infraestrutura/UnitCard/UnitCard'
 import InfraFormModal from '../../components/infraestrutura/InfraFormModal/InfraFormModal'
 import { WIFI_FIELDS, CONSTRUSHOW_FIELDS } from '../../constants/infra'
+import { buildInfraByUnit, infraStats } from '../../utils/infraFilter'
 import styles from './InfraestruturaPage.module.css'
+
+// Constante de módulo, e não um literal no corpo do componente: um `{}` novo
+// a cada render trocaria a identidade de `data` mesmo sem dado nenhum ter
+// mudado, e os useMemo abaixo recalculariam sempre.
+const INFRA_VAZIA = { construshow: [], wifi: [] }
 
 export default function InfraestruturaPage() {
   const { data: infra, isLoading, isError } = useInfra()
   const { updateConstrushow, updateWifi, addWifiNetwork } = useInfraMutations()
 
   const [search, setSearch] = useState('')
-  const [openSection, setOpenSection] = useState(null)
   const [wifiSelected, setWifiSelected] = useState({})
   const [editing, setEditing] = useState(null) // null | { type: 'construshow'|'wifi', idx }
 
-  const data = infra ?? { construshow: [], wifi: [] }
+  const data = useMemo(() => infra ?? INFRA_VAZIA, [infra])
 
-  function handleToggleSection(key) {
-    if (search.trim()) return
-    setOpenSection((cur) => (cur === key ? null : key))
-  }
+  const unidades = useMemo(() => buildInfraByUnit(data, search), [data, search])
+  const stats = useMemo(() => infraStats(data), [data])
 
   function handleSelectNet(unidade, idx) {
     setWifiSelected((s) => ({ ...s, [unidade]: idx }))
@@ -75,6 +77,8 @@ export default function InfraestruturaPage() {
     }
   }
 
+  const buscando = !!search.trim()
+
   return (
     <div>
       <div className={styles.heading}>
@@ -83,6 +87,29 @@ export default function InfraestruturaPage() {
           Informações técnicas de rede, sistemas e unidades usadas no dia a dia da equipe de TI.
         </p>
       </div>
+
+      {/* Resumo do cadastro INTEIRO (não do resultado da busca): responde "o
+          que existe aqui?" antes de qualquer leitura campo a campo. As
+          pendências são o número que puxa trabalho — sem ele, um gateway em
+          branco só aparece pra quem abre a unidade e lê "Não informado". */}
+      {!isLoading && !isError && (
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <span className={styles.statValue}>{stats.unidades}</span>
+            <span className={styles.statLabel}>unidades</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.statValue}>{stats.redes}</span>
+            <span className={styles.statLabel}>redes Wi-Fi</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={`${styles.statValue} ${stats.pendentes ? styles.statAttn : ''}`}>
+              {stats.pendentes}
+            </span>
+            <span className={styles.statLabel}>campos sem preencher</span>
+          </div>
+        </div>
+      )}
 
       <div className={styles.toolbar}>
         <div className={styles.searchWrap}>
@@ -108,28 +135,31 @@ export default function InfraestruturaPage() {
         </Alert>
       )}
 
-      {!isLoading && !isError && (
-        <Card variant="plain">
-          <div className={styles.accordion}>
-            <WifiSection
-              list={data.wifi}
-              search={search}
-              openSection={openSection}
-              onToggle={handleToggleSection}
-              selected={wifiSelected}
+      {!isLoading && !isError && unidades.length === 0 && (
+        <EmptyHint>
+          {buscando
+            ? 'Nenhum resultado encontrado.'
+            : 'Nenhuma unidade cadastrada na infraestrutura ainda.'}
+        </EmptyHint>
+      )}
+
+      {!isLoading && !isError && unidades.length > 0 && (
+        <div className={styles.grid}>
+          {unidades.map((u) => (
+            <UnitCard
+              key={u.unidade}
+              unidade={u.unidade}
+              aceitaWifi={u.aceitaWifi}
+              wifi={u.wifi}
+              construshow={u.construshow}
+              selectedIdx={wifiSelected[u.unidade]}
               onSelectNet={handleSelectNet}
               onAddWifi={handleAddWifi}
               onEditWifi={(idx) => setEditing({ type: 'wifi', idx })}
+              onEditConstrushow={(idx) => setEditing({ type: 'construshow', idx })}
             />
-            <ConstrushowSection
-              list={data.construshow}
-              search={search}
-              openSection={openSection}
-              onToggle={handleToggleSection}
-              onEdit={(idx) => setEditing({ type: 'construshow', idx })}
-            />
-          </div>
-        </Card>
+          ))}
+        </div>
       )}
 
       {modalProps && (

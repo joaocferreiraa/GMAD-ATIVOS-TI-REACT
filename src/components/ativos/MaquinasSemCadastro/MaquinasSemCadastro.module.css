@@ -27,9 +27,10 @@
   background: var(--surface-hover);
 }
 
-/* Mesma tipografia dos títulos do acordeão de Infraestrutura (.title em
-   InfraAccordion.module.css) — é o outro colapsável do sistema, e os dois
-   não deviam ter escalas diferentes. */
+/* 14px/600: a escala de título de bloco colapsável do sistema. Vinha do
+   acordeão de Infraestrutura, que não existe mais (aquela tela virou cartões
+   por unidade) — o valor fica aqui como o próprio padrão, sem referência a
+   um arquivo que já foi. */
 .titulo {
   font-size: 14px;
   font-weight: 600;
