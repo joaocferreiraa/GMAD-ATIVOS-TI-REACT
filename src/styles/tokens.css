@@ -85,7 +85,12 @@
      invisível. Não clareie este valor sem medir. */
   --chart-5: #16a34a; /* verde */
   --chart-6: #e11d48; /* rosa */
-  --chart-7: #d97706; /* âmbar */
+  /* Amarelo-ouro. É o matiz mais difícil sobre branco: o #eab308 do modo
+     escuro dá 1.9:1 aqui, ilegível. Este é o mesmo tom (matiz 46°, mesma
+     saturação) escurecido só até passar dos 3:1 mínimos — 3.26:1.
+     Substituiu o âmbar #d97706, que era um segundo laranja na paleta e não
+     acrescentava matiz nenhum ao lado de --chart-2. */
+  --chart-7: #b18906; /* amarelo */
   --chart-8: #4f46e5; /* índigo */
 
   /* Estado NORMAL dos painéis de medição (sparkline de latência dentro do
@@ -206,10 +211,15 @@
   --chart-2: #fb923c; /* laranja */
   --chart-3: #22d3ee; /* ciano */
   --chart-4: #c084fc; /* violeta */
-  /* Aqui sim o verde neon: sobre o fundo quase preto ele chega a ~9.5:1 e
-     é a série que mais salta da tela depois do azul. */
+  /* Aqui sim o verde neon: sobre o fundo quase preto chega a ~9.5:1. Só
+     entra em gráfico categórico (ver CHART_COLORS) — as séries temporais
+     deixaram o verde de fora, ver SERIE_CORES. */
   --chart-5: #4ade80; /* verde */
   --chart-6: #fb7185; /* rosa */
-  --chart-7: #fbbf24; /* âmbar */
+  /* Amarelo-ouro cheio: ~8.9:1 sobre o fundo quase preto. É o par de maior
+     distância entre os dois temas em toda a paleta — sobre branco este
+     mesmo tom cai pra 1.9:1, por isso o valor claro não é simplesmente
+     este escurecido "um pouco". */
+  --chart-7: #eab308; /* amarelo */
   --chart-8: #a5b4fc; /* índigo */
 }

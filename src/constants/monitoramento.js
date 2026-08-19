@@ -85,7 +85,7 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // linhas se cruzam e se sobrepõem o gráfico inteiro, então cada cor precisa
 // estar longe da anterior NA RODA DE CORES, não só ser diferente. Como a
 // instalação típica tem 2-4 pontos, as primeiras posições carregam o peso:
-// azul → verde → violeta → laranja são ~90° de distância entre vizinhas.
+// azul (220°) → amarelo (46°) → violeta (280°) ficam bem espalhados na roda.
 //
 // O CIANO desceu do 2º pro 5º lugar justamente por isso: colado no azul da
 // primeira série, e ainda por cima tracejado, as duas linhas viravam a
@@ -99,12 +99,15 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // mais próximo desse vermelho, então fica em último — é o único que só
 // aparece se houver 6 pontos monitorados.
 //
-// O verde não tem esse problema: nenhum elemento DENTRO da área de desenho
-// é verde. O verde de "tudo certo" vive nos cartões e no cabeçalho, fora do
-// gráfico.
+// VERDE também ficou de fora, por escolha visual: o amarelo ocupa a 2ª
+// posição no lugar dele. Nada impede tecnicamente uma série verde (nenhum
+// elemento dentro da área de desenho é verde), mas com o verde fora daqui a
+// cor deixa de aparecer nos dois papéis da tela ao mesmo tempo — nos
+// gráficos ela seria identidade de um ponto, e nos cartões e no cabeçalho
+// continua significando "tudo certo".
 export const SERIE_CORES = [
   'var(--chart-1)', // azul
-  'var(--chart-5)', // verde
+  'var(--chart-7)', // amarelo
   'var(--chart-4)', // violeta
   'var(--chart-2)', // laranja
   'var(--chart-3)', // ciano
