@@ -26,9 +26,9 @@
 }
 
 /* Mesma receita de título/subtítulo das demais telas (ver
-   MonitoramentoRedePage/DashboardPage/AtivosPage .heading h2): Poppins 23px
-   600 + subtítulo 13px. Antes eram 17px sem font-family (caía no Inter do
-   corpo) e sem peso explícito — a página abria com uma tipografia própria,
+   MonitoramentoRedePage/DashboardPage/AtivosPage .heading h2):
+   --font-display 600 + subtítulo 13px. Antes eram 17px sem font-family e
+   sem peso explícito — a página abria com uma tipografia própria,
    destoando do resto do site. */
 .title {
   margin: 0;
