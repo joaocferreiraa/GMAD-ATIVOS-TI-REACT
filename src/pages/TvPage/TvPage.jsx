@@ -10,12 +10,15 @@ import { fmtRelTime } from '../../utils/formatters'
 import { toWideSeries, buildSeries } from '../../utils/chartSeries'
 import MultiLineChart from '../../components/charts/MultiLineChart/MultiLineChart'
 import MetricStat from '../../components/monitoramento/MetricStat/MetricStat'
-// Versão da logo para fundo escuro: o verde da marca (#006934) tem só
-// 2.84:1 de contraste sobre o fundo do painel — abaixo do mínimo de 3:1
-// para elementos gráficos, ficando pesado e sem definição na TV. Esta
-// versão clareia apenas o verde (9.77:1), preservando o laranja e a
-// transparência.
-import logo from '../../assets/images/gmad-logo-dark.png'
+// Duas versões da logo, uma por tema. No escuro, o verde da marca
+// (#006934) tem só 2.84:1 de contraste sobre o fundo do painel — abaixo do
+// mínimo de 3:1 para elementos gráficos; a versão "dark" clareia só o
+// verde (9.77:1), preservando o laranja. No claro vale o inverso: esse
+// verde clareado sobre painel branco é que ficaria fraco, então volta a
+// logo normal, a mesma da barra do topo.
+import logoClara from '../../assets/images/gmad-logo.png'
+import logoEscura from '../../assets/images/gmad-logo-dark.png'
+import { useTheme } from '../../hooks/theme/useTheme'
 import styles from './TvPage.module.css'
 
 // 45s: menor que o intervalo de coleta do agente (30s) somado a uma folga,
@@ -56,6 +59,8 @@ function estaVelha(iso) {
 //     aqui é ninguém perceber que o painel congelou.
 export default function TvPage() {
   const queryClient = useQueryClient()
+  const { isDark } = useTheme()
+  const logo = isDark ? logoEscura : logoClara
   const [agora, setAgora] = useState(() => new Date())
 
   const { data: monitores } = useMonitores()
@@ -134,13 +139,14 @@ export default function TvPage() {
   // rolagem. Restaura ao sair pra não afetar as outras telas.
   useEffect(() => {
     const anterior = document.body.style.background
-    // Mesmo --dash-bg do painel (paleta escura do Supabase): sem isso o
-    // body aparece com o tema do site em qualquer rolagem elástica.
-    document.body.style.background = '#171717'
+    // Mesmo --dash-bg do painel, agora nos dois temas: o fundo da TV não é
+    // igual ao fundo do site (ela usa um degrau a mais de cinza pra os
+    // painéis se destacarem), então não dá pra herdar --page-bg.
+    document.body.style.background = isDark ? '#171717' : '#f4f4f5'
     return () => {
       document.body.style.background = anterior
     }
-  }, [])
+  }, [isDark])
 
   // Mantém a tela acesa enquanto o painel estiver aberto (Screen Wake Lock).
   // Sem isso a TV/monitor entra em descanso e o painel some. Nem todo

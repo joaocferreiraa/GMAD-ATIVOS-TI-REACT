@@ -1,59 +1,53 @@
-/* Painel de parede (NOC) — sempre escuro, independente do tema do site.
-   Escuro não é preferência estética aqui: numa TV ligada 24/7, fundo claro
-   ilumina a sala, desgasta o painel e faz as cores de alerta competirem
-   com o resto da tela. É o padrão de Grafana/Zabbix/Datadog pelo mesmo
-   motivo.
+/* Painel de parede (NOC). Acompanha o tema do site: claro no claro, escuro
+   no escuro.
 
-   A paleta segue o modo escuro do Supabase: cinzas neutros em degraus
-   (fundo -> painel -> painel elevado) em vez de azulados ou preto
-   absoluto, com verde de acento. Contraste verificado: texto 14.6:1,
-   muted 6.5:1, estados acima de 5.5:1.
+   Registro do que essa escolha custa, porque não é óbvio: numa TV ligada
+   24/7 o fundo claro ilumina a sala, desgasta mais o painel e faz as cores
+   de alerta competirem com o resto da tela — é por isso que Grafana,
+   Zabbix e Datadog são escuros por padrão. Quem deixar o site no modo
+   claro e abrir a TV vai ver um painel branco a noite inteira. Trocar o
+   tema do site resolve, já que agora um segue o outro.
+
+   As duas paletas seguem o Supabase: cinzas neutros em degraus (fundo ->
+   painel -> painel elevado), sem azulado e sem preto absoluto.
 
    Os tokens abaixo sobrescrevem os globais só dentro desta página, então
    os componentes reaproveitados (MetricStat, MultiLineChart) já saem na
    paleta certa sem precisar de variante própria. */
 .tv {
-  /* Paleta do modo escuro do Supabase: cinzas NEUTROS (sem o azul que o
-     #0a0d12 tinha, e sem preto absoluto). O fundo em #171717 com painéis
-     em #1c1c1c cria a separação por degraus de luminância, que é o que
-     dá profundidade sem precisar de borda forte — e evita o "smearing"
-     que preto absoluto provoca em OLED quando o conteúdo muda. */
-  --dash-bg: #171717;
-  --dash-panel: #1c1c1c;
-  --dash-panel-2: #232323;
-  --dash-line: #2e2e2e;
-  --dash-line-soft: #262626;
+  /* Claro: fundo levemente cinza com painéis brancos por cima — sem isso
+     painel e fundo teriam a mesma cor e a grade sumiria, já que aqui a
+     separação vem do degrau de luminância, não de borda forte. */
+  --dash-bg: #f4f4f5;
+  --dash-panel: #ffffff;
+  --dash-panel-2: #fafafa;
+  --dash-line: #e4e4e7;
+  --dash-line-soft: #ececee;
 
-  /* Verde da marca clareado para uso sobre fundo escuro — é a cor de
-     "normal" do painel e a que assina a identidade GMAD aqui (o laranja
-     fica por conta da própria logo). */
-  --gmad-verde-claro: #3fd07f;
+  /* Verde da marca no tom escuro: sobre painel branco, o verde claro do
+     modo escuro não teria contraste suficiente para texto e traço fino. */
+  --gmad-verde-claro: #1b7a43;
 
   --bg: var(--dash-bg);
   --surface: var(--dash-panel);
   --surface-hover: var(--dash-panel-2);
   --border: var(--dash-line);
-  --border-strong: #3e3e3e;
-  /* Escala de texto do Supabase: branco levemente rebaixado no topo e
-     dois níveis de cinza neutro abaixo. */
-  --text: #ededed;
-  --text-muted: #a0a0a0;
-  --text-faint: #707070;
+  --border-strong: #d4d4d8;
+  --text: #18181b;
+  --text-muted: #52525b;
+  --text-faint: #6f6f78;
   --ok: var(--gmad-verde-claro);
-  --warn: #f5a524;
-  --danger: #ff5a5f;
-  /* Fundos de estado bem discretos, no espírito do Supabase: matiz só o
-     suficiente pra distinguir do painel neutro. */
-  --ok-bg: #10231a;
-  --warn-bg: #241c0e;
-  --danger-bg: #241416;
+  --warn: #b96a12;
+  --danger: #c23b1f;
+  --ok-bg: rgba(27, 122, 67, 0.1);
+  --warn-bg: rgba(185, 106, 18, 0.12);
+  --danger-bg: rgba(194, 59, 31, 0.1);
   --brand: var(--gmad-verde-claro);
-  --gauge-track: #2a2a2a;
+  --gauge-track: #e4e4e7;
 
   /* Mantém o IBM Plex Sans nos títulos dos cartões de métrica só aqui — o
-     MetricStat é compartilhado com as telas normais do site, onde o padrão
-     é Poppins (ver MetricStat.module.css .titulo). Mesmo motivo do .title
-     abaixo: legibilidade a distância num painel de parede. */
+     MetricStat é compartilhado com as telas normais do site. Mesmo motivo
+     do .title abaixo: legibilidade a distância num painel de parede. */
   --metricstat-titulo-font: 'IBM Plex Sans', var(--font-body);
 
   min-height: 100vh;
@@ -65,6 +59,36 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+/* Escuro — o mesmo `data-theme` que o ThemeProvider grava no <html>, então
+   a TV acompanha o interruptor do site sem precisar de controle próprio.
+   Sem preto absoluto de propósito: em OLED, preto puro provoca "smearing"
+   quando o conteúdo muda, e num painel que atualiza sozinho o tempo todo
+   isso aparece. */
+:global(:root[data-theme='dark']) .tv {
+  --dash-bg: #171717;
+  --dash-panel: #1c1c1c;
+  --dash-panel-2: #232323;
+  --dash-line: #2e2e2e;
+  --dash-line-soft: #262626;
+
+  /* Verde da marca clareado para uso sobre fundo escuro — é a cor de
+     "normal" do painel e a que assina a identidade GMAD aqui. */
+  --gmad-verde-claro: #3fd07f;
+
+  --border-strong: #3e3e3e;
+  --text: #ededed;
+  --text-muted: #a0a0a0;
+  --text-faint: #707070;
+  --warn: #f5a524;
+  --danger: #ff5a5f;
+  /* Fundos de estado bem discretos: matiz só o suficiente pra distinguir
+     do painel neutro. */
+  --ok-bg: #10231a;
+  --warn-bg: #241c0e;
+  --danger-bg: #241416;
+  --gauge-track: #2a2a2a;
   color-scheme: dark;
   /* Família IBM Plex no painel inteiro: Sans nos títulos (ver .title) e
      Mono nos números (.clock/.headStatValue) — desenhadas juntas, então
@@ -273,7 +297,7 @@
   align-items: center;
   gap: 18px;
   padding: 14px 20px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   border: 1px solid var(--danger);
   background: linear-gradient(90deg, var(--danger-bg), transparent 70%);
   /* Respiração lenta: chama atenção sem virar um estrobo irritante numa
