@@ -56,7 +56,7 @@ export default function BarChart({
 
   return (
     <div>
-      <div style={{ width: '100%', height: chartData.length * rowHeight }}>
+      <div className={styles.chart} style={{ width: '100%', height: chartData.length * rowHeight }}>
         <ResponsiveContainer width="100%" height="100%">
           <RBarChart
             data={chartData}

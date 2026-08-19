@@ -1,3 +1,13 @@
+/* Sombra nas barras. Aplicada na CAMADA da série (.recharts-bar), e não em
+   cada retângulo: o drop-shadow trabalha sobre o alfa do que foi
+   rasterizado, então cada barra ganha a sua sombra recortada na própria
+   silhueta — inclusive as pontas arredondadas — com um filtro só.
+   O rótulo numérico fica FORA dessa camada no DOM do Recharts, então não
+   herda a sombra: número com sombra vira texto borrado. */
+.chart :global(.recharts-bar) {
+  filter: drop-shadow(var(--chart-shadow));
+}
+
 .total {
   margin-top: 12px;
   padding-top: 10px;

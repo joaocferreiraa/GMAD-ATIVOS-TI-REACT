@@ -113,6 +113,15 @@
   --chart-7: #a3e635; /* verde-lima */
   --chart-8: #a5b4fc; /* índigo */
 
+  /* Sombra projetada das FORMAS CHEIAS dos gráficos (barra, polígono do
+     radar). É o equivalente, pra forma preenchida, do que a mancha
+     translúcida faz pra linha: separa o desenho do fundo e do que está
+     atrás dele. Guardado como a lista de argumentos de drop-shadow(), não
+     como box-shadow — barra e polígono são SVG, e box-shadow não recorta
+     pela silhueta; sairia um retângulo de sombra atrás de uma barra de
+     ponta arredondada. */
+  --chart-shadow: 0 1px 2px rgba(24, 24, 27, 0.22);
+
   /* Estado BOM dos painéis de medição — o número grande e a sparkline de um
      ponto dentro do limite, a barra de uso com folga. Junto com --warn e
      --danger forma um semáforo: verde tranquilo, âmbar mais ou menos,
@@ -227,6 +236,10 @@
 
   --indigo: #818cf8;
   --indigo-bg: rgba(129, 140, 248, 0.16);
+
+  /* Mais escura e mais espalhada que no tema claro: sobre um fundo quase
+     preto, a sombra do tema claro (22% de preto) simplesmente não existe. */
+  --chart-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 
   /* NÃO há bloco --chart-* aqui: a paleta dos gráficos é uma só nos dois
      temas, definida em :root. Ver o comentário lá — os valores foram

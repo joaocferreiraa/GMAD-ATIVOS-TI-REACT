@@ -12,6 +12,12 @@
   height: 148px;
 }
 
+/* Mesma sombra das barras e do radar — os três dividem a tela da Visão
+   geral, e uma rosca chapada ao lado de formas com relevo destoaria. */
+.donut :global(.recharts-pie) {
+  filter: drop-shadow(var(--chart-shadow));
+}
+
 .center {
   position: absolute;
   inset: 0;

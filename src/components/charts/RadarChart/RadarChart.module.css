@@ -7,6 +7,14 @@
   height: 380px;
 }
 
+/* Sombra só no POLÍGONO da série, não no gráfico inteiro: a teia de fundo
+   (.recharts-polar-grid) é uma malha de linhas de 1px e, com sombra, cada
+   fio ganharia um borrão do dobro da própria espessura — a grade viraria a
+   coisa mais pesada da tela, que é o oposto do papel dela. */
+.chartWrap :global(.recharts-radar-polygon) {
+  filter: drop-shadow(var(--chart-shadow));
+}
+
 @media (max-width: 640px) {
   .chartWrap {
     height: 320px;
