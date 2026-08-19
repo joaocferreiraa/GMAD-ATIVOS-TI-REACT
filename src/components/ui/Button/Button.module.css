@@ -108,3 +108,20 @@
   padding: 7px 12px;
   font-size: 12.5px;
 }
+
+/* No toque não há ponteiro preciso: o dedo cobre bem mais que o cursor, e
+   um botão de 32px de altura erra o alvo com facilidade. iOS e Android
+   recomendam ~44px. A altura vem de `min-height` (não de mais padding)
+   para o texto continuar centralizado e o botão não mudar de largura.
+   O `sm` fica em 40px de propósito: ele vive em lugares densos — ações de
+   linha de tabela, barras de ferramenta — onde 44px empurraria demais a
+   altura de cada linha. */
+@media (max-width: 860px) {
+  .btn {
+    min-height: 44px;
+  }
+
+  .sm {
+    min-height: 40px;
+  }
+}

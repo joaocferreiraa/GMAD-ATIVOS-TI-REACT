@@ -40,6 +40,15 @@
   }
 }
 
+/* Fechar é a ação mais usada de um modal no celular, e 32px é pequeno
+   demais para o dedo — ainda mais no canto da tela. */
+@media (max-width: 860px) {
+  .closeBtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .shake {
   animation: modalShake 0.32s ease;
 }

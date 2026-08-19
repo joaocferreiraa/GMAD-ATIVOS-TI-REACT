@@ -237,6 +237,9 @@
   .sidebar.collapsed .navButton {
     padding: 9px 6px;
     gap: 3px;
+    /* Alvo de toque: a largura é apertada pra caberem os sete módulos, então
+       a área confortável tem que vir da altura. */
+    min-height: 44px;
   }
 
   /* Escondido de vez, e não com max-width 0: recolhido o rótulo continua
@@ -290,6 +293,7 @@
     text-decoration: none;
     color: var(--text-muted);
     padding: 9px 10px;
+    min-height: 44px;
     border-radius: var(--radius);
     font-size: 12.5px;
     font-weight: 500;
