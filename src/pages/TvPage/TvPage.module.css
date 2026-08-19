@@ -59,6 +59,18 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  color-scheme: light;
+  /* Família IBM Plex no painel inteiro: Sans nos títulos (ver .title) e
+     Mono nos números (.clock/.headStatValue) — desenhadas juntas, então
+     cabeçalho e métricas conversam, com o ar técnico que um painel de
+     operação pede. Inter fica no corpo/textos auxiliares. Todas já vêm
+     carregadas pelo site, então o painel não puxa fonte nova. */
+  font-family: var(--font-body);
+  /* Números tabulares: dígitos de mesma largura, então o relógio e as
+     métricas não "dançam" a cada atualização. */
+  font-variant-numeric: tabular-nums;
+  /* Suaviza o traço em tela grande, onde o texto fica mais espesso. */
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Escuro — o mesmo `data-theme` que o ThemeProvider grava no <html>, então
@@ -89,18 +101,10 @@
   --warn-bg: #241c0e;
   --danger-bg: #241416;
   --gauge-track: #2a2a2a;
+  /* Só isto é de tema: barra de rolagem e controles nativos escuros. O
+     resto (fonte, números tabulares, suavização) é estrutural e vive no
+     .tv, valendo nos dois temas. */
   color-scheme: dark;
-  /* Família IBM Plex no painel inteiro: Sans nos títulos (ver .title) e
-     Mono nos números (.clock/.headStatValue) — desenhadas juntas, então
-     cabeçalho e métricas conversam, com o ar técnico que um painel de
-     operação pede. Inter fica no corpo/textos auxiliares. Todas já vêm
-     carregadas pelo site, então o painel não puxa fonte nova. */
-  font-family: var(--font-body);
-  /* Números tabulares: dígitos de mesma largura, então o relógio e as
-     métricas não "dançam" a cada atualização. */
-  font-variant-numeric: tabular-nums;
-  /* Suaviza o traço em tela grande, onde o texto fica mais espesso. */
-  -webkit-font-smoothing: antialiased;
 }
 
 /* ---------- Cabeçalho ---------- */
@@ -140,10 +144,9 @@
 
 .title {
   margin: 0;
-  /* IBM Plex Sans, não Poppins: Poppins é geométrica e muito arredondada
-     (o "o" é quase um círculo perfeito), o que dá um ar informal que
-     destoa de um painel de operação. Plex Sans é da mesma família do mono
-     usado nos números, então o cabeçalho e as métricas conversam.
+  /* IBM Plex Sans, e não a fonte do site: Plex Sans é da mesma família do
+     mono usado nos números, então o cabeçalho e as métricas conversam —
+     e o desenho mais estreito lê melhor a distância numa parede.
      Em CAIXA ALTA com tracking aberto: em corpo menor, versalete lê melhor
      a distância que minúscula grande, e dá o tom de painel técnico. */
   font-family: 'IBM Plex Sans', var(--font-body);
