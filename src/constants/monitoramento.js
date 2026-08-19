@@ -85,11 +85,13 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // linhas se cruzam e se sobrepõem o gráfico inteiro, então cada cor precisa
 // estar longe da anterior NA RODA DE CORES, não só ser diferente. Como a
 // instalação típica tem 2-4 pontos, as primeiras posições carregam o peso:
-// azul (220°) → amarelo (46°) → violeta (280°) ficam bem espalhados na roda.
+// azul (221°) → âmbar (37°) → violeta (277°). Azul e âmbar estão a 176° de
+// distância, de um máximo teórico de 180: as duas séries que quase sempre
+// aparecem juntas ficam praticamente uma no lado oposto da outra.
 //
-// O CIANO desceu do 2º pro 5º lugar justamente por isso: colado no azul da
+// O CIANO desceu do 2º pro 4º lugar justamente por isso: colado no azul da
 // primeira série, e ainda por cima tracejado, as duas linhas viravam a
-// mesma coisa a poucos metros. Da 5ª série em diante já não há matiz
+// mesma coisa a poucos metros. Da 4ª série em diante já não há matiz
 // sobrando, e aí o padrão de traço é que separa.
 //
 // VERMELHO ficou de fora, ainda que seja a cor mais chamativa da paleta:
@@ -99,18 +101,24 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // mais próximo desse vermelho, então fica em último — é o único que só
 // aparece se houver 6 pontos monitorados.
 //
-// VERDE também ficou de fora, por escolha visual: o amarelo ocupa a 2ª
-// posição no lugar dele. Nada impede tecnicamente uma série verde (nenhum
-// elemento dentro da área de desenho é verde), mas com o verde fora daqui a
-// cor deixa de aparecer nos dois papéis da tela ao mesmo tempo — nos
-// gráficos ela seria identidade de um ponto, e nos cartões e no cabeçalho
-// continua significando "tudo certo".
+// VERDE ficou de fora por escolha visual. Nada impede tecnicamente (nenhum
+// elemento dentro da área de desenho é verde), mas com ele fora daqui a cor
+// deixa de acumular dois papéis na mesma tela: nos gráficos seria
+// identidade de um ponto, e nos cartões e no cabeçalho ela continua
+// significando "tudo certo". O verde-lima da 5ª posição é outro matiz
+// (80° contra 145°) e não carrega essa leitura.
+//
+// O ÂMBAR da 2ª posição é quase o mesmo tom de --warn, que nos cartões de
+// medição significa "acima do limite" — as duas codificações convivem na
+// tela do Modo TV. O que as separa não é a cor, é a FORMA da legenda:
+// quadrado preenchido para estado, traço tracejado para série. Ver a nota
+// em --chart-2 (styles/tokens.css) se um dia isso confundir na parede.
 export const SERIE_CORES = [
   'var(--chart-1)', // azul
-  'var(--chart-7)', // amarelo
+  'var(--chart-2)', // âmbar
   'var(--chart-4)', // violeta
-  'var(--chart-2)', // laranja
   'var(--chart-3)', // ciano
+  'var(--chart-7)', // verde-lima
   'var(--chart-6)', // rosa
 ]
 

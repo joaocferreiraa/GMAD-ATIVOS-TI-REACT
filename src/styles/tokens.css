@@ -76,7 +76,15 @@
      Ordem pensada pra que os 3-4 primeiros (os mais usados) sejam os mais
      distintos entre si. */
   --chart-1: #2563eb; /* azul */
-  --chart-2: #f97316; /* laranja */
+  /* Âmbar dourado — o tom de referência escolhido pro produto. É quase o
+     complementar exato do --chart-1: 176° de distância na roda, de um
+     máximo de 180°, então as duas séries que quase sempre aparecem juntas
+     ficam o mais longe uma da outra que a cor permite.
+     Este é o valor CLARO: o âmbar cheio do modo escuro (#f9a825) rende
+     1.9:1 sobre branco. Aqui vai o mesmo matiz (37°) escurecido até 3.2:1 —
+     lê como ouro velho, não como o âmbar aceso do tema escuro. É o preço de
+     um matiz quente sobre fundo branco, não uma escolha. */
+  --chart-2: #c78005; /* âmbar */
   --chart-3: #0891b2; /* ciano */
   --chart-4: #9333ea; /* violeta */
   /* Verde tão vivo quanto o fundo branco permite: 3.3:1 de contraste, logo
@@ -85,12 +93,12 @@
      invisível. Não clareie este valor sem medir. */
   --chart-5: #16a34a; /* verde */
   --chart-6: #e11d48; /* rosa */
-  /* Amarelo-ouro. É o matiz mais difícil sobre branco: o #eab308 do modo
-     escuro dá 1.9:1 aqui, ilegível. Este é o mesmo tom (matiz 46°, mesma
-     saturação) escurecido só até passar dos 3:1 mínimos — 3.26:1.
-     Substituiu o âmbar #d97706, que era um segundo laranja na paleta e não
-     acrescentava matiz nenhum ao lado de --chart-2. */
-  --chart-7: #b18906; /* amarelo */
+  /* Verde-lima (3.1:1). Ocupa o buraco entre o âmbar de --chart-2 (37°) e o
+     verde de --chart-5 (145°) — um amarelo-esverdeado que a paleta não
+     tinha. Já foi âmbar #d97706 e depois amarelo #b18906; os dois viraram
+     quase-clones de --chart-2 quando ele passou a ser âmbar, e duas cores a
+     9° de distância numa paleta de 8 não são duas cores. */
+  --chart-7: #65a30d; /* verde-lima */
   --chart-8: #4f46e5; /* índigo */
 
   /* Estado NORMAL dos painéis de medição (sparkline de latência dentro do
@@ -208,7 +216,14 @@
      cada série é atribuída por posição, então trocar de tema não pode
      reembaralhar quem é quem na legenda. */
   --chart-1: #60a5fa; /* azul */
-  --chart-2: #fb923c; /* laranja */
+  /* O âmbar de referência, cheio: 8.7:1 sobre o fundo quase preto.
+     ATENÇÃO: é praticamente o mesmo tom de --warn (#f59e0b), que significa
+     "acima do limite" nos cartões de medição. Os dois convivem na mesma
+     tela do Modo TV e só se distinguem pela FORMA da legenda — quadrado
+     preenchido para estado, traço tracejado para série. Se um dia isso
+     confundir alguém na parede, o ajuste é aqui (puxar pro laranja
+     avermelhado), não no --warn, que é a cor de atenção do site inteiro. */
+  --chart-2: #f9a825; /* âmbar */
   --chart-3: #22d3ee; /* ciano */
   --chart-4: #c084fc; /* violeta */
   /* Aqui sim o verde neon: sobre o fundo quase preto chega a ~9.5:1. Só
@@ -216,10 +231,8 @@
      deixaram o verde de fora, ver SERIE_CORES. */
   --chart-5: #4ade80; /* verde */
   --chart-6: #fb7185; /* rosa */
-  /* Amarelo-ouro cheio: ~8.9:1 sobre o fundo quase preto. É o par de maior
-     distância entre os dois temas em toda a paleta — sobre branco este
-     mesmo tom cai pra 1.9:1, por isso o valor claro não é simplesmente
-     este escurecido "um pouco". */
-  --chart-7: #eab308; /* amarelo */
+  /* Verde-lima aceso: ~11:1 sobre o fundo quase preto, o maior contraste
+     da paleta escura. */
+  --chart-7: #a3e635; /* verde-lima */
   --chart-8: #a5b4fc; /* índigo */
 }
