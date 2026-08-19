@@ -12,6 +12,10 @@
   --dash-text-muted: var(--text-muted);
   --dash-text-faint: var(--text-faint);
   --dash-ok: var(--ok);
+  /* Estado normal das BARRAS DE USO — azul, separado do --dash-ok verde
+     que os StatTile continuam usando pro veredito ("3/3 pontos online").
+     Ver --metric-normal em styles/tokens.css. */
+  --dash-normal: var(--metric-normal);
   --dash-warn: var(--warn);
   --dash-danger: var(--danger);
 }

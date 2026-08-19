@@ -44,9 +44,14 @@ export default function BarChart({
     .map((d, index) => ({ ...d, color: colors[index % colors.length] }))
     .filter((d) => d.value > 0)
 
-  const rowHeight = compact ? 26 : 34
+  // Barras cheias em vez dos fios de 6-9px de antes: a barra é o dado, e
+  // com a altura da linha inalterada só o "ar" em volta dela encolhe — o
+  // gráfico ocupa o mesmo espaço e passa a ser lido de relance. O raio 999
+  // continua arredondando as pontas, então uma barra grossa não vira um
+  // bloco retangular.
+  const rowHeight = compact ? 28 : 36
   const labelWidth = compact ? 92 : 122
-  const barSize = compact ? 6 : 9
+  const barSize = compact ? 13 : 20
   const tickFontSize = compact ? 11 : 12.5
 
   return (
@@ -79,7 +84,9 @@ export default function BarChart({
                 style={{
                   fill: 'var(--text)',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: tickFontSize,
+                  // Um ponto acima do rótulo do eixo: numa barra grossa o
+                  // número é o desfecho da leitura, não uma nota de rodapé.
+                  fontSize: tickFontSize + 1,
                   fontWeight: 700,
                 }}
               />

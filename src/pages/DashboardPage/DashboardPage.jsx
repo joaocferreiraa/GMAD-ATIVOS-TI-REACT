@@ -25,6 +25,12 @@ import styles from './DashboardPage.module.css'
 // exato do departamento. --info/--yellow/--indigo por último (mesmos tons
 // usados em tiles/badges pelo site) só pra dar mais tons bem distintos antes
 // de repetir.
+//
+// Esta tela fica de fora da paleta --chart-* (constants/chartColors.js), que
+// vale nos gráficos de Chamados e de monitoramento: a Visão geral é a
+// primeira tela depois do login, a vitrine da marca, e aqui os verdes e
+// laranjas GMAD pesam mais que o contraste entre séries. Decisão do dono do
+// produto — não é falta de padronização a ser "consertada" depois.
 const DEPARTMENT_COLORS = [
   'var(--verde-700)',
   'var(--laranja)',

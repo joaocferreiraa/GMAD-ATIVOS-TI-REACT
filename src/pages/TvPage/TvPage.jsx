@@ -387,13 +387,16 @@ export default function TvPage() {
       </div>
 
       {/* Legenda logo abaixo dos cartões que ela explica. As cores aqui
-          são de ESTADO (verde/âmbar/vermelho conforme o limite do ponto);
+          são de ESTADO (azul/âmbar/vermelho conforme o limite do ponto);
           nos gráficos abaixo, a cor identifica QUAL ponto é — codificações
           diferentes, então a legenda precisa ficar junto do que descreve,
-          não no rodapé da página. */}
+          não no rodapé da página.
+          O primeiro ponto acompanha --metric-normal, a mesma cor que o
+          cartão usa no estado normal: legenda e cartão têm que combinar,
+          senão a legenda passa a mentir. */}
       <div className={styles.statLegend}>
         <span className={styles.legendItem}>
-          <span className={styles.legendDot} style={{ background: 'var(--ok)' }} />
+          <span className={styles.legendDot} style={{ background: 'var(--metric-normal)' }} />
           Dentro do limite
         </span>
         <span className={styles.legendItem}>
@@ -409,7 +412,10 @@ export default function TvPage() {
       {/* Gráficos de tendência — as mesmas séries do Painel de
           Infraestrutura, em janela fixa de 6h. O velocímetro diz como está
           AGORA; o gráfico diz se está piorando, que é o que antecipa
-          problema. Sem tooltip/zoom: numa TV ninguém passa o mouse. */}
+          problema. Sem tooltip/zoom: numa TV ninguém passa o mouse.
+          `strokeWidth` acima do padrão do site (5 contra 3): esta tela é
+          lida em pé, a metros de distância, onde a linha do painel comum
+          vira um fio. É o mesmo motivo da tipografia maior aqui. */}
       <div className={styles.chartRow}>
         <section className={styles.panel}>
           <div className={styles.panelHead}>
@@ -422,6 +428,7 @@ export default function TvPage() {
             unidade="ms"
             height={190}
             interactive={false}
+            strokeWidth={5}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -436,6 +443,7 @@ export default function TvPage() {
             unidade="%"
             height={190}
             interactive={false}
+            strokeWidth={5}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -450,6 +458,7 @@ export default function TvPage() {
             unidade="ms"
             height={190}
             interactive={false}
+            strokeWidth={5}
             emptyMessage="Jitter aparece aqui conforme o agente coleta."
           />
         </section>

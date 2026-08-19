@@ -25,6 +25,7 @@ import Alert from '../../components/ui/Alert/Alert'
 import Loading from '../../components/ui/Loading/Loading'
 import BarChart from '../../components/charts/BarChart/BarChart'
 import EmptyHint from '../../components/dashboard/EmptyHint/EmptyHint'
+import { CHART_COLORS } from '../../constants/chartColors'
 import { useData, useItToast as useToast } from './useItContext'
 import {
   TICKET_PRIORITIES,
@@ -38,25 +39,6 @@ import styles from './ITDashboard.module.css'
 
 const HOUR = 3600 * 1000
 const RECENT_LIMIT = 8
-
-// Paleta dos rankings — mesma família do dashboard principal
-// (ver DashboardPage.jsx), para os dois painéis lerem igual.
-// --info/--yellow/--indigo por último: só entram quando um ranking passa de
-// 7-9 categorias (ex.: "Setores" com bastante departamento cadastrado) —
-// dão mais tons bem distintos sem mexer na ordem verde/laranja/madeira que
-// já domina os casos comuns.
-const RANK_COLORS = [
-  'var(--verde-700)',
-  'var(--laranja)',
-  'var(--verde-600)',
-  'var(--verde-900)',
-  'var(--laranja-forte)',
-  'var(--verde-800)',
-  'var(--madeira)',
-  'var(--info)',
-  'var(--yellow)',
-  'var(--indigo)',
-]
 
 const PERIOD_ITEMS = [
   { value: 'hoje', label: 'Hoje' },
@@ -373,7 +355,7 @@ export default function ITDashboard() {
               </div>
               <BarChart
                 data={resumoData.slice(0, 12)}
-                colors={RANK_COLORS}
+                colors={CHART_COLORS}
                 unitLabel="chamados"
                 emptyMessage="Nenhum chamado no período."
               />
@@ -480,7 +462,7 @@ export default function ITDashboard() {
             <Card title="Técnicos" subtitle="Chamados solucionados no período">
               <BarChart
                 data={computed.byTech.slice(0, 12)}
-                colors={RANK_COLORS}
+                colors={CHART_COLORS}
                 unitLabel="solucionados"
                 emptyMessage="Sem chamados solucionados no período."
               />

@@ -26,6 +26,23 @@ function timeLabel(iso, longFormat) {
     : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
+// Espessura de referência dos padrões de traço definidos em
+// utils/chartSeries.js (SERIE_TRACOS). Linha e traço precisam crescer
+// JUNTOS: um "2 3" desenhado com 5px de espessura e ponta arredondada tem
+// cada traço esticado em 5px pelas pontas, fechando os vãos de 3px — a
+// tracejada vira uma linha contínua e some justamente a distinção que ela
+// existe pra criar (séries de mesmo valor se sobrepondo).
+const TRACO_BASE = 2
+
+function escalaTraco(dash, strokeWidth) {
+  if (!dash) return undefined
+  const fator = strokeWidth / TRACO_BASE
+  return dash
+    .split(' ')
+    .map((n) => Number(n) * fator)
+    .join(' ')
+}
+
 // Tooltip com TODAS as séries do instante apontado, da maior pra menor —
 // comparar pontos é justamente o motivo deste gráfico existir, e ordenar
 // por valor deixa o "quem está pior agora" legível sem procurar.
@@ -75,6 +92,10 @@ function MultiTooltip({ active, payload, unidade, longFormat, series }) {
 // `interactive: false` desliga tooltip, zoom por arrasto e a dica de uso —
 // para telas sem mouse (modo TV): nada ali seria acionável, e a legenda +
 // os eixos seguem contando a história sozinhos.
+//
+// `strokeWidth`: espessura das linhas. O padrão (3px) é o do site, para
+// leitura sentado na frente do monitor; o modo TV sobe pra ~5px, porque a
+// mesma linha vista a alguns metros de distância vira um fio de cabelo.
 export default function MultiLineChart({
   data,
   series,
@@ -84,6 +105,7 @@ export default function MultiLineChart({
   thresholds = [],
   longFormat = false,
   interactive = true,
+  strokeWidth = 3,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
 }) {
   // Zoom: guarda o intervalo selecionado (índices) e o arrasto em curso.
@@ -182,7 +204,7 @@ export default function MultiLineChart({
             {interactive && (
               <Tooltip
                 content={<MultiTooltip unidade={unidade} longFormat={longFormat} series={series} />}
-                cursor={{ stroke: 'var(--border-strong)' }}
+                cursor={{ stroke: 'var(--border-strong)', strokeWidth: 2 }}
               />
             )}
 
@@ -203,7 +225,7 @@ export default function MultiLineChart({
                 }
                 stroke="none"
                 fill={series[0]?.color}
-                fillOpacity={0.12}
+                fillOpacity={0.2}
                 isAnimationActive={false}
                 activeDot={false}
                 connectNulls={false}
@@ -215,8 +237,9 @@ export default function MultiLineChart({
                 key={t.label}
                 y={t.valor}
                 stroke="var(--danger)"
-                strokeDasharray="4 4"
-                strokeOpacity={0.7}
+                strokeWidth={2}
+                strokeDasharray="6 5"
+                strokeOpacity={0.85}
                 label={{
                   value: t.label,
                   position: 'insideTopRight',
@@ -232,18 +255,23 @@ export default function MultiLineChart({
                 type="monotone"
                 dataKey={s.key}
                 stroke={s.color}
-                strokeWidth={2}
+                strokeWidth={strokeWidth}
                 // Padrão de traço por série: séries com o MESMO valor se
                 // sobrepõem exatamente (todos em 0% de perda, por
                 // exemplo) e só a última desenhada apareceria. Tracejadas
                 // diferentes se intercalam e todas seguem visíveis.
-                strokeDasharray={s.dash ?? undefined}
+                strokeDasharray={escalaTraco(s.dash, strokeWidth)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 dot={false}
                 activeDot={
                   interactive
-                    ? { r: 4, fill: s.color, stroke: 'var(--surface)', strokeWidth: 2 }
+                    ? {
+                        r: strokeWidth + 2,
+                        fill: s.color,
+                        stroke: 'var(--surface)',
+                        strokeWidth: 2,
+                      }
                     : false
                 }
                 connectNulls={false}
@@ -271,15 +299,15 @@ export default function MultiLineChart({
               {/* Amostra do traço (não um quadrado de cor): reproduz o
                   padrão da linha, então dá pra casar legenda e gráfico
                   quando duas séries têm a mesma cor de fundo escuro. */}
-              <svg className={styles.legendLine} viewBox="0 0 22 6" aria-hidden="true">
+              <svg className={styles.legendLine} viewBox="0 0 22 8" aria-hidden="true">
                 <line
                   x1="0"
-                  y1="3"
+                  y1="4"
                   x2="22"
-                  y2="3"
+                  y2="4"
                   stroke={s.color}
-                  strokeWidth="2.5"
-                  strokeDasharray={s.dash ?? undefined}
+                  strokeWidth={strokeWidth}
+                  strokeDasharray={escalaTraco(s.dash, strokeWidth)}
                   strokeLinecap="round"
                 />
               </svg>

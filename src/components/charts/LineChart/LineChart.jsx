@@ -36,12 +36,16 @@ function ChartTooltip({ active, payload, unidade }) {
 // se fosse um dado real.
 //
 // Uma série só (uma cor, sem legenda — o título do card já diz o que é),
-// linha de 2px, wash de 10% sob a linha, crosshair + ponto de destaque com
-// anel de 2px na cor da superfície ao passar o mouse — mesmo padrão do
-// resto dos gráficos do site (DonutChart/BarChart), sem gradiente.
+// linha grossa de 3px, wash de 18% sob a linha, crosshair + ponto de
+// destaque com anel na cor da superfície ao passar o mouse — mesmo padrão
+// do resto dos gráficos do site (DonutChart/BarChart), sem gradiente.
+//
+// A cor padrão é o azul da paleta de gráficos (--chart-1), não o verde da
+// marca: dentro de um gráfico o que conta é a linha saltar do fundo e da
+// grade, e o verde institucional é escuro demais pra isso.
 export default function LineChart({
   data,
-  color = 'var(--brand)',
+  color = 'var(--chart-1)',
   unidade = '',
   height = 220,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
@@ -69,19 +73,19 @@ export default function LineChart({
           />
           <Tooltip
             content={<ChartTooltip unidade={unidade} />}
-            cursor={{ stroke: 'var(--border-strong)' }}
+            cursor={{ stroke: 'var(--border-strong)', strokeWidth: 2 }}
           />
           <Area
             type="monotone"
             dataKey="value"
             stroke={color}
-            strokeWidth={2}
+            strokeWidth={3}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill={color}
-            fillOpacity={0.1}
+            fillOpacity={0.18}
             dot={false}
-            activeDot={{ r: 5, fill: color, stroke: 'var(--surface)', strokeWidth: 2 }}
+            activeDot={{ r: 6, fill: color, stroke: 'var(--surface)', strokeWidth: 2.5 }}
             connectNulls={false}
             isAnimationActive={false}
           />

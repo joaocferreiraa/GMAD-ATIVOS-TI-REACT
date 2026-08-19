@@ -24,22 +24,26 @@
   white-space: nowrap;
 }
 
+/* 14px (era 7): a barra é o dado desta seção, e num traço de 7px um
+   servidor com 18% de uso e outro com 35% eram dois riscos igualmente
+   irrelevantes na tela. Dobrar a altura é o que faz a proporção ser lida
+   antes do número à direita. */
 .track {
-  height: 7px;
-  border-radius: 4px;
+  height: 14px;
+  border-radius: 7px;
   background: var(--dash-track);
   overflow: hidden;
 }
 
 .fill {
   height: 100%;
-  border-radius: 4px;
-  background: var(--dash-ok);
+  border-radius: 7px;
+  background: var(--dash-normal);
   transition: width 0.4s ease;
 }
 
 .ok {
-  background: var(--dash-ok);
+  background: var(--dash-normal);
 }
 
 .warn {

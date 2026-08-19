@@ -8,8 +8,12 @@
   border-radius: var(--radius);
   background: linear-gradient(180deg, var(--surface-hover), var(--surface));
   /* `currentColor` na sparkline e no valor herda daqui, então o estado
-     aparece na cor do próprio número — sem faixa lateral competindo. */
-  color: var(--ok);
+     aparece na cor do próprio número — sem faixa lateral competindo.
+     Azul no normal (ver --metric-normal): este cartão é uma MEDIDA, não um
+     selo de "tudo certo", e o verde escuro fazia a sparkline se dissolver
+     no fundo do cartão. As cores de alerta abaixo seguem intactas — e
+     ganham contraste, saindo de azul em vez de verde. */
+  color: var(--metric-normal);
 }
 
 /* Só o estado de alerta muda a borda: no normal, o cartão fica neutro e a

@@ -42,7 +42,11 @@ export default function DonutChart({
               data={chartData}
               dataKey="value"
               nameKey="label"
-              innerRadius={52}
+              // Anel grosso (26px, era 18): o total no centro continua
+              // cabendo, e cada fatia vira um bloco de cor de verdade em
+              // vez de um aro fino. Ver .donut (148px) em DonutChart.module.css
+              // — o raio externo é o mesmo, quem cresceu foi a espessura.
+              innerRadius={44}
               outerRadius={70}
               paddingAngle={2}
               stroke="none"

@@ -57,13 +57,18 @@ export default function StackedBarChart({
 
   return (
     <div>
-      <div style={{ width: '100%', height: rows.length * 44 }}>
+      {/* Barra grossa (26px) dentro da mesma altura de linha: a composição
+          de cada unidade é o dado da tela, e num traço fino os segmentos
+          menores viravam riscos de poucos pixels, impossíveis de comparar
+          entre unidades. */}
+      <div style={{ width: '100%', height: rows.length * 46 }}>
         <ResponsiveContainer width="100%" height="100%">
           <RBarChart
             data={rows}
             layout="vertical"
             margin={{ top: 0, right: 8, bottom: 0, left: 0 }}
             barCategoryGap={10}
+            barSize={26}
           >
             <XAxis type="number" hide />
             <YAxis
@@ -85,9 +90,9 @@ export default function StackedBarChart({
                 strokeWidth={1}
                 radius={
                   index === 0
-                    ? [6, 0, 0, 6]
+                    ? [8, 0, 0, 8]
                     : index === categories.length - 1
-                      ? [0, 6, 6, 0]
+                      ? [0, 8, 8, 0]
                       : undefined
                 }
                 isAnimationActive

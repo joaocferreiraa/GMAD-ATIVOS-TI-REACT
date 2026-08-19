@@ -57,8 +57,8 @@
 /* Amostra do traço na legenda — reproduz o padrão da linha (contínua,
    tracejada, pontilhada) e não só a cor. */
 .legendLine {
-  width: 22px;
-  height: 6px;
+  width: 24px;
+  height: 8px;
   flex-shrink: 0;
 }
 

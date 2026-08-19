@@ -70,17 +70,45 @@ export const METRICA_COMPARACAO_OPTIONS = [
   { value: 'disponibilidadePct', label: 'Disponibilidade', unidade: '%' },
 ]
 
-// Paleta das séries do gráfico comparativo — cores do tema (ver styles/
-// tokens), na ordem em que os pontos aparecem. Distinguíveis entre si no
-// claro e no escuro; acima de 6 pontos a paleta repete (o nome na legenda
-// continua desambiguando).
+// Paleta das séries dos gráficos temporais (comparativo, painel e modo TV)
+// — a paleta de gráficos do tema (--chart-*, ver styles/tokens.css), na
+// ordem em que os pontos aparecem. Acima de 6 pontos repete (o nome na
+// legenda continua desambiguando).
+//
+// Azul vivo na frente e matizes bem separados: estas linhas precisam ser
+// lidas a metros de distância num monitor de parede, e os verdes escuros da
+// marca (--brand/--brand-strong, usados antes) se confundiam entre si e com
+// a grade do gráfico.
+//
+// A ORDEM aqui é o que mais importa, e não é a mesma de CHART_COLORS. Numa
+// paleta de barras o que separa duas cores é a barra vizinha; aqui as
+// linhas se cruzam e se sobrepõem o gráfico inteiro, então cada cor precisa
+// estar longe da anterior NA RODA DE CORES, não só ser diferente. Como a
+// instalação típica tem 2-4 pontos, as primeiras posições carregam o peso:
+// azul → verde → violeta → laranja são ~90° de distância entre vizinhas.
+//
+// O CIANO desceu do 2º pro 5º lugar justamente por isso: colado no azul da
+// primeira série, e ainda por cima tracejado, as duas linhas viravam a
+// mesma coisa a poucos metros. Da 5ª série em diante já não há matiz
+// sobrando, e aí o padrão de traço é que separa.
+//
+// VERMELHO ficou de fora, ainda que seja a cor mais chamativa da paleta:
+// nestes gráficos o vermelho já significa "limite estourado" (as linhas
+// tracejadas de threshold, ver MultiLineChart), e uma série vermelha
+// permanente faria um link saudável parecer um alarme. O rosa é o vizinho
+// mais próximo desse vermelho, então fica em último — é o único que só
+// aparece se houver 6 pontos monitorados.
+//
+// O verde não tem esse problema: nenhum elemento DENTRO da área de desenho
+// é verde. O verde de "tudo certo" vive nos cartões e no cabeçalho, fora do
+// gráfico.
 export const SERIE_CORES = [
-  'var(--brand)',
-  'var(--danger)',
-  'var(--warn)',
-  'var(--ok)',
-  'var(--accent)',
-  'var(--brand-strong)',
+  'var(--chart-1)', // azul
+  'var(--chart-5)', // verde
+  'var(--chart-4)', // violeta
+  'var(--chart-2)', // laranja
+  'var(--chart-3)', // ciano
+  'var(--chart-6)', // rosa
 ]
 
 export const METRICA_OPTIONS = [

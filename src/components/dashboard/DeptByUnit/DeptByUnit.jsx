@@ -2,6 +2,9 @@ import BarChart from '../../charts/BarChart/BarChart'
 import EmptyHint from '../EmptyHint/EmptyHint'
 import styles from './DeptByUnit.module.css'
 
+// Cores da marca, não a paleta --chart-* (constants/chartColors.js): este
+// bloco só aparece na Visão geral, que ficou de propósito na identidade
+// GMAD. Ver o comentário de DEPARTMENT_COLORS em DashboardPage.jsx.
 const DEPT_COLORS = [
   'var(--verde-700)',
   'var(--laranja)',

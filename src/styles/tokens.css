@@ -63,6 +63,41 @@
      --info (mais azul puro). */
   --indigo: #6366f1;
   --indigo-bg: rgba(99, 102, 241, 0.12);
+
+  /* -- paleta dos GRÁFICOS --
+     Separada das cores da marca de propósito. A paleta institucional
+     (verdes escuros + madeira) é ótima pra casca do site, mas péssima
+     dentro de um gráfico: --verde-700/800/900 são três tons do mesmo
+     verde escuro, então três séries vizinhas viram um borrão só a um
+     metro de distância — e numa TV de parede, a metros, some de vez.
+     Aqui o que manda é SEPARAÇÃO DE MATIZ e saturação alta: azul vivo
+     puxando a fila, e cada cor seguinte bem longe da anterior na roda de
+     cores. Os tons da marca continuam nos KPIs, botões e badges.
+     Ordem pensada pra que os 3-4 primeiros (os mais usados) sejam os mais
+     distintos entre si. */
+  --chart-1: #2563eb; /* azul */
+  --chart-2: #f97316; /* laranja */
+  --chart-3: #0891b2; /* ciano */
+  --chart-4: #9333ea; /* violeta */
+  /* Verde tão vivo quanto o fundo branco permite: 3.3:1 de contraste, logo
+     acima do mínimo de 3:1 pra elemento gráfico. O verde "neon" que o modo
+     escuro usa (#4ade80) daria 2.0:1 aqui — uma linha lavada, quase
+     invisível. Não clareie este valor sem medir. */
+  --chart-5: #16a34a; /* verde */
+  --chart-6: #e11d48; /* rosa */
+  --chart-7: #d97706; /* âmbar */
+  --chart-8: #4f46e5; /* índigo */
+
+  /* Estado NORMAL dos painéis de medição (sparkline de latência dentro do
+     limite, barra de uso de CPU/memória/disco com folga). Azul, não verde.
+     A distinção é entre VEREDITO e MEDIDA: onde a cor é um selo de "está
+     tudo certo" — badge de status, alerta resolvido, "3/3 pontos online" —
+     o verde --ok continua valendo. Aqui a cor não julga nada: ela é a
+     linha do dado em si, e quem precisa saltar da tela é a EXCEÇÃO. Com
+     verde no normal, a virada pro âmbar é um degradê morno; contra o azul,
+     ela pula. De quebra o painel deixa de ser verde sobre verde. */
+  --metric-normal: var(--chart-1);
+
   /* Dois raios, como no painel do Supabase: painéis e cartões um pouco
      arredondados, controles (botão, campo, seletor) mais fechados. Um raio
      só para tudo era o que dava ao app o ar mais "bolha" — com 10px, um
@@ -161,4 +196,20 @@
 
   --indigo: #818cf8;
   --indigo-bg: rgba(129, 140, 248, 0.16);
+
+  /* Mesmos matizes da paleta clara, clareados: sobre o fundo quase preto
+     um azul #2563eb tem 2.6:1 de contraste (uma linha de gráfico sumindo),
+     enquanto o #60a5fa fica em 6.5:1. Mantida a MESMA ordem — a cor de
+     cada série é atribuída por posição, então trocar de tema não pode
+     reembaralhar quem é quem na legenda. */
+  --chart-1: #60a5fa; /* azul */
+  --chart-2: #fb923c; /* laranja */
+  --chart-3: #22d3ee; /* ciano */
+  --chart-4: #c084fc; /* violeta */
+  /* Aqui sim o verde neon: sobre o fundo quase preto ele chega a ~9.5:1 e
+     é a série que mais salta da tela depois do azul. */
+  --chart-5: #4ade80; /* verde */
+  --chart-6: #fb7185; /* rosa */
+  --chart-7: #fbbf24; /* âmbar */
+  --chart-8: #a5b4fc; /* índigo */
 }

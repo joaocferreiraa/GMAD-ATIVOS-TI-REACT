@@ -57,8 +57,10 @@ export default function MetricStat({
 }
 
 // Linha de tendência com escala FIXA (0 -> `teto`) e marca do limite. A
-// área sob a linha ajuda a leitura a distância — a curva sozinha, com 2px
-// numa TV a 4 metros, quase desaparece.
+// área sob a linha ajuda a leitura a distância — a curva sozinha, fina,
+// numa TV a 4 metros, quase desaparece; por isso o traço aqui é de 3.5px
+// (vectorEffect="non-scaling-stroke" mantém essa espessura em pixels de
+// tela mesmo com o viewBox esticado pela largura do cartão).
 function Sparkline({ values, limite, teto, width = 300, height = 52 }) {
   const validos = values.filter((v) => v !== null && v !== undefined && !Number.isNaN(v))
   if (validos.length < 2) return null
@@ -100,9 +102,9 @@ function Sparkline({ values, limite, teto, width = 300, height = 52 }) {
           x2={width}
           y2={yLimite}
           stroke="var(--danger)"
-          strokeWidth="1"
-          strokeDasharray="5 5"
-          strokeOpacity="0.55"
+          strokeWidth="2"
+          strokeDasharray="6 5"
+          strokeOpacity="0.8"
           vectorEffect="non-scaling-stroke"
         />
       )}
@@ -111,13 +113,13 @@ function Sparkline({ values, limite, teto, width = 300, height = 52 }) {
           <polygon
             points={`${pts[0].x},${height} ${pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')} ${pts[pts.length - 1].x},${height}`}
             fill="currentColor"
-            fillOpacity="0.13"
+            fillOpacity="0.22"
           />
           <polyline
             points={pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="3.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
