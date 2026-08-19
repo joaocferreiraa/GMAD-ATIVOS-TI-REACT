@@ -370,6 +370,7 @@ export default function MonitoramentoPainelPage() {
             unidade="ms"
             height={230}
             longFormat={longFormat}
+            overlapNote={false}
             emptyMessage="Sem medições neste período."
           />
         </section>
@@ -381,6 +382,7 @@ export default function MonitoramentoPainelPage() {
             unidade="%"
             height={230}
             longFormat={longFormat}
+            overlapNote={false}
             emptyMessage="Sem medições neste período."
           />
         </section>
@@ -396,6 +398,7 @@ export default function MonitoramentoPainelPage() {
             unidade="%"
             height={230}
             longFormat={longFormat}
+            overlapNote={false}
             emptyMessage="Sem métricas de host neste período."
           />
         </section>
@@ -407,6 +410,7 @@ export default function MonitoramentoPainelPage() {
             unidade="%"
             height={230}
             longFormat={longFormat}
+            overlapNote={false}
             emptyMessage="Sem métricas de host neste período."
           />
         </section>

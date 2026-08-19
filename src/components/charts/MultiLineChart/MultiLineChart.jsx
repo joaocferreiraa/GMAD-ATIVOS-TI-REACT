@@ -173,6 +173,13 @@ function MultiTooltip({ active, payload, unidade, longFormat, series }) {
 // presença: é o que permite a linha ser fina sem o gráfico ficar apagado, e
 // o que dá volume a uma série que passa quase reta o período inteiro.
 // Desligável por gráfico, mas hoje ninguém desliga.
+//
+// `overlapNote`: a legenda em texto das séries sobrepostas (ver
+// seriesCoincidentes). Fica ligada nas telas de ANÁLISE do Monitoramento de
+// Rede, onde a pessoa está investigando e precisa saber que não perdeu um
+// ponto de vista; desligada no Painel de Infraestrutura e no Modo TV, que
+// são telas de acompanhamento, com vários gráficos lado a lado e sem espaço
+// pra uma linha de texto embaixo de cada um.
 export default function MultiLineChart({
   data,
   series,
@@ -184,6 +191,7 @@ export default function MultiLineChart({
   interactive = true,
   strokeWidth = 2.5,
   fillArea = true,
+  overlapNote = true,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
 }) {
   // Zoom: guarda o intervalo selecionado (índices) e o arrasto em curso.
@@ -234,7 +242,7 @@ export default function MultiLineChart({
 
   // Sobre `view`, não sobre `data`: depois de um zoom, o que interessa é se
   // as séries coincidem NO TRECHO QUE ESTÁ NA TELA.
-  const coincidentes = seriesCoincidentes(view, series)
+  const coincidentes = overlapNote ? seriesCoincidentes(view, series) : []
 
   return (
     <div className={styles.wrap}>

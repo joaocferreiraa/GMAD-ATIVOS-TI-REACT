@@ -432,6 +432,7 @@ export default function TvPage() {
             height={190}
             interactive={false}
             strokeWidth={3.5}
+            overlapNote={false}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -447,6 +448,7 @@ export default function TvPage() {
             height={190}
             interactive={false}
             strokeWidth={3.5}
+            overlapNote={false}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -462,6 +464,7 @@ export default function TvPage() {
             height={190}
             interactive={false}
             strokeWidth={3.5}
+            overlapNote={false}
             emptyMessage="Jitter aparece aqui conforme o agente coleta."
           />
         </section>
