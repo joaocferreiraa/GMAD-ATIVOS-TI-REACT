@@ -16,7 +16,10 @@
   border: 0;
   cursor: pointer;
   text-align: left;
-  font-family: inherit;
+  /* `font` inteiro, não só `font-family`: sozinha, a família deixa o
+     tamanho e a altura de linha que o navegador aplica por padrão em
+     <button>, que não são os do site. */
+  font: inherit;
   color: var(--text);
 }
 
@@ -24,8 +27,13 @@
   background: var(--surface-hover);
 }
 
+/* Mesma tipografia dos títulos do acordeão de Infraestrutura (.title em
+   InfraAccordion.module.css) — é o outro colapsável do sistema, e os dois
+   não deviam ter escalas diferentes. */
 .titulo {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
   flex: 1;
 }
 

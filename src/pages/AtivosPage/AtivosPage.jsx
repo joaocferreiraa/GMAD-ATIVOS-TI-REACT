@@ -23,7 +23,7 @@ import TableSkeleton from '../../components/ui/TableSkeleton/TableSkeleton'
 import Alert from '../../components/ui/Alert/Alert'
 import Tabs, { Tab, TabGroupLabel } from '../../components/ui/Tabs/Tabs'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
-import { RefreshIcon, DownloadIcon, ServerIcon } from '../../components/ui/Icon/icons'
+import { RefreshIcon, DownloadIcon, MonitorIcon } from '../../components/ui/Icon/icons'
 import AssetFilters from '../../components/ativos/AssetFilters/AssetFilters'
 import AssetTable from '../../components/ativos/AssetTable/AssetTable'
 import AssetViewModal from '../../components/ativos/AssetViewModal/AssetViewModal'
@@ -237,7 +237,7 @@ export default function AtivosPage() {
               to={ROUTES.inventarioMaquinas}
               {...bindTooltip('Ver o que o agente detectou em cada máquina')}
             >
-              <ServerIcon /> Máquinas detectadas
+              <MonitorIcon /> Máquinas detectadas
             </Button>
           )}
           <Button variant="primary" onClick={panel.openNew}>

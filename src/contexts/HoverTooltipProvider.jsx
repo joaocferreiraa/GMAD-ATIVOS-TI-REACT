@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HoverTooltipContext } from './HoverTooltipContext'
 import styles from './HoverTooltip.module.css'
@@ -11,6 +11,22 @@ import styles from './HoverTooltip.module.css'
 // único nó de tooltip no DOM por vez.
 export function HoverTooltipProvider({ children }) {
   const [tooltip, setTooltip] = useState(null)
+
+  // Qualquer clique ou tecla fecha o tooltip aberto. Sem isto ele fica preso
+  // na tela para sempre quando a ação REMOVE do DOM o elemento que o abriu —
+  // navegar para outra rota ("Máquinas detectadas"), fechar um modal, excluir
+  // a linha da tabela: em nenhum desses casos o `mouseleave` chega, porque não
+  // há mais elemento de onde o mouse possa sair. Na captura, para acontecer
+  // antes de o React desmontar a árvore.
+  useEffect(() => {
+    const esconder = () => setTooltip(null)
+    document.addEventListener('pointerdown', esconder, true)
+    document.addEventListener('keydown', esconder, true)
+    return () => {
+      document.removeEventListener('pointerdown', esconder, true)
+      document.removeEventListener('keydown', esconder, true)
+    }
+  }, [])
 
   const value = useMemo(
     () => ({

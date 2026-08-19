@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import Badge from '../../ui/Badge/Badge'
+import Button from '../../ui/Button/Button'
+import TagChip from '../../ui/TagChip/TagChip'
 import Toolbar from '../../ui/Toolbar/Toolbar'
 import SearchInput from '../../ui/SearchInput/SearchInput'
 import Select from '../../ui/Select/Select'
@@ -102,20 +104,21 @@ export default function DispositivosRede({ dispositivos, ativosPorIp }) {
                 </div>
 
                 <div className={styles.acoes}>
-                  {ativo ? (
-                    <Badge variant="muted">{ativo.id}</Badge>
-                  ) : (
-                    <Badge variant="warn">sem ficha</Badge>
-                  )}
+                  {/* TagChip, e não Badge cinza: é o código do ativo, o mesmo
+                      identificador que as tabelas de Ativos e de Máquinas
+                      mostram como chip. Badge fica só para "sem ficha", que é
+                      estado, não identificador. */}
+                  {ativo ? <TagChip>{ativo.id}</TagChip> : <Badge variant="warn">sem ficha</Badge>}
                   {portaWeb ? (
-                    <a
-                      className={styles.link}
+                    <Button
+                      size="sm"
+                      as="a"
                       href={`${portaWeb === 443 ? 'https' : 'http'}://${d.ip}/`}
                       target="_blank"
                       rel="noreferrer"
                     >
                       Abrir painel
-                    </a>
+                    </Button>
                   ) : null}
                 </div>
               </li>

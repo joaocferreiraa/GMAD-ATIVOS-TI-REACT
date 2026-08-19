@@ -18,7 +18,7 @@
    uma decisão de compra, não para consulta. */
 .licencas {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--surface);
   padding: 12px 14px;
   margin-bottom: 14px;
@@ -78,7 +78,10 @@
   border: 0;
   cursor: pointer;
   text-align: left;
-  font-family: inherit;
+  /* `font` inteiro, não só `font-family`: sozinha, a família deixa o tamanho
+     e a altura de linha que o navegador aplica por padrão em <button>, que
+     não são os do site. */
+  font: inherit;
   color: var(--text);
 }
 
@@ -166,8 +169,10 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 3px 9px;
+  /* `font` antes do `font-size`: o atalho zera o tamanho, então invertido
+     ele apagaria os 12px logo abaixo. */
+  font: inherit;
   font-size: 12px;
-  font-family: inherit;
   color: var(--brand);
   cursor: pointer;
 }

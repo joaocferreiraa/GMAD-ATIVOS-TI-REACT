@@ -15,6 +15,10 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  /* O botão também é renderizado como <a> quando a ação é navegar (ver
+     `as` em Button.jsx) — sem isto, só essas ocorrências saem sublinhadas
+     e destoam dos botões ao lado. */
+  text-decoration: none;
   transition:
     background 0.18s ease,
     border-color 0.18s ease,

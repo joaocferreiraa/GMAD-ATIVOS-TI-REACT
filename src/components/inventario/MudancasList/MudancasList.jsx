@@ -1,4 +1,5 @@
 import Badge from '../../ui/Badge/Badge'
+import TagChip from '../../ui/TagChip/TagChip'
 import EmptyState from '../../ui/EmptyState/EmptyState'
 import { fmtRelTime } from '../../../utils/formatters'
 import { descreverMudanca, severidadeTone, ROTULO_TIPO } from '../../../utils/inventarioMudancas'
@@ -28,7 +29,10 @@ export default function MudancasList({ mudancas, mostrarMaquina = true, vazioMen
           <div className={styles.conteudo}>
             <div className={styles.descricao}>{descreverMudanca(m)}</div>
             <div className={styles.meta}>
-              {mostrarMaquina ? <strong>{m.hostname}</strong> : null}
+              {/* Mesmo chip de identificador das outras listas — aqui o nome
+                  da máquina divide a linha com o badge do tipo de mudança, o
+                  mesmo par "identificador + estado" da tabela de Ativos. */}
+              {mostrarMaquina ? <TagChip>{m.hostname}</TagChip> : null}
               <Badge variant={severidadeTone(m.severidade)}>{ROTULO_TIPO[m.tipo] ?? m.tipo}</Badge>
               <span>{fmtRelTime(m.createdAt)}</span>
             </div>

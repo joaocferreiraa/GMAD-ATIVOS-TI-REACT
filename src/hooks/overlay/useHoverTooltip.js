@@ -20,8 +20,16 @@ export function useHoverTooltip() {
           // Ignora o foco disparado pelo Overlay (autofoco ao abrir, restaurar
           // foco ao fechar) — ver focusTooltipSuppression. Só mostra em foco
           // real do usuário (Tab).
+          //
+          // `:focus-visible` porque clicar num botão também o foca, e aí o
+          // tooltip reaparecia logo depois de o próprio clique tê-lo fechado.
+          // Quando a ação leva para outra rota, o botão some do DOM em
+          // seguida, o `mouseleave`/`blur` nunca chega, e ele ficava preso na
+          // tela nova. Só o foco de teclado deve abrir tooltip.
           onFocus: (event) => {
-            if (!isFocusTooltipSuppressed()) showTooltip(event, label)
+            if (isFocusTooltipSuppressed()) return
+            if (!event.currentTarget.matches(':focus-visible')) return
+            showTooltip(event, label)
           },
           onBlur: hideTooltip,
         }
