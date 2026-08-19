@@ -89,6 +89,13 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // distância, de um máximo teórico de 180: as duas séries que quase sempre
 // aparecem juntas ficam praticamente uma no lado oposto da outra.
 //
+// A paleta é a MESMA nos dois temas (ver --chart-* em styles/tokens.css):
+// os tons foram escolhidos pra fundo escuro, então no tema claro todas as
+// linhas ficam mais lavadas do que ficariam com tons medidos pra branco.
+// Foi escolha estética consciente, não valor esquecido — e a contrapartida
+// é boa: a cor de cada ponto passa a ser a mesma em qualquer tela, então
+// quem decora "Curitiba é o âmbar" acerta no site e na TV, claro ou escuro.
+//
 // O CIANO desceu do 2º pro 4º lugar justamente por isso: colado no azul da
 // primeira série, e ainda por cima tracejado, as duas linhas viravam a
 // mesma coisa a poucos metros. Da 4ª série em diante já não há matiz

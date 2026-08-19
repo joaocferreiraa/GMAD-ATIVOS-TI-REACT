@@ -70,36 +70,48 @@
      dentro de um gráfico: --verde-700/800/900 são três tons do mesmo
      verde escuro, então três séries vizinhas viram um borrão só a um
      metro de distância — e numa TV de parede, a metros, some de vez.
-     Aqui o que manda é SEPARAÇÃO DE MATIZ e saturação alta: azul vivo
-     puxando a fila, e cada cor seguinte bem longe da anterior na roda de
-     cores. Os tons da marca continuam nos KPIs, botões e badges.
-     Ordem pensada pra que os 3-4 primeiros (os mais usados) sejam os mais
-     distintos entre si. */
-  --chart-1: #2563eb; /* azul */
-  /* Âmbar dourado — o tom de referência escolhido pro produto. É quase o
-     complementar exato do --chart-1: 176° de distância na roda, de um
-     máximo de 180°, então as duas séries que quase sempre aparecem juntas
-     ficam o mais longe uma da outra que a cor permite.
-     Este é o valor CLARO: o âmbar cheio do modo escuro (#f9a825) rende
-     1.9:1 sobre branco. Aqui vai o mesmo matiz (37°) escurecido até 3.2:1 —
-     lê como ouro velho, não como o âmbar aceso do tema escuro. É o preço de
-     um matiz quente sobre fundo branco, não uma escolha. */
-  --chart-2: #c78005; /* âmbar */
-  --chart-3: #0891b2; /* ciano */
-  --chart-4: #9333ea; /* violeta */
-  /* Verde tão vivo quanto o fundo branco permite: 3.3:1 de contraste, logo
-     acima do mínimo de 3:1 pra elemento gráfico. O verde "neon" que o modo
-     escuro usa (#4ade80) daria 2.0:1 aqui — uma linha lavada, quase
-     invisível. Não clareie este valor sem medir. */
-  --chart-5: #16a34a; /* verde */
-  --chart-6: #e11d48; /* rosa */
-  /* Verde-lima (3.1:1). Ocupa o buraco entre o âmbar de --chart-2 (37°) e o
-     verde de --chart-5 (145°) — um amarelo-esverdeado que a paleta não
-     tinha. Já foi âmbar #d97706 e depois amarelo #b18906; os dois viraram
-     quase-clones de --chart-2 quando ele passou a ser âmbar, e duas cores a
-     9° de distância numa paleta de 8 não são duas cores. */
-  --chart-7: #65a30d; /* verde-lima */
-  --chart-8: #4f46e5; /* índigo */
+     Aqui o que manda é SEPARAÇÃO DE MATIZ e saturação alta: cada cor bem
+     longe da anterior na roda de cores. Os tons da marca continuam nos
+     KPIs, botões e badges. Ordem pensada pra que os 3-4 primeiros (os mais
+     usados) sejam os mais distintos entre si.
+
+     UMA PALETA SÓ PROS DOIS TEMAS, por decisão de produto — por isso não há
+     bloco --chart-* em :root[data-theme='dark'] logo abaixo, como há pra
+     todo o resto. A referência escolhida usa os mesmos tons no claro e no
+     escuro, e a identidade de cada série passa a não depender do tema.
+
+     O QUE ISSO CUSTA, pra quem for mexer aqui: estes valores foram
+     escolhidos pra fundo escuro e nenhum deles alcança os 3:1 mínimos sobre
+     branco. Contraste sobre #ffffff, do melhor pro pior:
+
+       --chart-6 rosa 2.7  --chart-4 violeta 2.6  --chart-1 azul 2.5
+       --chart-8 índigo 2.0  --chart-2 âmbar 1.9  --chart-3 ciano 1.8
+       --chart-5 verde 1.7  --chart-7 lima 1.5
+
+     Isso se sustenta em ÁREA PREENCHIDA — barra do dashboard de Chamados,
+     fatia de rosca, pastilha —, onde a massa de cor carrega o tom sozinha,
+     e é o caso do print que originou a decisão. Onde pesa é na LINHA de 3px
+     do gráfico temporal sobre fundo branco: lima e verde são os dois que
+     mais somem. Reverter é reintroduzir o bloco no tema escuro com estes
+     valores e devolver aqui os tons medidos pra branco (#2563eb, #c78005,
+     #0891b2, #9333ea, #16a34a, #e11d48, #65a30d, #4f46e5). */
+  --chart-1: #60a5fa; /* azul */
+  /* Âmbar dourado — o tom de referência que puxou a paleta toda pra cá. É
+     quase o complementar exato do --chart-1: 176° de distância na roda, de
+     um máximo de 180°, então as duas séries que quase sempre aparecem
+     juntas ficam o mais longe uma da outra que a cor permite. */
+  --chart-2: #f9a825; /* âmbar */
+  --chart-3: #22d3ee; /* ciano */
+  --chart-4: #c084fc; /* violeta */
+  --chart-5: #4ade80; /* verde */
+  --chart-6: #fb7185; /* rosa */
+  /* Verde-lima. Ocupa o buraco entre o âmbar (37°) e o verde (145°) — um
+     amarelo-esverdeado que a paleta não tinha. Já foi âmbar #d97706 e
+     depois amarelo #b18906; os dois viraram quase-clones de --chart-2
+     quando ele passou a ser âmbar, e duas cores a 9° de distância numa
+     paleta de 8 não são duas cores. */
+  --chart-7: #a3e635; /* verde-lima */
+  --chart-8: #a5b4fc; /* índigo */
 
   /* Estado NORMAL dos painéis de medição (sparkline de latência dentro do
      limite, barra de uso de CPU/memória/disco com folga). Azul, não verde.
@@ -108,8 +120,15 @@
      o verde --ok continua valendo. Aqui a cor não julga nada: ela é a
      linha do dado em si, e quem precisa saltar da tela é a EXCEÇÃO. Com
      verde no normal, a virada pro âmbar é um degradê morno; contra o azul,
-     ela pula. De quebra o painel deixa de ser verde sobre verde. */
-  --metric-normal: var(--chart-1);
+     ela pula. De quebra o painel deixa de ser verde sobre verde.
+
+     Azul PRÓPRIO em vez de var(--chart-1), e é a única coisa aqui que ainda
+     tem valor por tema. Motivo: --chart-1 é identidade de série numa linha
+     de gráfico, enquanto este pinta o número de 40px do cartão de medição —
+     texto grande, que precisa dos 3:1. O #60a5fa da paleta rende 2.5:1
+     sobre branco e deixaria aquele número lavado; este fica em 5.2:1. No
+     tema escuro os dois voltam a coincidir. */
+  --metric-normal: #2563eb;
 
   /* Dois raios, como no painel do Supabase: painéis e cartões um pouco
      arredondados, controles (botão, campo, seletor) mais fechados. Um raio
@@ -210,29 +229,22 @@
   --indigo: #818cf8;
   --indigo-bg: rgba(129, 140, 248, 0.16);
 
-  /* Mesmos matizes da paleta clara, clareados: sobre o fundo quase preto
-     um azul #2563eb tem 2.6:1 de contraste (uma linha de gráfico sumindo),
-     enquanto o #60a5fa fica em 6.5:1. Mantida a MESMA ordem — a cor de
-     cada série é atribuída por posição, então trocar de tema não pode
-     reembaralhar quem é quem na legenda. */
-  --chart-1: #60a5fa; /* azul */
-  /* O âmbar de referência, cheio: 8.7:1 sobre o fundo quase preto.
-     ATENÇÃO: é praticamente o mesmo tom de --warn (#f59e0b), que significa
-     "acima do limite" nos cartões de medição. Os dois convivem na mesma
-     tela do Modo TV e só se distinguem pela FORMA da legenda — quadrado
-     preenchido para estado, traço tracejado para série. Se um dia isso
-     confundir alguém na parede, o ajuste é aqui (puxar pro laranja
-     avermelhado), não no --warn, que é a cor de atenção do site inteiro. */
-  --chart-2: #f9a825; /* âmbar */
-  --chart-3: #22d3ee; /* ciano */
-  --chart-4: #c084fc; /* violeta */
-  /* Aqui sim o verde neon: sobre o fundo quase preto chega a ~9.5:1. Só
-     entra em gráfico categórico (ver CHART_COLORS) — as séries temporais
-     deixaram o verde de fora, ver SERIE_CORES. */
-  --chart-5: #4ade80; /* verde */
-  --chart-6: #fb7185; /* rosa */
-  /* Verde-lima aceso: ~11:1 sobre o fundo quase preto, o maior contraste
-     da paleta escura. */
-  --chart-7: #a3e635; /* verde-lima */
-  --chart-8: #a5b4fc; /* índigo */
+  /* NÃO há bloco --chart-* aqui: a paleta dos gráficos é uma só nos dois
+     temas, definida em :root. Ver o comentário lá — os valores foram
+     escolhidos pra fundo escuro, então é AQUI que eles rendem melhor
+     (6.5:1 a 11:1). Se um dia voltar a haver um par por tema, este é o
+     lugar destes valores, e o :root recebe os tons medidos pra branco.
+
+     ATENÇÃO ao --chart-2 (#f9a825): é praticamente o mesmo tom de --warn
+     (#f59e0b) acima, que significa "acima do limite" nos cartões de
+     medição. Os dois convivem na tela do Modo TV e só se distinguem pela
+     FORMA da legenda — quadrado preenchido pra estado, traço tracejado pra
+     série. Se confundir alguém na parede, o ajuste é na SÉRIE (puxar pro
+     laranja avermelhado), nunca no --warn, que é a cor de atenção do site
+     inteiro.
+
+     O --metric-normal abaixo é a exceção deliberada: ele não é identidade
+     de série, é o estado "dentro do limite" de um número de 40px, então
+     segue o tom que cada fundo pede. */
+  --metric-normal: var(--chart-1);
 }
