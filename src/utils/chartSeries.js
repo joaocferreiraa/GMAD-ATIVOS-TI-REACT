@@ -23,25 +23,30 @@ export function toWideSeries(measurements, metric) {
   return Array.from(byBucket.values()).sort((a, b) => new Date(a.bucket) - new Date(b.bucket))
 }
 
-// Padrões de traço por série. Quando dois pontos têm o MESMO valor (o caso
-// comum: todos em 0% de perda, todos em 100% de disponibilidade), as linhas
-// se sobrepõem exatamente e só a última desenhada aparece — dá a impressão
-// de que uma série sumiu do gráfico. Com padrões diferentes, as linhas
-// coincidentes se intercalam e todas continuam visíveis.
+// Descritor de série (key/label/cor) por ponto monitorado, na ordem em que
+// os pontos foram passados — cor estável por posição, então trocar de
+// métrica ou de período não embaralha a legenda.
 //
-// A primeira é contínua (a leitura mais limpa fica com o primeiro ponto) e
-// as demais alternam tracejados de densidade decrescente.
-const SERIE_TRACOS = [null, '6 4', '2 3', '10 4 2 4', '1 4', '8 3 2 3']
-
-// Descritor de série (key/label/cor/traço) por ponto monitorado, na ordem em
-// que os pontos foram passados — cor e traço estáveis por posição, então
-// trocar de métrica ou de período não embaralha a legenda.
+// TODAS AS LINHAS CONTÍNUAS, por decisão visual. Cada série já teve um
+// padrão de traço próprio, e ele resolvia um problema real: quando dois
+// pontos têm o MESMO valor (o caso comum — todos em 0% de perda, todos em
+// 100% de disponibilidade), as linhas se sobrepõem exatamente e só a última
+// desenhada aparece, como se uma série tivesse sumido. Tracejadas
+// diferentes se intercalavam e todas continuavam visíveis.
+//
+// Quem resolve isso agora é a ESPESSURA ESCALONADA do MultiLineChart (ver
+// larguraDaSerie): cada série é desenhada um degrau mais fina que a
+// anterior, então onde coincidem aparecem faixas de cor aninhadas em vez de
+// uma linha só. Vale sem mouse, o que importa no Modo TV. O tooltip e a
+// tabela de resumo seguem como a leitura exata.
+//
+// `dash` continua sendo prop aceita pelo MultiLineChart, caso um dia se
+// queira o reforço do tracejado de volta.
 export function buildSeries(monitors) {
   return monitors.map((m, i) => ({
     key: m.uid,
     label: m.nome,
     color: SERIE_CORES[i % SERIE_CORES.length],
-    dash: SERIE_TRACOS[i % SERIE_TRACOS.length],
   }))
 }
 

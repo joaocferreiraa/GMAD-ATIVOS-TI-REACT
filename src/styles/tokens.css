@@ -90,7 +90,7 @@
 
      Isso se sustenta em ÁREA PREENCHIDA — barra do dashboard de Chamados,
      fatia de rosca, pastilha —, onde a massa de cor carrega o tom sozinha,
-     e é o caso do print que originou a decisão. Onde pesa é na LINHA de 3px
+     e é o caso do print que originou a decisão. Onde pesa é na LINHA fina
      do gráfico temporal sobre fundo branco: lima e verde são os dois que
      mais somem. Reverter é reintroduzir o bloco no tema escuro com estes
      valores e devolver aqui os tons medidos pra branco (#2563eb, #c78005,
@@ -236,11 +236,14 @@
 
      ATENÇÃO ao --chart-2 (#f9a825): é praticamente o mesmo tom de --warn
      (#f59e0b) acima, que significa "acima do limite" nos cartões de
-     medição. Os dois convivem na tela do Modo TV e só se distinguem pela
-     FORMA da legenda — quadrado preenchido pra estado, traço tracejado pra
-     série. Se confundir alguém na parede, o ajuste é na SÉRIE (puxar pro
-     laranja avermelhado), nunca no --warn, que é a cor de atenção do site
-     inteiro.
+     medição. Os dois convivem na tela do Modo TV, e o que os distingue é a
+     FORMA da legenda — quadrado preenchido pra estado, segmento de linha pra
+     série — mais o fato de viverem em zonas diferentes da tela (cartões em
+     cima, gráficos embaixo). Essa separação ficou mais fina desde que as
+     séries passaram a ser todas contínuas: antes o segmento da legenda vinha
+     tracejado, o que marcava a diferença de longe. Se confundir alguém na
+     parede, o ajuste é na SÉRIE (puxar pro laranja avermelhado), nunca no
+     --warn, que é a cor de atenção do site inteiro.
 
      --metric-normal também não aparece aqui: ele segue var(--ok), que este
      bloco já redefine logo acima. */

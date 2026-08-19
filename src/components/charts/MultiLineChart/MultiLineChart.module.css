@@ -54,11 +54,12 @@
   flex-shrink: 0;
 }
 
-/* Amostra do traço na legenda — reproduz o padrão da linha (contínua,
-   tracejada, pontilhada) e não só a cor. */
+/* Amostra do traço na legenda — reproduz a linha real: cor, padrão e
+   espessura. A altura casa com LEGENDA_ALTURA no JSX (escala 1:1, então a
+   espessura sai em pixels de tela) e precisa caber a série mais grossa. */
 .legendLine {
   width: 24px;
-  height: 8px;
+  height: 10px;
   flex-shrink: 0;
 }
 

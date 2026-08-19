@@ -150,7 +150,7 @@ export default function RadarChart({
                 name={s.key}
                 dataKey={s.key}
                 stroke={s.color}
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fill={s.color}
                 // Translúcido de propósito: os polígonos se sobrepõem, e um
                 // preenchimento opaco esconderia por inteiro qualquer

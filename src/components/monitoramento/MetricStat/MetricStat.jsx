@@ -58,7 +58,7 @@ export default function MetricStat({
 
 // Linha de tendência com escala FIXA (0 -> `teto`) e marca do limite. A
 // área sob a linha ajuda a leitura a distância — a curva sozinha, fina,
-// numa TV a 4 metros, quase desaparece; por isso o traço aqui é de 3.5px
+// numa TV a 4 metros, quase desaparece; por isso o traço aqui é de 3px
 // (vectorEffect="non-scaling-stroke" mantém essa espessura em pixels de
 // tela mesmo com o viewBox esticado pela largura do cartão).
 function Sparkline({ values, limite, teto, width = 300, height = 52 }) {
@@ -119,7 +119,7 @@ function Sparkline({ values, limite, teto, width = 300, height = 52 }) {
             points={pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
             fill="none"
             stroke="currentColor"
-            strokeWidth="3.5"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"

@@ -97,9 +97,11 @@ export const METRICA_COMPARACAO_OPTIONS = [
 // quem decora "Curitiba é o âmbar" acerta no site e na TV, claro ou escuro.
 //
 // O CIANO desceu do 2º pro 4º lugar justamente por isso: colado no azul da
-// primeira série, e ainda por cima tracejado, as duas linhas viravam a
-// mesma coisa a poucos metros. Da 4ª série em diante já não há matiz
-// sobrando, e aí o padrão de traço é que separa.
+// primeira série, as duas linhas viravam a mesma coisa a poucos metros.
+//
+// Como todas as linhas são contínuas (ver buildSeries), a COR é a única
+// coisa que separa uma série da outra — não há padrão de traço pra socorrer
+// da 4ª em diante. É o que torna a ordem daqui mais crítica do que parece.
 //
 // VERMELHO ficou de fora, ainda que seja a cor mais chamativa da paleta:
 // nestes gráficos o vermelho já significa "limite estourado" (as linhas

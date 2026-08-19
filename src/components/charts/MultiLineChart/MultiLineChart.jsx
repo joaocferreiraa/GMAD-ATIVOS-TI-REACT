@@ -26,9 +26,10 @@ function timeLabel(iso, longFormat) {
     : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-// Espessura de referência dos padrões de traço definidos em
-// utils/chartSeries.js (SERIE_TRACOS). Linha e traço precisam crescer
-// JUNTOS: um "2 3" desenhado com 5px de espessura e ponta arredondada tem
+// Espessura de referência dos padrões de traço da prop opcional `dash`.
+// Hoje nenhum consumidor passa `dash` (todas as linhas são contínuas, ver
+// buildSeries), mas quem passar precisa disto: linha e traço têm que crescer
+// JUNTOS. Um "2 3" desenhado com 5px de espessura e ponta arredondada tem
 // cada traço esticado em 5px pelas pontas, fechando os vãos de 3px — a
 // tracejada vira uma linha contínua e some justamente a distinção que ela
 // existe pra criar (séries de mesmo valor se sobrepondo).
@@ -41,6 +42,37 @@ function escalaTraco(dash, strokeWidth) {
     .split(' ')
     .map((n) => Number(n) * fator)
     .join(' ')
+}
+
+// Quanto a série mais grossa pode passar da base, no total. Segura o caso de
+// muitos pontos monitorados: sem teto, com 6 séries a primeira ficaria uma
+// faixa larga demais em vez de uma linha.
+const DEGRAU_MAX = 3
+
+// Altura da caixa da amostra na legenda, em unidades do viewBox (e em px —
+// a CSS usa o mesmo valor, então a escala é 1:1 e a espessura sai em pixels
+// de tela). Precisa acomodar a série MAIS GROSSA: base do Modo TV (5) mais
+// DEGRAU_MAX dá 8px, e a linha é centralizada.
+const LEGENDA_ALTURA = 10
+
+// Espessura de cada série pela POSIÇÃO. Séries com o mesmo valor se
+// sobrepõem exatamente e, todas contínuas e da mesma espessura, só a última
+// desenhada aparece — o caso comum de "todos em 0% de perda", em que o
+// gráfico passa a impressão de que só existe um ponto monitorado.
+//
+// Com espessuras decrescentes elas se aninham: a primeira é desenhada mais
+// grossa, cada seguinte cai um degrau, e onde coincidem vê-se uma faixa
+// dentro da outra, como anéis. Nenhuma linha sai do valor real — a
+// alternativa comum, deslocar as coincidentes alguns pixels, faria o
+// gráfico mostrar um número que não foi medido.
+//
+// A ÚLTIMA série fica com a espessura base (é a que sobra por cima e
+// precisa continuar cheia); as anteriores engrossam. O degrau encolhe
+// conforme o número de séries pra respeitar DEGRAU_MAX.
+function larguraDaSerie(base, total, indice) {
+  if (total < 2) return base
+  const degrau = Math.min(0.9, DEGRAU_MAX / (total - 1))
+  return base + (total - 1 - indice) * degrau
 }
 
 // Tooltip com TODAS as séries do instante apontado, da maior pra menor —
@@ -93,9 +125,11 @@ function MultiTooltip({ active, payload, unidade, longFormat, series }) {
 // para telas sem mouse (modo TV): nada ali seria acionável, e a legenda +
 // os eixos seguem contando a história sozinhos.
 //
-// `strokeWidth`: espessura das linhas. O padrão (3px) é o do site, para
-// leitura sentado na frente do monitor; o modo TV sobe pra ~5px, porque a
-// mesma linha vista a alguns metros de distância vira um fio de cabelo.
+// `strokeWidth`: espessura BASE das linhas — a da série desenhada por
+// último. As anteriores engrossam um degrau cada (ver larguraDaSerie). O
+// padrão (2.5px) é o do site, para leitura sentado na frente do monitor; o
+// modo TV sobe pra 5px, porque a mesma linha vista a alguns metros de
+// distância vira um fio de cabelo.
 export default function MultiLineChart({
   data,
   series,
@@ -105,7 +139,7 @@ export default function MultiLineChart({
   thresholds = [],
   longFormat = false,
   interactive = true,
-  strokeWidth = 3,
+  strokeWidth = 2.5,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
 }) {
   // Zoom: guarda o intervalo selecionado (índices) e o arrasto em curso.
@@ -249,35 +283,41 @@ export default function MultiLineChart({
               />
             ))}
 
-            {series.map((s) => (
-              <Line
-                key={s.key}
-                type="monotone"
-                dataKey={s.key}
-                stroke={s.color}
-                strokeWidth={strokeWidth}
-                // Padrão de traço por série: séries com o MESMO valor se
-                // sobrepõem exatamente (todos em 0% de perda, por
-                // exemplo) e só a última desenhada apareceria. Tracejadas
-                // diferentes se intercalam e todas seguem visíveis.
-                strokeDasharray={escalaTraco(s.dash, strokeWidth)}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                dot={false}
-                activeDot={
-                  interactive
-                    ? {
-                        r: strokeWidth + 2,
-                        fill: s.color,
-                        stroke: 'var(--surface)',
-                        strokeWidth: 2,
-                      }
-                    : false
-                }
-                connectNulls={false}
-                isAnimationActive={false}
-              />
-            ))}
+            {/* Ordem de desenho = ordem do array: a primeira (mais grossa)
+                fica embaixo e a última (base) por cima. É o que produz o
+                aninhamento onde as séries coincidem — inverter a ordem
+                esconderia as finas dentro das grossas. */}
+            {series.map((s, i) => {
+              const largura = larguraDaSerie(strokeWidth, series.length, i)
+              return (
+                <Line
+                  key={s.key}
+                  type="monotone"
+                  dataKey={s.key}
+                  stroke={s.color}
+                  strokeWidth={largura}
+                  // `dash` é opcional e hoje ninguém passa — todas as linhas
+                  // saem contínuas (ver buildSeries). Serve como reforço pro
+                  // mesmo problema que a espessura escalonada resolve.
+                  strokeDasharray={escalaTraco(s.dash, largura)}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  dot={false}
+                  activeDot={
+                    interactive
+                      ? {
+                          r: largura + 2,
+                          fill: s.color,
+                          stroke: 'var(--surface)',
+                          strokeWidth: 2,
+                        }
+                      : false
+                  }
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              )
+            })}
 
             {dragging && (
               <ReferenceArea
@@ -294,26 +334,35 @@ export default function MultiLineChart({
       </div>
       {series.length > 1 && (
         <div className={styles.legend}>
-          {series.map((s) => (
-            <span key={s.key} className={styles.legendItem}>
-              {/* Amostra do traço (não um quadrado de cor): reproduz o
-                  padrão da linha, então dá pra casar legenda e gráfico
-                  quando duas séries têm a mesma cor de fundo escuro. */}
-              <svg className={styles.legendLine} viewBox="0 0 22 8" aria-hidden="true">
-                <line
-                  x1="0"
-                  y1="4"
-                  x2="22"
-                  y2="4"
-                  stroke={s.color}
-                  strokeWidth={strokeWidth}
-                  strokeDasharray={escalaTraco(s.dash, strokeWidth)}
-                  strokeLinecap="round"
-                />
-              </svg>
-              {s.label}
-            </span>
-          ))}
+          {series.map((s, i) => {
+            const largura = larguraDaSerie(strokeWidth, series.length, i)
+            return (
+              <span key={s.key} className={styles.legendItem}>
+                {/* Amostra do traço (não um quadrado de cor): reproduz a
+                    linha REAL — cor, padrão e espessura. A espessura importa
+                    desde que ela passou a variar por série: é aqui que se
+                    descobre qual das faixas aninhadas é qual, quando as
+                    linhas coincidem no gráfico. */}
+                <svg
+                  className={styles.legendLine}
+                  viewBox={`0 0 22 ${LEGENDA_ALTURA}`}
+                  aria-hidden="true"
+                >
+                  <line
+                    x1="0"
+                    y1={LEGENDA_ALTURA / 2}
+                    x2="22"
+                    y2={LEGENDA_ALTURA / 2}
+                    stroke={s.color}
+                    strokeWidth={largura}
+                    strokeDasharray={escalaTraco(s.dash, largura)}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                {s.label}
+              </span>
+            )
+          })}
         </div>
       )}
       {interactive && (

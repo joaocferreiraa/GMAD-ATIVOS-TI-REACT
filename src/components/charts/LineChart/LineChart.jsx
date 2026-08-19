@@ -36,7 +36,7 @@ function ChartTooltip({ active, payload, unidade }) {
 // se fosse um dado real.
 //
 // Uma série só (uma cor, sem legenda — o título do card já diz o que é),
-// linha grossa de 3px, wash de 18% sob a linha, crosshair + ponto de
+// linha de 2.5px, wash de 18% sob a linha, crosshair + ponto de
 // destaque com anel na cor da superfície ao passar o mouse — mesmo padrão
 // do resto dos gráficos do site (DonutChart/BarChart), sem gradiente.
 //
@@ -79,7 +79,7 @@ export default function LineChart({
             type="monotone"
             dataKey="value"
             stroke={color}
-            strokeWidth={3}
+            strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill={color}
