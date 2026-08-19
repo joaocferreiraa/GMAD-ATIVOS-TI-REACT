@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import {
   RadarChart as RRadarChart,
   Radar,
@@ -11,6 +11,26 @@ import {
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
 import styles from './RadarChart.module.css'
 
+// Abaixo disto o cartão ocupa a largura da tela e não há como caber um nome
+// inteiro de departamento na borda da teia. Mesmo valor do ponto de quebra
+// da Sidebar, onde o app já decide que está num aparelho estreito.
+const TELA_ESTREITA = '(max-width: 860px)'
+
+// Rótulo de eixo em tela estreita. O Recharts NÃO encolhe o raio pra caber
+// rótulo: ele desenha e deixa o SVG cortar. Num contêiner de ~340px o raio
+// fica em ~115px e sobram ~55px até a borda — "Departamento Pessoal" precisa
+// de mais que o dobro disso e sairia picotado no meio da palavra, que é pior
+// do que abreviado, porque não avisa que falta texto.
+//
+// O nome inteiro continua no tooltip (um toque no eixo) e na tabela do
+// relatório — aqui o rótulo só precisa distinguir um eixo do vizinho.
+const LIMITE_ROTULO = 11
+
+function encurtar(texto) {
+  const s = String(texto ?? '')
+  return s.length > LIMITE_ROTULO ? `${s.slice(0, LIMITE_ROTULO - 1).trimEnd()}…` : s
+}
+
 // Tooltip com TODAS as unidades daquele eixo, da maior pra menor — o motivo
 // do radar existir é comparar o perfil das unidades, então ver só a que
 // está sob o cursor obrigaria a passar o mouse quatro vezes no mesmo ponto.
@@ -19,9 +39,14 @@ function ChartTooltip({ active, payload, label }) {
   const linhas = payload.filter((p) => p.value > 0).sort((a, b) => b.value - a.value)
   if (!linhas.length) return null
 
+  // Direto da linha de dados, e não do `label` do Recharts: em tela estreita
+  // o eixo usa tickFormatter pra encurtar o nome, e o tooltip é justamente
+  // onde o nome INTEIRO precisa aparecer.
+  const categoria = payload[0]?.payload?.categoria ?? label
+
   return (
     <div className={styles.tooltip}>
-      <div className={styles.tooltipTitle}>{label}</div>
+      <div className={styles.tooltipTitle}>{categoria}</div>
       {linhas.map((p) => (
         <div key={p.dataKey} className={styles.tooltipRow}>
           <span className={styles.dot} style={{ background: p.stroke }} />
@@ -64,6 +89,18 @@ export default function RadarChart({
   height,
   emptyMessage = 'Sem dados suficientes.',
 }) {
+  // Mesmo padrão da Sidebar: estado inicial lido na hora (pra não renderizar
+  // uma vez errado) e listener pro caso de girar o aparelho.
+  const [estreita, setEstreita] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(TELA_ESTREITA).matches,
+  )
+  useEffect(() => {
+    const mql = window.matchMedia(TELA_ESTREITA)
+    const aoMudar = (e) => setEstreita(e.matches)
+    mql.addEventListener('change', aoMudar)
+    return () => mql.removeEventListener('change', aoMudar)
+  }, [])
+
   const { data, series } = useMemo(() => {
     let categorias = categories
     if (!categorias) {
@@ -119,13 +156,18 @@ export default function RadarChart({
         <ResponsiveContainer width="100%" height="100%">
           <RRadarChart
             data={data}
-            outerRadius="72%"
+            // Raio menor em tela estreita: é o que sobra de espaço entre a
+            // teia e a borda do SVG que os rótulos ocupam, e o Recharts
+            // corta o que passar dali.
+            outerRadius={estreita ? '58%' : '72%'}
             margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
           >
             <PolarGrid stroke="var(--border)" />
             <PolarAngleAxis
               dataKey="categoria"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11.5 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: estreita ? 10.5 : 11.5 }}
+              // Encurta só onde não cabe — no desktop o nome sai inteiro.
+              tickFormatter={estreita ? encurtar : undefined}
             />
             {/* Eixo radial sem rótulo: com vários polígonos sobrepostos os
                 números no raio caem em cima das linhas e não se lêem. A

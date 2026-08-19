@@ -44,7 +44,13 @@
   border-left: 3px solid var(--laranja);
 }
 
-@media (max-width: 500px) {
+/* 900px, e não os 500px de antes: aquele valor era certo quando cada coluna
+   tinha só um número e um rótulo. Hoje cada uma carrega um radar de vários
+   eixos, com os nomes dos departamentos na borda externa da teia — em duas
+   colunas num tablet, sobram ~330px por gráfico e os rótulos se atropelam.
+   Mesmo ponto de quebra do .grid da Visão geral, então a página inteira
+   passa a uma coluna de uma vez só. */
+@media (max-width: 900px) {
   .split {
     grid-template-columns: 1fr;
   }
