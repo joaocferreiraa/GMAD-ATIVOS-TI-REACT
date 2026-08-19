@@ -13,36 +13,28 @@ import KpiStrip from '../../components/dashboard/KpiStrip/KpiStrip'
 import MiniStats from '../../components/dashboard/MiniStats/MiniStats'
 import AttentionList from '../../components/dashboard/AttentionList/AttentionList'
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
-import CompletionMeter from '../../components/dashboard/CompletionMeter/CompletionMeter'
 import DonutChart from '../../components/charts/DonutChart/DonutChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
-import StackedBarChart from '../../components/charts/StackedBarChart/StackedBarChart'
+import RadarChart from '../../components/charts/RadarChart/RadarChart'
 import styles from './DashboardPage.module.css'
 
-// Paleta pro StackedBarChart de colaboradores por departamento — mais ampla
-// que as outras (10 cores) porque o número de departamentos reais costuma
-// passar disso; repetição de cor é esperada, o hover sempre mostra o nome
-// exato do departamento. --info/--yellow/--indigo por último (mesmos tons
-// usados em tiles/badges pelo site) só pra dar mais tons bem distintos antes
-// de repetir.
+// Cores dos POLÍGONOS de cada radar — um por unidade dentro do grupo, não
+// por departamento (no radar o departamento é eixo da teia, não cor). Por
+// isso são listas curtas: Madville tem 3 unidades próprias e Curitiba, uma.
+//
+// A PRIMEIRA cor de cada lista casa com a barra colorida do bloco de número
+// logo acima (verde no Madville, laranja no Curitiba) — é o que amarra cada
+// teia ao seu cabeçalho quando os dois gráficos ficam lado a lado. As
+// seguintes fogem do matiz da primeira de propósito: três verdes seguidos
+// dentro do mesmo radar seriam três polígonos indistinguíveis.
 //
 // Esta tela fica de fora da paleta --chart-* (constants/chartColors.js), que
 // vale nos gráficos de Chamados e de monitoramento: a Visão geral é a
 // primeira tela depois do login, a vitrine da marca, e aqui os verdes e
 // laranjas GMAD pesam mais que o contraste entre séries. Decisão do dono do
 // produto — não é falta de padronização a ser "consertada" depois.
-const DEPARTMENT_COLORS = [
-  'var(--verde-700)',
-  'var(--laranja)',
-  'var(--verde-600)',
-  'var(--verde-900)',
-  'var(--laranja-forte)',
-  'var(--verde-800)',
-  'var(--madeira)',
-  'var(--info)',
-  'var(--yellow)',
-  'var(--indigo)',
-]
+const MADVILLE_COLORS = ['var(--verde-700)', 'var(--info)', 'var(--madeira)', 'var(--indigo)']
+const CURITIBA_COLORS = ['var(--laranja)', 'var(--yellow)', 'var(--madeira)']
 
 export default function DashboardPage() {
   const { data: assets, isLoading, isError } = useAssets()
@@ -118,30 +110,37 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className={styles.grid}>
-            <Card
-              title="Distribuição por unidade"
-              subtitle="Colaboradores cadastrados por departamento, por unidade / local"
-            >
-              <GroupSplit
-                madville={dashboard.groupSplit.madville}
-                outras={dashboard.groupSplit.outras}
-              />
-              <StackedBarChart
-                units={dashboard.colaboradoresByDept}
-                colors={DEPARTMENT_COLORS}
-                emptyMessage="Nenhum colaborador cadastrado ainda."
-              />
-            </Card>
-            <Card title="Idade do parque" subtitle="Cadastro de data de aquisição dos equipamentos">
-              <CompletionMeter
-                label="dos ativos com data de aquisição cadastrada"
-                filled={dashboard.ageCompleteness.filled}
-                total={dashboard.ageCompleteness.total}
-                missingLabel="ainda sem data cadastrada"
-              />
-            </Card>
-          </div>
+          {/* Largura inteira, fora do .grid: são dois radares lado a lado, e
+              os rótulos de categoria ficam na borda externa de cada teia. Em
+              meia página eles se atropelariam. */}
+          <Card
+            className={styles.unitCard}
+            title="Distribuição por unidade"
+            subtitle="Colaboradores cadastrados por departamento, por unidade / local"
+          >
+            <GroupSplit
+              madville={dashboard.groupSplit.madville}
+              outras={dashboard.groupSplit.outras}
+              madvilleBelow={
+                <RadarChart
+                  units={dashboard.colaboradoresRadar.madville}
+                  categories={dashboard.colaboradoresRadar.eixos}
+                  domainMax={dashboard.colaboradoresRadar.max}
+                  colors={MADVILLE_COLORS}
+                  emptyMessage="Nenhum colaborador cadastrado nas unidades Madville."
+                />
+              }
+              outrasBelow={
+                <RadarChart
+                  units={dashboard.colaboradoresRadar.outras}
+                  categories={dashboard.colaboradoresRadar.eixos}
+                  domainMax={dashboard.colaboradoresRadar.max}
+                  colors={CURITIBA_COLORS}
+                  emptyMessage="Ainda sem colaboradores cadastrados — a teia se preenche conforme forem entrando."
+                />
+              }
+            />
+          </Card>
 
           <Card
             variant="plain"

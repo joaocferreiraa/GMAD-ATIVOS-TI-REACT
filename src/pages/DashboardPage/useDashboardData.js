@@ -32,12 +32,6 @@ function scopedByDashUnit(assets, dashUnidade) {
     : assets.filter((a) => matchesUnitValue(a.unidade, dashUnidade))
 }
 
-// Mesmo parse de data usado em warrantyInfo() (formatters.js), pra tratar
-// "2024-03-15T00:00:00" de forma consistente com o resto do app.
-function hasValidDate(iso) {
-  return Boolean(iso) && !Number.isNaN(new Date(`${iso}T00:00:00`).getTime())
-}
-
 // Toda a lógica de agregação do Dashboard, separada da renderização.
 // Recebe a lista de ativos e de contatos (React Query) e a unidade
 // selecionada no filtro, devolve dados já prontos para os componentes
@@ -173,19 +167,6 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     // ---- Lista de atenção (até 8 itens) ----
     const attentionList = buildAttentionList(scoped)
 
-    // ---- Completude do cadastro de data de aquisição (respeita o filtro de
-    // unidade) ---- dataAquisicao nunca vira métrica em nenhum outro lugar
-    // do painel hoje — diferente da contagem por categoria, que já
-    // duplicava os tiles do KpiStrip logo acima. Boa parte do parque ainda
-    // não tem essa data cadastrada, então uma distribuição por faixa etária
-    // ficaria dominada por "sem data" — mostra o quanto falta preencher em
-    // vez disso, o que é acionável (e cresce sozinho conforme a equipe
-    // preenche o campo em Ativos).
-    const ageCompleteness = {
-      filled: scoped.filter((a) => hasValidDate(a.dataAquisicao)).length,
-      total: scoped.length,
-    }
-
     // Colaboradores (Contatos), não ativos — uma pessoa pode ter vários
     // ativos cadastrados no nome dela, o que infla uma contagem baseada em
     // Ativos e não reflete o tamanho real do time por unidade.
@@ -247,6 +228,33 @@ export function useDashboardData(assets, contatos, dashUnidade) {
       return { unit: u, label: unitDisplayName(u), total: unitContatos.length, bars: counts }
     })
 
+    // ---- Radares de colaboradores, um por GRUPO (ver GroupSplit) ----
+    // Dois gráficos em vez de um: sobrepor Madville e Curitiba na mesma teia
+    // misturava um grupo de 3 unidades próprias com uma unidade só, que é
+    // justamente a divisão que o bloco de números acima existe pra marcar.
+    //
+    // `eixos` e `max` saem daqui, do conjunto TODO, e vão iguais pros dois
+    // radares. É o que os torna comparáveis: mesmos departamentos na mesma
+    // posição angular e o mesmo raio valendo o mesmo número nos dois. Cada
+    // radar calculando a própria escala daria dois desenhos parecidos
+    // representando grandezas diferentes — o erro clássico de radar lado a
+    // lado.
+    const totaisPorDept = new Map()
+    colaboradoresByDept.forEach((u) =>
+      u.bars.forEach((b) =>
+        totaisPorDept.set(b.label, (totaisPorDept.get(b.label) || 0) + b.value),
+      ),
+    )
+    const colaboradoresRadar = {
+      eixos: Array.from(totaisPorDept.entries())
+        .filter(([, total]) => total > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label]) => label),
+      max: Math.max(0, ...colaboradoresByDept.flatMap((u) => u.bars.map((b) => b.value))),
+      madville: colaboradoresByDept.filter((u) => isMadvilleUnit(u.unit)),
+      outras: colaboradoresByDept.filter((u) => !isMadvilleUnit(u.unit)),
+    }
+
     // ---- Dropdown de unidade ----
     const unitDropdownItems = [
       { value: 'Todas', label: 'Todas as unidades' },
@@ -267,11 +275,11 @@ export function useDashboardData(assets, contatos, dashUnidade) {
       financeTiles,
       miniStats,
       attentionList,
-      ageCompleteness,
       groupSplit,
       statusChart,
       deptByUnit,
       colaboradoresByDept,
+      colaboradoresRadar,
       unitDropdownItems,
       unitDropdownLabel,
     }
