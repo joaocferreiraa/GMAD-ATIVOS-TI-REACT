@@ -18,7 +18,7 @@
 .icon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--bg-elevated);
   color: var(--brand);
   display: flex;

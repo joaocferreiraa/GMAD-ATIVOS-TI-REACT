@@ -35,7 +35,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-faint);
-  padding: 13px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-strong);
   font-weight: 700;
   white-space: nowrap;

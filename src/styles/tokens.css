@@ -63,7 +63,12 @@
      --info (mais azul puro). */
   --indigo: #6366f1;
   --indigo-bg: rgba(99, 102, 241, 0.12);
-  --radius: 10px;
+  /* Dois raios, como no painel do Supabase: painéis e cartões um pouco
+     arredondados, controles (botão, campo, seletor) mais fechados. Um raio
+     só para tudo era o que dava ao app o ar mais "bolha" — com 10px, um
+     botão de 32px de altura fica quase de cantos redondos. */
+  --radius: 8px;
+  --radius-control: 6px;
   /* Cartões PLANOS no modo claro (padrão do painel do Supabase): a borda de
      1px define o bloco, sem sombra. Mantido como token (em vez de remover o
      box-shadow de cada arquivo) pra continuar existindo um único ponto de
@@ -75,7 +80,12 @@
      separado de --shadow-soft, que agora é `none`. */
   --shadow-float: 0 1px 2px rgba(15, 38, 25, 0.04), 0 6px 16px -8px rgba(15, 38, 25, 0.1);
 
-  --font-display: 'Poppins', sans-serif;
+  /* Mesma família nos dois papéis, como o painel do Supabase: título e
+     corpo se distinguem por peso e tamanho, não por fonte. O token
+     --font-display continua existindo (39 arquivos o usam) e segue sendo o
+     ponto único de ajuste caso um dia se queira uma fonte de títulos de
+     novo. */
+  --font-display: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 

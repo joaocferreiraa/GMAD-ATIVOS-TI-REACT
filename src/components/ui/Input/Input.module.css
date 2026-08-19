@@ -9,7 +9,7 @@
   border: 1px solid var(--border);
   color: var(--text);
   padding: 9px 10px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-control);
   font-size: 13.5px;
   font-family: var(--font-body);
   transition:

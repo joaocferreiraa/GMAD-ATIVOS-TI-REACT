@@ -163,7 +163,7 @@
   border: 1.5px solid transparent;
   color: var(--text);
   padding: 13px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   box-sizing: border-box;
   font-size: 14.5px;
   font-family: var(--font-body);
@@ -249,7 +249,7 @@
   color: #fff;
   border: none;
   padding: 14px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-size: 14.5px;
   font-weight: 700;
   font-family: var(--font-body);
