@@ -413,9 +413,12 @@ export default function TvPage() {
           Infraestrutura, em janela fixa de 6h. O velocímetro diz como está
           AGORA; o gráfico diz se está piorando, que é o que antecipa
           problema. Sem tooltip/zoom: numa TV ninguém passa o mouse.
-          `strokeWidth` acima do padrão do site (5 contra 3): esta tela é
+          `strokeWidth` acima do padrão do site (3.5 contra 2.5): esta tela é
           lida em pé, a metros de distância, onde a linha do painel comum
-          vira um fio. É o mesmo motivo da tipografia maior aqui. */}
+          vira um fio. É o mesmo raciocínio da tipografia maior aqui. A
+          mancha translúcida sob cada série vem do padrão do MultiLineChart e
+          é o que permite o traço ser só um pouco mais grosso, em vez de
+          muito. */}
       <div className={styles.chartRow}>
         <section className={styles.panel}>
           <div className={styles.panelHead}>
@@ -428,7 +431,7 @@ export default function TvPage() {
             unidade="ms"
             height={190}
             interactive={false}
-            strokeWidth={5}
+            strokeWidth={3.5}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -443,7 +446,7 @@ export default function TvPage() {
             unidade="%"
             height={190}
             interactive={false}
-            strokeWidth={5}
+            strokeWidth={3.5}
             emptyMessage="Sem medições nas últimas 6 horas."
           />
         </section>
@@ -458,7 +461,7 @@ export default function TvPage() {
             unidade="ms"
             height={190}
             interactive={false}
-            strokeWidth={5}
+            strokeWidth={3.5}
             emptyMessage="Jitter aparece aqui conforme o agente coleta."
           />
         </section>

@@ -26,6 +26,43 @@ function timeLabel(iso, longFormat) {
     : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
+// Séries que ficaram CRAVADAS no mesmo valor durante todo o trecho visível.
+// Duas ou mais assim se sobrepõem pixel a pixel, e o gráfico mostra só a
+// última desenhada — o caso diário de "todos os pontos em 0% de perda", em
+// que a tela sugere um ponto monitorado quando existem três.
+//
+// A espessura escalonada (larguraDaSerie) resolve a sobreposição no meio do
+// gráfico, mas não resolve a leitura: mesmo aninhadas, três linhas paradas
+// no zero continuam parecendo uma. O que falta ali é uma FRASE, não mais
+// desenho — daí esta função alimentar uma legenda em texto.
+//
+// Só conta como coincidência o valor constante o período inteiro. Séries que
+// se cruzam de passagem não confundem ninguém, e avisar sobre elas encheria
+// o rodapé de ruído.
+function seriesCoincidentes(view, series) {
+  const porValor = new Map()
+  for (const s of series) {
+    const valores = view.map((d) => d[s.key]).filter((v) => v !== null && v !== undefined)
+    if (!valores.length) continue
+    const primeiro = valores[0]
+    if (!valores.every((v) => v === primeiro)) continue
+    if (!porValor.has(primeiro)) porValor.set(primeiro, [])
+    porValor.get(primeiro).push(s.label)
+  }
+  // Duas séries constantes em valores DIFERENTES não se sobrepõem — não são
+  // o problema, e não entram no aviso.
+  return [...porValor.entries()]
+    .filter(([, labels]) => labels.length > 1)
+    .map(([valor, labels]) => ({ valor, labels }))
+}
+
+// "A, B e C" — o "e" antes do último, como se escreve em português. Com dois
+// itens vira "A e B".
+function listaPorExtenso(itens) {
+  if (itens.length <= 1) return itens[0] ?? ''
+  return `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`
+}
+
 // Espessura de referência dos padrões de traço da prop opcional `dash`.
 // Hoje nenhum consumidor passa `dash` (todas as linhas são contínuas, ver
 // buildSeries), mas quem passar precisa disto: linha e traço têm que crescer
@@ -128,8 +165,14 @@ function MultiTooltip({ active, payload, unidade, longFormat, series }) {
 // `strokeWidth`: espessura BASE das linhas — a da série desenhada por
 // último. As anteriores engrossam um degrau cada (ver larguraDaSerie). O
 // padrão (2.5px) é o do site, para leitura sentado na frente do monitor; o
-// modo TV sobe pra 5px, porque a mesma linha vista a alguns metros de
+// modo TV sobe um pouco, porque a mesma linha vista a alguns metros de
 // distância vira um fio de cabelo.
+//
+// `fillArea`: preenche a área sob cada linha com a própria cor, bem
+// translúcida — LIGADO por padrão. O traço carrega a precisão e a mancha, a
+// presença: é o que permite a linha ser fina sem o gráfico ficar apagado, e
+// o que dá volume a uma série que passa quase reta o período inteiro.
+// Desligável por gráfico, mas hoje ninguém desliga.
 export default function MultiLineChart({
   data,
   series,
@@ -140,6 +183,7 @@ export default function MultiLineChart({
   longFormat = false,
   interactive = true,
   strokeWidth = 2.5,
+  fillArea = true,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
 }) {
   // Zoom: guarda o intervalo selecionado (índices) e o arrasto em curso.
@@ -188,6 +232,10 @@ export default function MultiLineChart({
 
   const dragging = dragStart !== null && dragEnd !== null && dragStart !== dragEnd
 
+  // Sobre `view`, não sobre `data`: depois de um zoom, o que interessa é se
+  // as séries coincidem NO TRECHO QUE ESTÁ NA TELA.
+  const coincidentes = seriesCoincidentes(view, series)
+
   return (
     <div className={styles.wrap}>
       {zoomValido && (
@@ -234,6 +282,15 @@ export default function MultiLineChart({
               tickLine={false}
               width={40}
               tick={{ fill: 'var(--text-faint)', fontSize: 11 }}
+              // Folga embaixo: uma série cravada no mínimo da escala — o
+              // caso diário de "0% de perda" — desenha exatamente sobre a
+              // borda do gráfico, e METADE da espessura de cada traço fica
+              // cortada fora da área. É o que fazia o aninhamento por
+              // espessura (ver larguraDaSerie) desaparecer justo onde ele
+              // mais importa: com só a metade de cima visível, as bordas das
+              // séries mais grossas viravam frestas de menos de 1px. Isto
+              // não mexe na escala, só afasta o desenho da borda.
+              padding={{ bottom: 6 }}
             />
             {interactive && (
               <Tooltip
@@ -265,6 +322,30 @@ export default function MultiLineChart({
                 connectNulls={false}
               />
             )}
+
+            {/* Manchas de TODAS as séries antes de QUALQUER linha, e não
+                mancha+linha por série: intercalado, a mancha da 2ª série
+                cobriria a linha da 1ª. Sem eixo próprio, então elas
+                compartilham a mesma escala das linhas e ficam exatamente
+                sob elas. */}
+            {fillArea &&
+              series.map((s) => (
+                <Area
+                  key={`fill-${s.key}`}
+                  type="monotone"
+                  dataKey={s.key}
+                  stroke="none"
+                  fill={s.color}
+                  // Baixo de propósito: as manchas se sobrepõem e as
+                  // opacidades somam. Num gráfico de latência, onde as três
+                  // séries ficam no alto da escala, cada mancha cobre quase
+                  // o painel inteiro — a 0.3 o fundo viraria um bloco só.
+                  fillOpacity={0.13}
+                  connectNulls={false}
+                  activeDot={false}
+                  isAnimationActive={false}
+                />
+              ))}
 
             {thresholds.map((t) => (
               <ReferenceLine
@@ -365,6 +446,26 @@ export default function MultiLineChart({
           })}
         </div>
       )}
+
+      {/* Legenda em TEXTO das séries que se sobrepõem. Sem ela, um gráfico
+          com os três pontos parados no zero mostra uma linha só, e quem olha
+          conclui que dois pontos pararam de ser medidos — a leitura mais
+          perigosa possível num painel de rede, porque é o oposto da verdade
+          (ali está tudo estável). */}
+      {coincidentes.map((c) => (
+        <p key={c.valor} className={styles.coincidencia}>
+          <span className={styles.coincidenciaDots} aria-hidden="true">
+            {series
+              .filter((s) => c.labels.includes(s.label))
+              .map((s) => (
+                <span key={s.key} className={styles.dot} style={{ background: s.color }} />
+              ))}
+          </span>
+          {listaPorExtenso(c.labels)} {c.labels.length > 1 ? 'ficaram' : 'ficou'} em {c.valor}
+          {unidade && ` ${unidade}`} durante todo o período — as linhas estão sobrepostas.
+        </p>
+      ))}
+
       {interactive && (
         <p className={styles.hint}>Arraste sobre o gráfico para dar zoom em um intervalo.</p>
       )}
