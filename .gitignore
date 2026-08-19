@@ -31,6 +31,10 @@ agent/msi/redist/
 # embutido no instalador. Também carrega credenciais — nunca commitar.
 agent/msi/obj/
 
+# Backup gerado por scripts/corrigir-ids-ativos.js antes de gravar — é a
+# lista completa de ativos (dados reais do parque), não vai pro git.
+backup-ativos-*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

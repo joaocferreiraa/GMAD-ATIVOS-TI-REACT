@@ -32,8 +32,10 @@ export default [
   },
   // api/ roda como Vercel Serverless Function (Node.js), não no navegador —
   // precisa dos globals de Node (Buffer, process...) em vez dos de browser.
+  // scripts/ são utilitários de manutenção rodados à mão pelo terminal,
+  // mesmo caso.
   {
-    files: ['api/**/*.js'],
+    files: ['api/**/*.js', 'scripts/**/*.js'],
     languageOptions: {
       globals: globals.node,
     },
