@@ -133,8 +133,9 @@
 
 .loginBox h1 {
   font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0 0 22px;
   color: var(--text);
 }
@@ -162,10 +163,10 @@
   background: var(--bg-elevated);
   border: 1.5px solid transparent;
   color: var(--text);
-  padding: 13px 14px;
-  border-radius: var(--radius);
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
   box-sizing: border-box;
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-family: var(--font-body);
   transition:
     background 0.18s ease,
@@ -248,10 +249,10 @@
   background: var(--brand);
   color: #fff;
   border: none;
-  padding: 14px;
-  border-radius: var(--radius);
-  font-size: 14.5px;
-  font-weight: 700;
+  padding: 11px;
+  border-radius: var(--radius-control);
+  font-size: 13.5px;
+  font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
   display: flex;
@@ -360,6 +361,19 @@
      compartilhado, então precisa do mesmo ajuste aplicado à parte. */
   .loginField input {
     font-size: 16px;
+  }
+
+  /* Alvo de toque, mesmo motivo do .btn (Button.module.css): estes dois
+     controles são locais da tela de login e não são alcançados pela regra
+     global. Entrar é o único botão da tela — errar o alvo aqui é o pior
+     lugar possível. */
+  .btnLogin {
+    min-height: 44px;
+  }
+
+  .loginTogglePw {
+    width: 40px;
+    height: 40px;
   }
 }
 
