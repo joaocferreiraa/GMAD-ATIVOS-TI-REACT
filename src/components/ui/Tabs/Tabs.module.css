@@ -1,14 +1,21 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.tabgroup, .tab). */
 
+/* Painel fechado, com o mesmo tratamento da tabela logo abaixo (.tableWrap):
+   superfície, borda de 1px e o raio dos painéis. Antes era uma fileira solta
+   sobre o fundo da página, separada só por um filete — ao lado de uma tabela
+   emoldurada, parecia que as abas não pertenciam ao mesmo bloco. */
 .tabgroup {
   display: flex;
   column-gap: 4px;
   row-gap: 4px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
   align-items: center;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
 }
 
 .groupLabel {
@@ -38,7 +45,9 @@
   align-items: center;
   gap: 7px;
   white-space: nowrap;
-  border-radius: var(--radius);
+  /* Raio de controle, não de painel: a aba é um botão dentro da moldura, e
+     com o raio maior os cantos dela competiam com os da própria moldura. */
+  border-radius: var(--radius-control);
   transition:
     background 0.12s,
     color 0.12s;
