@@ -24,8 +24,8 @@ const stockSchema = z
     // negativa nem fracionária. O `min={0}`/`type="number"` do campo não
     // bastam sozinhos: nenhum modal do sistema usa <form> de verdade (ver
     // Modal.jsx), então a validação nativa do HTML nunca dispara.
-    quantidade: z
-      .coerce.string()
+    quantidade: z.coerce
+      .string()
       .trim()
       .min(1, 'Informe a quantidade.')
       .refine((v) => /^\d+$/.test(v), 'Informe um número inteiro igual ou maior que zero.'),

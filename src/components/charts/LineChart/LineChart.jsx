@@ -1,4 +1,12 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts'
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
 import styles from './LineChart.module.css'
 

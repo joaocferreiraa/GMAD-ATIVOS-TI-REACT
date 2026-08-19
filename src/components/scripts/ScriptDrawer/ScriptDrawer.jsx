@@ -15,14 +15,7 @@ import panelStyles from '../ScriptPanel.module.css'
 // — drawer lateral (largo), somente leitura, com favoritar, copiar código
 // e editar/excluir. Execução e download ficam de fora de propósito: o
 // processo é manual (copiar o código e rodar no computador de destino).
-export default function ScriptDrawer({
-  open,
-  item,
-  onClose,
-  onEdit,
-  onDelete,
-  onToggleFavorite,
-}) {
+export default function ScriptDrawer({ open, item, onClose, onEdit, onDelete, onToggleFavorite }) {
   const { showToast } = useToast()
   const bindTooltip = useHoverTooltip()
   if (!item) return null

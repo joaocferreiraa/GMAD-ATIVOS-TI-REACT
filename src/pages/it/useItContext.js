@@ -48,7 +48,8 @@ export function useItToast() {
       // recebe (mensagem, variante). Juntamos os dois numa linha só.
       success: (titulo, detalhe) => showToast(detalhe ? `${titulo}: ${detalhe}` : titulo),
       error: (titulo, detalhe) => showToast(detalhe ? `${titulo}: ${detalhe}` : titulo, 'danger'),
-      warning: (titulo, detalhe) => showToast(detalhe ? `${titulo}: ${detalhe}` : titulo, 'warning'),
+      warning: (titulo, detalhe) =>
+        showToast(detalhe ? `${titulo}: ${detalhe}` : titulo, 'warning'),
       info: (titulo, detalhe) => showToast(detalhe ? `${titulo}: ${detalhe}` : titulo),
     }),
     [showToast],

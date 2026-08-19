@@ -20,8 +20,7 @@ export function filterAssets(assets, filters) {
       filters.etiqueta === 'Possui' ? a.etiqueta === 'Possui' : a.etiqueta !== 'Possui',
     )
   }
-  if (filters.garantia)
-    list = list.filter((a) => assetWarrantyInfo(a).cls === filters.garantia)
+  if (filters.garantia) list = list.filter((a) => assetWarrantyInfo(a).cls === filters.garantia)
   if (filters.usuario) list = list.filter((a) => a.usuario === filters.usuario)
   if (filters.search) {
     const matches = createSearchMatcher(filters.search)

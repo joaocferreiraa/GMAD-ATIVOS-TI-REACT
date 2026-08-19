@@ -18,9 +18,7 @@ export default function Drawer({
   const bindTooltip = useHoverTooltip()
   return (
     <Overlay open={open} onClose={onClose} drawer>
-      <div
-        className={`${styles.panel} ${wide ? styles.wide : ''} ${flush ? styles.flush : ''}`}
-      >
+      <div className={`${styles.panel} ${wide ? styles.wide : ''} ${flush ? styles.flush : ''}`}>
         {showCloseButton && (
           <button
             type="button"

@@ -81,7 +81,10 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     }
 
     const unitCounts = unidades
-      .map((u) => ({ label: unitDisplayName(u), count: assets.filter((a) => a.unidade === u).length }))
+      .map((u) => ({
+        label: unitDisplayName(u),
+        count: assets.filter((a) => a.unidade === u).length,
+      }))
       .sort((a, b) => b.count - a.count)
     const unidadesDetail = unitCounts.length
       ? [
@@ -98,7 +101,9 @@ export function useDashboardData(assets, contatos, dashUnidade) {
 
     const investDetail = CATEGORIES.map((c) => ({
       label: CAT_LABEL_PLURAL[c],
-      raw: scoped.filter((a) => a.categoria === c).reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0),
+      raw: scoped
+        .filter((a) => a.categoria === c)
+        .reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0),
     }))
       .filter((c) => c.raw > 0)
       .sort((a, b) => b.raw - a.raw)
@@ -133,7 +138,13 @@ export function useDashboardData(assets, contatos, dashUnidade) {
         detail: categoryDetail(c),
         to: tileFilters(c),
       })),
-      { icon: BuildingIcon, tone: 'blue', value: unidadesCount, label: 'Unidades', detail: unidadesDetail },
+      {
+        icon: BuildingIcon,
+        tone: 'blue',
+        value: unidadesCount,
+        label: 'Unidades',
+        detail: unidadesDetail,
+      },
     ]
     const financeTiles = [
       {
@@ -179,7 +190,9 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     // ativos cadastrados no nome dela, o que infla uma contagem baseada em
     // Ativos e não reflete o tamanho real do time por unidade.
     const madvilleColaboradores = contatos.filter((c) => isMadvilleUnit(c.unidade)).length
-    const outrasColaboradores = contatos.filter((c) => c.unidade && !isMadvilleUnit(c.unidade)).length
+    const outrasColaboradores = contatos.filter(
+      (c) => c.unidade && !isMadvilleUnit(c.unidade),
+    ).length
     const madvilleUnitCount = unidades.filter(isMadvilleUnit).length
     const groupSplit = {
       madville: {

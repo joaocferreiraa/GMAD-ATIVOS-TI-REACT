@@ -1,12 +1,5 @@
 import { useMemo } from 'react'
-import {
-  BarChart as RBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+import { BarChart as RBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
 import styles from './StackedBarChart.module.css'
 
@@ -37,10 +30,16 @@ function ChartTooltip({ active, payload, label }) {
 // costuma passar do tamanho da paleta, cada segmento leva um contorno da cor
 // de fundo do card pra não embaçar quando duas cores repetem lado a lado; o
 // hover sempre mostra o nome exato, então a cor é só uma pista aproximada.
-export default function StackedBarChart({ units, colors, emptyMessage = 'Sem dados suficientes.' }) {
+export default function StackedBarChart({
+  units,
+  colors,
+  emptyMessage = 'Sem dados suficientes.',
+}) {
   const categories = useMemo(() => {
     const totals = new Map()
-    units.forEach((u) => u.bars.forEach((b) => totals.set(b.label, (totals.get(b.label) || 0) + b.value)))
+    units.forEach((u) =>
+      u.bars.forEach((b) => totals.set(b.label, (totals.get(b.label) || 0) + b.value)),
+    )
     return Array.from(totals.entries())
       .sort((a, b) => b[1] - a[1])
       .map(([label]) => label)

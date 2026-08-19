@@ -9,8 +9,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: calc(30px + var(--safe-top)) calc(16px + var(--safe-right)) calc(30px + var(--safe-bottom))
-    calc(16px + var(--safe-left));
+  padding: calc(30px + var(--safe-top)) calc(16px + var(--safe-right))
+    calc(30px + var(--safe-bottom)) calc(16px + var(--safe-left));
   z-index: 100;
   overflow-y: auto;
   animation: overlayIn 0.18s ease both;

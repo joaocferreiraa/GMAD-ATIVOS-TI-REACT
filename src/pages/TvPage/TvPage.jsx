@@ -72,7 +72,11 @@ export default function TvPage() {
   // painel — não a quem olha o monitor de parede. Esses números continuam
   // no Painel de Infraestrutura.
   const uidsMonitores = (monitores ?? []).map((m) => m.uid)
-  const { data: histRede } = useBucketedHistory(uidsMonitores, TV_JANELA_MINUTOS, TV_BUCKET_SEGUNDOS)
+  const { data: histRede } = useBucketedHistory(
+    uidsMonitores,
+    TV_JANELA_MINUTOS,
+    TV_BUCKET_SEGUNDOS,
+  )
 
   // Relógio da tela — num painel de parede, saber a hora exibida é o que
   // permite confiar (ou não) no resto dos números.
@@ -211,7 +215,9 @@ export default function TvPage() {
   const resumoPorPonto = monitorList
     .map((m) => {
       const buckets = (histRede ?? []).filter((b) => b.monitorUid === m.uid)
-      const disp = buckets.map((b) => b.disponibilidadePct).filter((v) => v !== null && v !== undefined)
+      const disp = buckets
+        .map((b) => b.disponibilidadePct)
+        .filter((v) => v !== null && v !== undefined)
       const lat = buckets.map((b) => b.latenciaMs).filter((v) => v !== null && v !== undefined)
       return {
         uid: m.uid,
@@ -456,7 +462,8 @@ export default function TvPage() {
             <h2 className={styles.panelTitle}>Resumo por ponto</h2>
             <span className={styles.panelMeta}>últimas 6h</span>
           </div>
-          {resumoPorPonto.length === 0 || resumoPorPonto.every((r) => r.disponibilidade === null) ? (
+          {resumoPorPonto.length === 0 ||
+          resumoPorPonto.every((r) => r.disponibilidade === null) ? (
             <p className={styles.allGood}>Sem dados suficientes no período.</p>
           ) : (
             <table className={styles.resumoTable}>

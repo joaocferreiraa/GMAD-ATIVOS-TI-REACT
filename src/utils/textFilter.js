@@ -8,7 +8,10 @@ export function createSearchMatcher(query) {
   return (fields) => fields.some((v) => v && String(v).toLowerCase().includes(q))
 }
 
-const DIACRITICS_REGEX = new RegExp('[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36f) + ']', 'g')
+const DIACRITICS_REGEX = new RegExp(
+  '[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36f) + ']',
+  'g',
+)
 
 // Remove duplicatas por texto ignorando maiúsculas/minúsculas, acentos e
 // espaços nas pontas (ex: "TI" e "Ti", ou "Claudio" e "Cláudio", contam como

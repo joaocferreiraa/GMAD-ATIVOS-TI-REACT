@@ -49,11 +49,7 @@ export default function Dropdown({ label, items, activeValue, onSelect }) {
       </button>
 
       {open && (
-        <div
-          ref={menuRef}
-          className={`${styles.menu} ${dropUp ? styles.menuUp : ''}`}
-          role="menu"
-        >
+        <div ref={menuRef} className={`${styles.menu} ${dropUp ? styles.menuUp : ''}`} role="menu">
           {items.map((item) => (
             <div
               key={item.value}

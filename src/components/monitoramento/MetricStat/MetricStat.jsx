@@ -49,9 +49,7 @@ export default function MetricStat({
         </div>
       </div>
 
-      {trend && trend.length > 1 && (
-        <Sparkline values={trend} limite={limite} teto={escalaTeto} />
-      )}
+      {trend && trend.length > 1 && <Sparkline values={trend} limite={limite} teto={escalaTeto} />}
 
       {rodape && <div className={styles.rodape}>{rodape}</div>}
     </div>

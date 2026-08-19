@@ -14,7 +14,8 @@ import styles from '../components/ErrorBoundary/ErrorBoundary.module.css'
 // sozinho. Recarregar a página resolve, porque busca o index.html atual
 // (que aponta pros hashes certos) — só não repete em loop infinito se o
 // reload não resolver (aí é outro problema, mostra o Alert normal).
-const CHUNK_ERROR_PATTERN = /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed/i
+const CHUNK_ERROR_PATTERN =
+  /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed/i
 const RELOAD_FLAG_KEY = 'gmad_chunk_reload_attempted'
 
 function isChunkLoadError(error) {

@@ -151,7 +151,11 @@ export default function LoginPage() {
                 aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 {...bindTooltip(showPassword ? 'Ocultar senha' : 'Mostrar senha')}
               >
-                {showPassword ? <EyeOffIcon width={17} height={17} /> : <EyeIcon width={17} height={17} />}
+                {showPassword ? (
+                  <EyeOffIcon width={17} height={17} />
+                ) : (
+                  <EyeIcon width={17} height={17} />
+                )}
               </button>
             </div>
           </div>

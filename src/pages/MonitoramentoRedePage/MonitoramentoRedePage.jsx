@@ -127,7 +127,10 @@ export default function MonitoramentoRedePage() {
             ]}
           />
 
-          <Card title="Monitoramento em tempo real" subtitle="Atualiza sozinho conforme chegam novas medições do agente.">
+          <Card
+            title="Monitoramento em tempo real"
+            subtitle="Atualiza sozinho conforme chegam novas medições do agente."
+          >
             <LiveChartCard monitors={data.allMonitors} />
           </Card>
 

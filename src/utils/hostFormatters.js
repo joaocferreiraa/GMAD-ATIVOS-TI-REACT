@@ -53,10 +53,11 @@ export function percentil(valores, p = 95) {
     .sort((a, b) => a - b)
   if (!vals.length) return null
   if (vals.length === 1) return Math.round(vals[0] * 100) / 100
-  const idx = ((p / 100) * (vals.length - 1))
+  const idx = (p / 100) * (vals.length - 1)
   const baixo = Math.floor(idx)
   const alto = Math.ceil(idx)
-  const valor = baixo === alto ? vals[baixo] : vals[baixo] + (vals[alto] - vals[baixo]) * (idx - baixo)
+  const valor =
+    baixo === alto ? vals[baixo] : vals[baixo] + (vals[alto] - vals[baixo]) * (idx - baixo)
   return Math.round(valor * 100) / 100
 }
 

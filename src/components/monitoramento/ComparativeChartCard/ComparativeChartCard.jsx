@@ -156,9 +156,7 @@ export default function ComparativeChartCard({ monitors }) {
           {bucketSegundos && (
             <p className={styles.aggNote}>
               Dados agregados em intervalos de{' '}
-              {bucketSegundos >= 3600
-                ? `${bucketSegundos / 3600}h`
-                : `${bucketSegundos / 60} min`}{' '}
+              {bucketSegundos >= 3600 ? `${bucketSegundos / 3600}h` : `${bucketSegundos / 60} min`}{' '}
               — cada ponto do gráfico é a média do intervalo.
             </p>
           )}

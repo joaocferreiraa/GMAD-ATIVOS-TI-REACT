@@ -83,14 +83,16 @@ function slaPrazoDe(prioridade) {
 }
 
 async function registrarEvento(ticketId, tipo, de, para, autor, autorNome) {
-  const { error } = await requireSupabase().from('helpdesk_events').insert({
-    ticket_id: ticketId,
-    tipo,
-    de: de ?? null,
-    para: para ?? null,
-    autor: autor ?? null,
-    autor_nome: autorNome ?? null,
-  })
+  const { error } = await requireSupabase()
+    .from('helpdesk_events')
+    .insert({
+      ticket_id: ticketId,
+      tipo,
+      de: de ?? null,
+      para: para ?? null,
+      autor: autor ?? null,
+      autor_nome: autorNome ?? null,
+    })
   // O histórico é secundário: se ele falhar, a ação principal (mudar status,
   // atribuir...) já aconteceu e não deve ser desfeita por causa disso.
   if (error) console.error('[itService] falha ao registrar evento:', error.message)

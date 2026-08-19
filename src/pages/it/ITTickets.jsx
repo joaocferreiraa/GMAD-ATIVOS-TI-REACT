@@ -103,7 +103,8 @@ export default function ITTickets() {
     return [...rows].sort((a, b) => {
       let cmp
       if (sortKey === 'priority') {
-        cmp = (TICKET_PRIORITIES[a.priority]?.order ?? 0) - (TICKET_PRIORITIES[b.priority]?.order ?? 0)
+        cmp =
+          (TICKET_PRIORITIES[a.priority]?.order ?? 0) - (TICKET_PRIORITIES[b.priority]?.order ?? 0)
       } else if (sortKey === 'created_at') {
         cmp = new Date(a.created_at) - new Date(b.created_at)
       } else if (sortKey === 'ticket_number') {
@@ -133,7 +134,10 @@ export default function ITTickets() {
       (t) => t.resolved_at && agora - new Date(t.resolved_at).getTime() < 30 * 24 * HOUR,
     )
     const avgResolutionH = resolved30d.length
-      ? resolved30d.reduce((acc, t) => acc + (new Date(t.resolved_at) - new Date(t.created_at)), 0) /
+      ? resolved30d.reduce(
+          (acc, t) => acc + (new Date(t.resolved_at) - new Date(t.created_at)),
+          0,
+        ) /
         resolved30d.length /
         HOUR
       : null
@@ -210,7 +214,12 @@ export default function ITTickets() {
       sortable: true,
       render: (t) => <PriorityBadge priority={t.priority} />,
     },
-    { key: 'status', label: 'Status', sortable: true, render: (t) => <StatusBadge status={t.status} /> },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (t) => <StatusBadge status={t.status} />,
+    },
     {
       key: 'requester_name',
       label: 'Requerente',
@@ -330,7 +339,6 @@ export default function ITTickets() {
                 : 'Nenhum chamado corresponde aos filtros selecionados.'
             }
           />
-
         </>
       )}
 

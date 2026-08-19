@@ -136,9 +136,7 @@ function parseUnixPing(stdout) {
   // Tempos individuais ("time=11.4 ms") pra calcular jitter do mesmo jeito
   // que na versão Windows — o `mdev` que o ping do Linux já reporta é
   // desvio padrão, não jitter entre pacotes consecutivos.
-  const respostas = [...stdout.matchAll(/time[=<]\s*([\d.]+)\s*ms/gi)].map((m) =>
-    parseFloat(m[1]),
-  )
+  const respostas = [...stdout.matchAll(/time[=<]\s*([\d.]+)\s*ms/gi)].map((m) => parseFloat(m[1]))
 
   return {
     disponivel: packetLossPct < 100,

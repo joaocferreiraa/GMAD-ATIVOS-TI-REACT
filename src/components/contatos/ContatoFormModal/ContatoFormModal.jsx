@@ -202,12 +202,7 @@ export default function ContatoFormModal({
         <FormField label="Nome" required htmlFor="c_nome" error={errors.nome?.message}>
           <Input id="c_nome" placeholder="Ex: João Ferreira" {...register('nome')} />
         </FormField>
-        <FormField
-          label="Unidade"
-          required
-          htmlFor="c_unidade"
-          error={errors.unidade?.message}
-        >
+        <FormField label="Unidade" required htmlFor="c_unidade" error={errors.unidade?.message}>
           <Controller
             control={control}
             name="unidade"
@@ -296,12 +291,7 @@ export default function ContatoFormModal({
             {...register('ramal')}
           />
         </FormField>
-        <FormField
-          label="E-mail corporativo"
-          full
-          htmlFor="c_email"
-          error={errors.email?.message}
-        >
+        <FormField label="E-mail corporativo" full htmlFor="c_email" error={errors.email?.message}>
           <Input
             id="c_email"
             type="email"

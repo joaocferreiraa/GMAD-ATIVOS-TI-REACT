@@ -79,7 +79,10 @@ export function createCrudMutations({
       try {
         return await getFreshFn()
       } catch (e) {
-        showToast('Falha ao carregar os dados atuais. Verifique sua conexão com o Supabase.', 'danger')
+        showToast(
+          'Falha ao carregar os dados atuais. Verifique sua conexão com o Supabase.',
+          'danger',
+        )
         throw e
       }
     }

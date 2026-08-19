@@ -30,8 +30,8 @@ export default function ProtectedRoute() {
         <div className={styles.box}>
           <h1 className={styles.title}>Não foi possível confirmar sua sessão</h1>
           <Alert variant="danger">
-            A verificação de login está demorando mais que o esperado. Confira sua conexão e
-            tente novamente.
+            A verificação de login está demorando mais que o esperado. Confira sua conexão e tente
+            novamente.
           </Alert>
           <div className={styles.actions}>
             <Button variant="primary" onClick={() => window.location.reload()}>

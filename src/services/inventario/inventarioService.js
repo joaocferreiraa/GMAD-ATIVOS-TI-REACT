@@ -189,10 +189,7 @@ function rowToDevice(r) {
 }
 
 export async function getNetworkDevices() {
-  const { data, error } = await requireSupabase()
-    .from('network_devices')
-    .select('*')
-    .order('ip')
+  const { data, error } = await requireSupabase().from('network_devices').select('*').order('ip')
   if (error) throw error
   return data.map(rowToDevice)
 }

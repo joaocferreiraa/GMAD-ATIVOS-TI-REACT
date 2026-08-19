@@ -10,12 +10,12 @@ Alimenta a tela **Inventário → Máquinas (agente)**.
 
 São dois programas na mesma pasta, com propósitos distintos:
 
-| | Agente de rede (`index.js`) | Agente de inventário (`inventario.js`) |
-|---|---|---|
-| Onde roda | **Um** servidor da rede | **Todas** as máquinas do parque |
-| Como roda | Serviço 24/7 (NSSM) | Tarefa agendada, encerra ao terminar |
-| O que responde | "A rede está de pé?" | "O que essa máquina tem por dentro?" |
-| Grava em | `network_measurements`, `host_metrics` | `host_inventory` |
+|                | Agente de rede (`index.js`)            | Agente de inventário (`inventario.js`) |
+| -------------- | -------------------------------------- | -------------------------------------- |
+| Onde roda      | **Um** servidor da rede                | **Todas** as máquinas do parque        |
+| Como roda      | Serviço 24/7 (NSSM)                    | Tarefa agendada, encerra ao terminar   |
+| O que responde | "A rede está de pé?"                   | "O que essa máquina tem por dentro?"   |
+| Grava em       | `network_measurements`, `host_metrics` | `host_inventory`                       |
 
 Instalar um **não** requer o outro. Nas estações, só o de inventário.
 
@@ -45,7 +45,7 @@ Ambas são idempotentes.
 O agente também coleta o **ID do RustDesk** de cada máquina, e a ficha no
 painel ganha um botão **"Acessar máquina"** que abre a sessão direto — sem
 procurar o ID numa planilha. A tabela lista o acesso por máquina, e o filtro
-*"Sem acesso remoto"* dá a lista de quem ainda precisa do RustDesk
+_"Sem acesso remoto"_ dá a lista de quem ainda precisa do RustDesk
 instalado.
 
 Como funciona: o link usa o esquema `rustdesk://`, registrado no Windows
@@ -156,8 +156,8 @@ mesmo tempo é o tipo de coisa que derruba a rede numa segunda de manhã.
 ## 4. Instalar em escala (GPO)
 
 **Caminho recomendado: o `.msi`.** Ver `msi/README.md` — o Windows instala,
-atualiza e desinstala sozinho, via *Configuração do Computador → Políticas →
-Configurações de Software → Instalação de software*. (Essa GPO não aceita
+atualiza e desinstala sozinho, via _Configuração do Computador → Políticas →
+Configurações de Software → Instalação de software_. (Essa GPO não aceita
 `.exe`; para o instalador completo, use Intune/SCCM ou um script de
 inicialização chamando-o com `/quiet`.)
 
@@ -215,7 +215,7 @@ Get-ScheduledTaskInfo -TaskName 'GMAD - Inventario de TI' |
 ```
 
 Descobrir quais máquinas do parque **pararam de reportar**: no painel,
-filtre por *"Sem reportar há 7+ dias"*. É como se acha agente quebrado,
+filtre por _"Sem reportar há 7+ dias"_. É como se acha agente quebrado,
 máquina desligada ou PC que saiu do parque sem baixa.
 
 ## 6-B. Atualizar o agente em todo o parque
@@ -332,13 +332,13 @@ Não é só SNMP. Medido neste parque, das 5 impressoras cadastradas todas
 respondem ping e porta 9100, mas **só uma tem SNMP habilitado** — apostar
 em SNMP daria 20% de cobertura. A identificação combina:
 
-| Sinal | O que revela |
-|---|---|
-| Portas abertas | 9100/631/515 = impressora; 22/23 = equipamento de rede |
-| Título e cabeçalho HTTP | modelo ("HP LaserJet M402dne") e, às vezes, o número de série |
-| Assinatura do HTML | famílias cuja página tem título vazio (câmeras Intelbras/Dahua, Hikvision) |
-| SNMP (quando aberto) | descrição, nome e local configurados |
-| DNS reverso | nome do equipamento na rede |
+| Sinal                   | O que revela                                                               |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Portas abertas          | 9100/631/515 = impressora; 22/23 = equipamento de rede                     |
+| Título e cabeçalho HTTP | modelo ("HP LaserJet M402dne") e, às vezes, o número de série              |
+| Assinatura do HTML      | famílias cuja página tem título vazio (câmeras Intelbras/Dahua, Hikvision) |
+| SNMP (quando aberto)    | descrição, nome e local configurados                                       |
+| DNS reverso             | nome do equipamento na rede                                                |
 
 Numa varredura de 120 endereços deste parque: **40 equipamentos em 19
 segundos, 39 identificados** (27 câmeras, 12 impressoras).

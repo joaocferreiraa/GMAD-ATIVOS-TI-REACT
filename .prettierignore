@@ -1,2 +1,7 @@
 dist
 node_modules
+
+# Fontes do WiX (instalador do agente): são XML, e o Prettier tenta lê-las
+# como JavaScript — falha com SyntaxError e derruba o `format:check`
+# inteiro, mesmo com todo o resto formatado.
+*.wxs

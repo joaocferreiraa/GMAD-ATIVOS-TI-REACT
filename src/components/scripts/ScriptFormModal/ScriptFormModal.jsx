@@ -127,12 +127,7 @@ export default function ScriptFormModal({ open, item, onClose, onSave, onDelete 
       }
     >
       <FormGrid>
-        <FormField
-          label="Nome do script"
-          required
-          htmlFor="sc_nome"
-          error={errors.nome?.message}
-        >
+        <FormField label="Nome do script" required htmlFor="sc_nome" error={errors.nome?.message}>
           <Input id="sc_nome" placeholder="Ex: Limpeza de temporários" {...register('nome')} />
         </FormField>
         <FormField label="Categoria" required htmlFor="sc_categoria">

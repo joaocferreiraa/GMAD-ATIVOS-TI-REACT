@@ -89,7 +89,11 @@ export default function TicketDetailDrawer({ ticket, isOpen, onClose, onChanged,
 
   const relatedAsset = ticket.asset_id ? assets.find((a) => a.id === ticket.asset_id) : null
   const relatedAssetLabel = relatedAsset
-    ? [relatedAsset.categoria, relatedAsset.modelo, relatedAsset.usuario && `(${relatedAsset.usuario})`]
+    ? [
+        relatedAsset.categoria,
+        relatedAsset.modelo,
+        relatedAsset.usuario && `(${relatedAsset.usuario})`,
+      ]
         .filter(Boolean)
         .join(' ')
     : ticket.asset_id // ativo pode ter sido excluído depois — mostra o id em vez de "Não informado"
@@ -282,9 +286,7 @@ export default function TicketDetailDrawer({ ticket, isOpen, onClose, onChanged,
         {canRate && (
           <div className={styles.section}>
             <div className={styles.ratePanel}>
-              <div className={styles.rateTitle}>
-                Como você avalia o atendimento deste chamado?
-              </div>
+              <div className={styles.rateTitle}>Como você avalia o atendimento deste chamado?</div>
               <div className={styles.stars}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button

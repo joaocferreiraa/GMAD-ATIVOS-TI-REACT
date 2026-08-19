@@ -65,7 +65,10 @@ const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
         location: form.location.trim() || null,
         assetId: form.assetId || null,
       })
-      toast.success('Chamado aberto', `Seu chamado foi registrado e a equipe de TI será notificada.`)
+      toast.success(
+        'Chamado aberto',
+        `Seu chamado foi registrado e a equipe de TI será notificada.`,
+      )
       onCreated?.(ticket)
       onClose()
     } catch (err) {
@@ -172,8 +175,9 @@ const TicketFormModal = ({ isOpen, onClose, onCreated }) => {
               ...assets.map((a) => ({
                 value: a.id,
                 label:
-                  [a.categoria, a.modelo, a.usuario && `(${a.usuario})`].filter(Boolean).join(' ') ||
-                  a.id,
+                  [a.categoria, a.modelo, a.usuario && `(${a.usuario})`]
+                    .filter(Boolean)
+                    .join(' ') || a.id,
               })),
             ]}
           />

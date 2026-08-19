@@ -19,10 +19,7 @@ export default function Modal({
   const bindTooltip = useHoverTooltip()
   return (
     <Overlay open={open} onClose={onClose}>
-      <div
-        className={`${styles.modal} ${className}`}
-        style={maxWidth ? { maxWidth } : undefined}
-      >
+      <div className={`${styles.modal} ${className}`} style={maxWidth ? { maxWidth } : undefined}>
         {showCloseButton && (
           <button
             type="button"

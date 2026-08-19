@@ -17,7 +17,12 @@ import styles from './MultiLineChart.module.css'
 function timeLabel(iso, longFormat) {
   const d = new Date(iso)
   return longFormat
-    ? d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    ? d.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
@@ -132,7 +137,8 @@ export default function MultiLineChart({
       {zoomValido && (
         <div className={styles.zoomBar}>
           <span className={styles.zoomInfo}>
-            Zoom: {timeLabel(view[0]?.bucket, true)} — {timeLabel(view[view.length - 1]?.bucket, true)}
+            Zoom: {timeLabel(view[0]?.bucket, true)} —{' '}
+            {timeLabel(view[view.length - 1]?.bucket, true)}
           </span>
           <button type="button" className={styles.zoomReset} onClick={() => setZoom(null)}>
             Ver período inteiro
@@ -236,7 +242,9 @@ export default function MultiLineChart({
                 strokeLinejoin="round"
                 dot={false}
                 activeDot={
-                  interactive ? { r: 4, fill: s.color, stroke: 'var(--surface)', strokeWidth: 2 } : false
+                  interactive
+                    ? { r: 4, fill: s.color, stroke: 'var(--surface)', strokeWidth: 2 }
+                    : false
                 }
                 connectNulls={false}
                 isAnimationActive={false}

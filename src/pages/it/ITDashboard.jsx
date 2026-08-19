@@ -191,7 +191,10 @@ export default function ITDashboard() {
 
     const byCategory = rankBy(created, (t) => t.category)
     const byRequester = rankBy(created, (t) => t.requester_name || t.requester)
-    const byUnit = rankBy(created, (t) => ALL_UNITS?.find((u) => u.id === t.unit_id)?.name || t.unit_id)
+    const byUnit = rankBy(
+      created,
+      (t) => ALL_UNITS?.find((u) => u.id === t.unit_id)?.name || t.unit_id,
+    )
     const byDept = rankBy(created, (t) => t.department)
 
     const byPriority = Object.entries(TICKET_PRIORITIES)
@@ -376,10 +379,7 @@ export default function ITDashboard() {
               />
             </Card>
 
-            <Card
-              title="Prioridades"
-              subtitle={`${computed.activeCount} chamado(s) ativo(s)`}
-            >
+            <Card title="Prioridades" subtitle={`${computed.activeCount} chamado(s) ativo(s)`}>
               <BarChart
                 data={computed.byPriority}
                 colors={computed.byPriority.map((p) => p.color)}
@@ -466,7 +466,10 @@ export default function ITDashboard() {
                       Abertos
                     </span>
                     <span className={styles.legendItem}>
-                      <span className={styles.legendSwatch} style={{ background: 'var(--brand)' }} />
+                      <span
+                        className={styles.legendSwatch}
+                        style={{ background: 'var(--brand)' }}
+                      />
                       Solucionados
                     </span>
                   </div>

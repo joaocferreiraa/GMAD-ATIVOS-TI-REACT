@@ -29,7 +29,9 @@ export default function SidebarModeMenu() {
   // em toque — ver HoverTooltipProvider). Só computado uma vez: capacidade
   // de hover não muda durante a sessão.
   const [canHover] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches,
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches,
   )
   const options = canHover ? OPTIONS : OPTIONS.filter((option) => option.value !== 'hover')
 

@@ -133,7 +133,10 @@ async function measureUpload() {
       } catch {
         break
       }
-      if (typeof data?.bytesReceived !== 'number' || data.bytesReceived < UPLOAD_CHUNK_BYTES * 0.95) {
+      if (
+        typeof data?.bytesReceived !== 'number' ||
+        data.bytesReceived < UPLOAD_CHUNK_BYTES * 0.95
+      ) {
         break
       }
       totalBytes += UPLOAD_CHUNK_BYTES

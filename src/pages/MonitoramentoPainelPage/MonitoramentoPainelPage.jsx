@@ -82,7 +82,9 @@ export default function MonitoramentoPainelPage() {
     if (!measurementsByMonitor.has(m.monitorUid)) measurementsByMonitor.set(m.monitorUid, [])
     measurementsByMonitor.get(m.monitorUid).push(m)
   })
-  measurementsByMonitor.forEach((l) => l.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)))
+  measurementsByMonitor.forEach((l) =>
+    l.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+  )
 
   const comStatus = monitorList.map((m) => {
     const meds = measurementsByMonitor.get(m.uid) || []
@@ -98,7 +100,8 @@ export default function MonitoramentoPainelPage() {
     ['problema', 'offline', 'atencao'].includes(m.statusInfo.status),
   )
   const piorStatus = comStatus.reduce(
-    (acc, m) => (STATUS_SEVERITY[m.statusInfo.status] > STATUS_SEVERITY[acc] ? m.statusInfo.status : acc),
+    (acc, m) =>
+      STATUS_SEVERITY[m.statusInfo.status] > STATUS_SEVERITY[acc] ? m.statusInfo.status : acc,
     'sem-dados',
   )
 
@@ -170,7 +173,9 @@ export default function MonitoramentoPainelPage() {
         <div className={styles.topActions}>
           <span className={`${styles.liveTag} ${dadosVelhos ? styles.liveTagStale : ''}`}>
             <span className={styles.liveDot} />
-            {ultimaMedicaoIso ? `Medição de ${fmtRelTime(ultimaMedicaoIso)}` : 'Aguardando medições'}
+            {ultimaMedicaoIso
+              ? `Medição de ${fmtRelTime(ultimaMedicaoIso)}`
+              : 'Aguardando medições'}
           </span>
           <Link to={ROUTES.monitoramento} className={styles.backLink}>
             ← Monitoramento
@@ -209,7 +214,8 @@ export default function MonitoramentoPainelPage() {
         <Alert variant="warning">
           As métricas de CPU/memória/disco ainda não estão disponíveis. Rode{' '}
           <code>supabase/migrations/0006_host_metrics.sql</code> no SQL Editor do Supabase e
-          atualize o agente para a versão que coleta métricas do host (ver <code>agent/README.md</code>).
+          atualize o agente para a versão que coleta métricas do host (ver{' '}
+          <code>agent/README.md</code>).
         </Alert>
       )}
 
@@ -257,7 +263,13 @@ export default function MonitoramentoPainelPage() {
             value={disponibilidade === null ? '—' : disponibilidade}
             unidade={disponibilidade === null ? '' : '%'}
             tone={
-              disponibilidade === null ? 'none' : disponibilidade >= 99 ? 'ok' : disponibilidade >= 90 ? 'warn' : 'danger'
+              disponibilidade === null
+                ? 'none'
+                : disponibilidade >= 99
+                  ? 'ok'
+                  : disponibilidade >= 90
+                    ? 'warn'
+                    : 'danger'
             }
           />
         </div>
@@ -339,9 +351,7 @@ export default function MonitoramentoPainelPage() {
                   detalhe={`${fmtBytes(h.discoTotalBytes - h.discoLivreBytes)} / ${fmtBytes(h.discoTotalBytes)}`}
                   limites={{ warn: 80, danger: 90 }}
                 />
-                <span className={styles.hostUpdated}>
-                  Última coleta: {fmtRelTime(h.createdAt)}
-                </span>
+                <span className={styles.hostUpdated}>Última coleta: {fmtRelTime(h.createdAt)}</span>
               </div>
             ))}
           </div>

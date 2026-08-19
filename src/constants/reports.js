@@ -20,7 +20,12 @@ import { getUnidades } from '../utils/units'
 import { getUsuarios } from '../utils/assetsFilter'
 import { getContatoDepartamentos } from '../utils/contatosFilter'
 import { fmtDate, fmtMoney, unitDisplayName } from '../utils/formatters'
-import { TICKET_STATUSES, TICKET_PRIORITIES, TICKET_CATEGORIES, formatTicketNumber } from '../config/itConfig'
+import {
+  TICKET_STATUSES,
+  TICKET_PRIORITIES,
+  TICKET_CATEGORIES,
+  formatTicketNumber,
+} from '../config/itConfig'
 
 // A origem não tem um rótulo pronto fora do badge da Central de Chamados
 // (itBadges.jsx é componente de UI, não faz sentido importar aqui).
@@ -156,7 +161,8 @@ export const REPORT_DEFS = [
       {
         key: 'preco',
         label: 'Preço / Aluguel',
-        format: (v, r) => (r?.posse === 'Alugado' ? `${fmtMoney(r.valorAluguel)}/mês` : fmtMoney(v)),
+        format: (v, r) =>
+          r?.posse === 'Alugado' ? `${fmtMoney(r.valorAluguel)}/mês` : fmtMoney(v),
       },
     ],
     filters: [
