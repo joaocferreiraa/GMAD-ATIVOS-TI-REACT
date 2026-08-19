@@ -113,22 +113,21 @@
   --chart-7: #a3e635; /* verde-lima */
   --chart-8: #a5b4fc; /* índigo */
 
-  /* Estado NORMAL dos painéis de medição (sparkline de latência dentro do
-     limite, barra de uso de CPU/memória/disco com folga). Azul, não verde.
-     A distinção é entre VEREDITO e MEDIDA: onde a cor é um selo de "está
-     tudo certo" — badge de status, alerta resolvido, "3/3 pontos online" —
-     o verde --ok continua valendo. Aqui a cor não julga nada: ela é a
-     linha do dado em si, e quem precisa saltar da tela é a EXCEÇÃO. Com
-     verde no normal, a virada pro âmbar é um degradê morno; contra o azul,
-     ela pula. De quebra o painel deixa de ser verde sobre verde.
+  /* Estado BOM dos painéis de medição — o número grande e a sparkline de um
+     ponto dentro do limite, a barra de uso com folga. Junto com --warn e
+     --danger forma um semáforo: verde tranquilo, âmbar mais ou menos,
+     vermelho ruim. É a leitura que qualquer pessoa faz de um mostrador sem
+     precisar de legenda.
 
-     Azul PRÓPRIO em vez de var(--chart-1), e é a única coisa aqui que ainda
-     tem valor por tema. Motivo: --chart-1 é identidade de série numa linha
-     de gráfico, enquanto este pinta o número de 40px do cartão de medição —
-     texto grande, que precisa dos 3:1. O #60a5fa da paleta rende 2.5:1
-     sobre branco e deixaria aquele número lavado; este fica em 5.2:1. No
-     tema escuro os dois voltam a coincidir. */
-  --metric-normal: #2563eb;
+     Chegou a ser azul, com o argumento de que a cor aqui é a MEDIDA e não um
+     veredito, e de que o âmbar salta mais partindo do azul do que do verde.
+     Foi revertido por decisão de produto: o semáforo ganha da sutileza.
+
+     Token próprio, e não var(--ok) direto nos componentes, justamente porque
+     essa escolha já mudou de ideia — é o knob único caso a cor de "bom"
+     mude de novo. Segue o --ok de cada tema, inclusive o do Modo TV, que
+     redefine o seu (ver TvPage.module.css). */
+  --metric-normal: var(--ok);
 
   /* Dois raios, como no painel do Supabase: painéis e cartões um pouco
      arredondados, controles (botão, campo, seletor) mais fechados. Um raio
@@ -243,8 +242,6 @@
      laranja avermelhado), nunca no --warn, que é a cor de atenção do site
      inteiro.
 
-     O --metric-normal abaixo é a exceção deliberada: ele não é identidade
-     de série, é o estado "dentro do limite" de um número de 40px, então
-     segue o tom que cada fundo pede. */
-  --metric-normal: var(--chart-1);
+     --metric-normal também não aparece aqui: ele segue var(--ok), que este
+     bloco já redefine logo acima. */
 }

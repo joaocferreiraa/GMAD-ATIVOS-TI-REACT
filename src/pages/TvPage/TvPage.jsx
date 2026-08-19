@@ -387,12 +387,12 @@ export default function TvPage() {
       </div>
 
       {/* Legenda logo abaixo dos cartões que ela explica. As cores aqui
-          são de ESTADO (azul/âmbar/vermelho conforme o limite do ponto);
-          nos gráficos abaixo, a cor identifica QUAL ponto é — codificações
-          diferentes, então a legenda precisa ficar junto do que descreve,
-          não no rodapé da página.
+          são de ESTADO — um semáforo verde/âmbar/vermelho conforme o limite
+          do ponto; nos gráficos abaixo, a cor identifica QUAL ponto é —
+          codificações diferentes, então a legenda precisa ficar junto do
+          que descreve, não no rodapé da página.
           O primeiro ponto acompanha --metric-normal, a mesma cor que o
-          cartão usa no estado normal: legenda e cartão têm que combinar,
+          cartão usa no estado bom: legenda e cartão têm que combinar,
           senão a legenda passa a mentir. */}
       <div className={styles.statLegend}>
         <span className={styles.legendItem}>

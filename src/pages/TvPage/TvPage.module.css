@@ -86,10 +86,10 @@
   --dash-line-soft: #262626;
 
   /* Verde da marca clareado para uso sobre fundo escuro — a cor que assina
-     a identidade GMAD aqui. Vale para os VEREDITOS do painel (ponto
-     pulsante de "coleta no ar", "3/3 online", disponibilidade acima de
-     99,5%); a MEDIDA em si — o número grande e a sparkline de cada cartão —
-     é azul, ver --metric-normal em styles/tokens.css. */
+     a identidade GMAD aqui e o "tudo certo" do painel: ponto pulsante de
+     "coleta no ar", "3/3 online", disponibilidade alta, e o estado bom dos
+     cartões de medição (--metric-normal segue o --ok que este bloco
+     redefine). */
   --gmad-verde-claro: #3fd07f;
 
   --border-strong: #3e3e3e;
