@@ -36,8 +36,12 @@
   min-width: 0;
 }
 
+/* 44px dentro de uma barra de 60px (--header-h): sobram 8px de respiro em
+   cima e embaixo, então a logo cresce sem empurrar a altura do cabeçalho
+   nem encostar nas bordas. Abaixo de 861px a barra passa a ter altura
+   automática (ver media query no fim), então lá não há teto. */
 .brandLogo {
-  height: 34px;
+  height: 44px;
   width: auto;
   border-radius: 6px;
   display: block;
