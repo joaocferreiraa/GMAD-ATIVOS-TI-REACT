@@ -372,19 +372,21 @@
   }
 
   /* Sem espaço pra .brand e .navRight caberem lado a lado abaixo de 861px:
-     em vez de deixar o flex-wrap padrão jogar o .navRight pra uma 2ª linha
-     "crua" (começando da borda esquerda, ver comentário no chamado que
-     motivou isto), força as duas linhas e realinha os ícones à direita —
-     mesma borda direita da logo/brand, e o painel de notificações (ancorado
-     no sino via right: 0) passa a abrir dentro da tela em vez de estourar
-     pra fora à esquerda e ser cortado pelo overflow-x: hidden do body. */
+     as duas viram linhas separadas. */
   .topbar {
     row-gap: 10px;
   }
 
+  /* Centralizado, e não encostado à direita: sozinha numa linha de largura
+     total, a fileira encostada num canto deixa metade da faixa em branco e
+     parece um bloco solto, desalinhado do resto da página.
+     `width: 100%` continua: é ele que mantém a borda direita da fileira na
+     borda da tela, e é nessa borda que o painel de notificações se ancora
+     (ver .navRight na regra base) — centralizar os ícones move os ícones,
+     não a referência do painel, que segue abrindo dentro da tela. */
   .navRight {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 8px;
   }
 
