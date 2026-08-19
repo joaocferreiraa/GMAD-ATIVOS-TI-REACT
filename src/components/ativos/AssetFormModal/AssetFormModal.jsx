@@ -139,7 +139,14 @@ export default function AssetFormModal({
   onSave,
   onDelete,
 }) {
-  const isEdit = !!asset
+  // Edição é definida pelo `uid`, não pela mera presença de `asset`: o botão
+  // "Cadastrar" de uma máquina detectada abre este formulário já preenchido
+  // com o que o agente sabe, mas SEM uid, porque o registro ainda não existe
+  // (ver handleCadastrarDetectada em AtivosPage). Com `!!asset` esse caso
+  // caía no caminho de update, que procura o registro por um uid indefinido,
+  // não acha nada, e ainda assim anuncia "Ativo atualizado com sucesso" —
+  // o cadastro simplesmente não acontecia.
+  const isEdit = !!asset?.uid
   const { showToast } = useToast()
   const [shake, setShake] = useState(false)
   // Guarda o último ID que o PRÓPRIO componente gerou (não um valor
@@ -200,7 +207,11 @@ export default function AssetFormModal({
 
   function handleCategoriaChange(newCategoria, onChange) {
     onChange(newCategoria)
-    setValue('spec', buildSpecDefaults(newCategoria, isEdit ? asset : null))
+    // `asset` direto, e não `isEdit ? asset : null`: numa máquina detectada
+    // ele carrega o que o agente leu (processador, RAM, disco), e trocar a
+    // categoria não deve jogar isso fora. Em "+ Novo ativo" ele é null de
+    // qualquer forma, então o campo continua nascendo em branco.
+    setValue('spec', buildSpecDefaults(newCategoria, asset))
     if (newCategoria !== 'Impressora' && getValues('posse') === 'Alugado') {
       setValue('posse', 'Comprado')
       setValue('valorAluguel', '')
