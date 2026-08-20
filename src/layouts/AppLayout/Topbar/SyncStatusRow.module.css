@@ -1,0 +1,98 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text-muted);
+  transition: background 0.15s ease;
+}
+
+.row:disabled {
+  cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row:not(:disabled):hover {
+    background: var(--surface-hover);
+  }
+}
+
+/* Ponto de estado. A cor NÃO carrega o significado sozinha — o título ao lado
+   diz em texto o que está acontecendo, então quem não distingue verde de
+   vermelho lê a mesma informação. */
+.ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ok {
+  background: var(--ok);
+}
+
+.syncing {
+  background: var(--warn);
+}
+
+.erro {
+  background: var(--danger);
+}
+
+.offline {
+  background: var(--text-faint);
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.texto b {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* A mensagem de erro do servidor pode ser longa e vir sem espaços — corta com
+   reticências em vez de esticar o menu. */
+.texto span {
+  font-size: 11px;
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.refresh {
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.girando {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* O giro indica atividade; sem ele o ícone parado já basta como affordance de
+   "sincronizar agora". */
+@media (prefers-reduced-motion: reduce) {
+  .girando {
+    animation: none;
+  }
+}

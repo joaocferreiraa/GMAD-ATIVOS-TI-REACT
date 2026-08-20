@@ -29,7 +29,7 @@ export async function kvGet(key) {
     markConnected()
     return data.value
   } catch (e) {
-    markOffline()
+    markOffline(e)
     throw e
   }
 }
@@ -49,7 +49,7 @@ export async function kvGetWithMeta(key) {
     markConnected()
     return { value: data.value, updatedAt: data.updated_at }
   } catch (e) {
-    markOffline()
+    markOffline(e)
     throw e
   }
 }
@@ -90,7 +90,7 @@ export async function kvSet(key, value, { expectedUpdatedAt } = {}) {
     }
     markConnected()
   } catch (e) {
-    if (!(e instanceof KvConflictError)) markOffline()
+    if (!(e instanceof KvConflictError)) markOffline(e)
     throw e
   }
 }
