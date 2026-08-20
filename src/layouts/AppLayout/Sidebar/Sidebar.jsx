@@ -11,10 +11,22 @@ import SidebarGroupFlyout from './SidebarGroupFlyout'
 import { ChevronDownIcon } from '../../../components/ui/Icon/icons'
 import styles from './Sidebar.module.css'
 
-// Hover-intent do flyout (ver o efeito lá embaixo). Curtos o bastante pra
-// não parecer travado, longos o bastante pra o painel não piscar em cada
-// grupo que o cursor cruza de passagem.
-const HOVER_ABRIR_MS = 110
+// Hover-intent do flyout (ver o efeito lá embaixo).
+//
+// A espera pra abrir é uma pausa deliberada, não o mínimo que dá pra usar: o
+// painel só aparece pra quem PAROU no módulo. Com isso, atravessar a barra
+// pra chegar no conteúdo não dispara nada no caminho, e o painel deixa de
+// pular na cara de quem só passou o mouse.
+//
+// O preço de uma espera desse tamanho é a barra parecer lenta pra quem já
+// está navegando entre módulos — por isso trocar de um grupo ABERTO pro
+// vizinho é imediato (ver handleMouseMove): a espera vale pra decidir se o
+// menu deve aparecer, não pra decidir qual menu.
+//
+// Fechar espera menos: entre o botão e o painel há um vão de 8px onde o
+// cursor não está sobre nenhum dos dois, e fechar ali cortaria o caminho
+// até os itens.
+const HOVER_ABRIR_MS = 260
 const HOVER_FECHAR_MS = 220
 
 function isGroupActive(group, pathname) {
@@ -75,11 +87,6 @@ export default function Sidebar() {
     setMobileGroup(grupoDaRota(location.pathname))
   }
 
-  // Abre sem alternar: como o hover (ver efeito abaixo) já deixa o painel
-  // aberto quando o cursor chega no botão, um clique que fechasse só faria
-  // o painel piscar — o mousemove seguinte, com o cursor ainda em cima,
-  // reabriria na hora. Fechar é por Esc, clique fora ou sair com o mouse.
-  // Pelo teclado (Tab + Enter) não há hover, e este mesmo handler abre.
   // Metade "teclado" do bindTooltip, pros botões de grupo. O tooltip de
   // mouse deles saiu quando o hover passou a abrir o painel: os dois
   // disparavam no mesmo gesto, então o rótulo piscava e o menu vinha logo
@@ -91,6 +98,11 @@ export default function Sidebar() {
     return { onFocus, onBlur }
   }
 
+  // Abre sem alternar: como o hover (ver efeito abaixo) já deixa o painel
+  // aberto quando o cursor chega no botão, um clique que fechasse só faria
+  // o painel piscar — o mousemove seguinte, com o cursor ainda em cima,
+  // reabriria na hora. Fechar é por Esc, clique fora ou sair com o mouse.
+  // Pelo teclado (Tab + Enter) não há hover, e este mesmo handler abre.
   function openFlyout(key, anchorEl) {
     hideTooltip()
     setFlyout((current) => (current?.key === key ? current : { key, anchorEl }))
@@ -354,8 +366,18 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* key no grupo: passar o mouse de um módulo pro vizinho troca só as
+          props, e uma animação CSS não reexecuta sem remontar — o painel
+          teleportava e trocava o conteúdo de uma vez. Com a key ele refaz a
+          entrada a cada módulo, que é justamente o gesto que a troca
+          imediata (sem o HOVER_ABRIR_MS) torna comum aqui. */}
       {flyoutGroup && (
-        <SidebarGroupFlyout group={flyoutGroup} anchorEl={flyout.anchorEl} onClose={closeFlyout} />
+        <SidebarGroupFlyout
+          key={flyoutGroup.key}
+          group={flyoutGroup}
+          anchorEl={flyout.anchorEl}
+          onClose={closeFlyout}
+        />
       )}
     </nav>
   )

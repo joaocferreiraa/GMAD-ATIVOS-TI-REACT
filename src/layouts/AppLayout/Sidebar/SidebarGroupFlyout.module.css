@@ -8,23 +8,39 @@
   border-radius: 12px;
   box-shadow: 0 16px 36px -12px rgba(15, 30, 20, 0.24);
   padding: 8px;
-  /* Só fade, sem o translateX de antes: o deslize de 4px, mesmo sutil e
-     rápido (150ms), lia como o painel "pulando" ou abrindo duas vezes em
-     cliques rápidos — reportado como sensação de duplo clique. */
-  animation: flyoutIn 0.12s ease both;
+  /* Cresce a partir do canto que encosta no botão que o abriu — daí o
+     transform-origin, e não o centro: com ele o painel "sai" do ícone em
+     vez de aparecer solto ao lado.
+
+     Um deslize já existiu aqui e foi removido por ler como o painel
+     "pulando" ou abrindo duas vezes em cliques rápidos. Este volta em
+     condições diferentes: agora o painel abre no hover, depois da espera do
+     HOVER_ABRIR_MS (ver Sidebar.jsx), e o clique não alterna mais — não há como
+     retriggerar em sequência. E o movimento vem DO botão (-6px) junto com a
+     escala e a mesma origem, que lê como uma coisa só crescendo, não como
+     um salto lateral.
+
+     Curva de desaceleração suave, e não uma de saída forte (que jogaria
+     quase toda a distância nos primeiros quadros): nessa duração ela lê
+     como o painel chegando de estalo e só então assentando. */
+  transform-origin: left top;
+  animation: flyoutIn 0.24s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 @keyframes flyoutIn {
   from {
     opacity: 0;
+    transform: translateX(-6px) scale(0.96);
   }
   to {
     opacity: 1;
+    transform: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flyout {
+  .flyout,
+  .item {
     animation: none;
   }
 }
@@ -73,6 +89,23 @@
   transition:
     background 0.15s ease,
     color 0.15s ease;
+  /* Entram em cascata depois do painel (o atraso por item vem inline, do
+     índice — ver SidebarGroupFlyout.jsx): a lista se revela item a item em
+     vez de o bloco inteiro surgir de uma vez. Com 1 a 3 itens por grupo, o
+     escalonamento é curto o bastante pra não atrasar quem já sabe onde vai
+     clicar. */
+  animation: itemIn 0.26s ease both;
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .item:hover {

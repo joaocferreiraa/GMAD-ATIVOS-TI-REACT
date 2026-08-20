@@ -69,12 +69,15 @@ export default function SidebarGroupFlyout({ group, anchorEl, onClose }) {
         <span>{group.label}</span>
       </div>
       <div className={styles.list}>
-        {group.items.map(({ to, label, icon: Icon }) => (
+        {group.items.map(({ to, label, icon: Icon }, index) => (
           <NavLink
             key={to}
             to={to}
             end
             className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}
+            // Cascata da entrada (a animação em si está no CSS): só o atraso
+            // depende do índice, então precisa vir daqui.
+            style={{ animationDelay: `${index * 45}ms` }}
             onClick={onClose}
           >
             <span className={styles.itemIcon}>
