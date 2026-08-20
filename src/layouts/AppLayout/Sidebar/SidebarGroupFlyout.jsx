@@ -15,6 +15,11 @@ import styles from './SidebarGroupFlyout.module.css'
 // o cursor sobre este painel também deve contar como "sobre a barra" no modo
 // "expandir ao passar o mouse" — senão a barra fecharia por baixo do painel
 // ainda aberto assim que o mouse saísse do ícone que o abriu.
+//
+// data-sidebar-flyout marca só ESTE painel (data-sidebar-hover-zone também
+// está na <nav> inteira): o hover que abre os grupos precisa distinguir
+// "cursor sobre o painel aberto" — que o mantém — de "cursor sobre a barra,
+// fora de qualquer grupo" — que o fecha.
 export default function SidebarGroupFlyout({ group, anchorEl, onClose }) {
   const panelRef = useRef(null)
   const [position, setPosition] = useState(null)
@@ -54,6 +59,7 @@ export default function SidebarGroupFlyout({ group, anchorEl, onClose }) {
     <div
       ref={panelRef}
       data-sidebar-hover-zone=""
+      data-sidebar-flyout=""
       className={styles.flyout}
       style={position ? { top: position.top, left: position.left } : { visibility: 'hidden' }}
       role="menu"

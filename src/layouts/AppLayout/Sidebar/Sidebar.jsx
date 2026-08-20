@@ -1,4 +1,4 @@
-import { useContext, useEffect, useLayoutEffect, useState } from 'react'
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useSidebarState } from '../../../hooks/layout/useSidebarState'
@@ -10,6 +10,12 @@ import SidebarModeMenu from './SidebarModeMenu'
 import SidebarGroupFlyout from './SidebarGroupFlyout'
 import { ChevronDownIcon } from '../../../components/ui/Icon/icons'
 import styles from './Sidebar.module.css'
+
+// Hover-intent do flyout (ver o efeito lá embaixo). Curtos o bastante pra
+// não parecer travado, longos o bastante pra o painel não piscar em cada
+// grupo que o cursor cruza de passagem.
+const HOVER_ABRIR_MS = 110
+const HOVER_FECHAR_MS = 220
 
 function isGroupActive(group, pathname) {
   return group.items.some(({ to }) => pathname === to || pathname.startsWith(`${to}/`))
@@ -69,9 +75,25 @@ export default function Sidebar() {
     setMobileGroup(grupoDaRota(location.pathname))
   }
 
-  function toggleFlyout(key, anchorEl) {
+  // Abre sem alternar: como o hover (ver efeito abaixo) já deixa o painel
+  // aberto quando o cursor chega no botão, um clique que fechasse só faria
+  // o painel piscar — o mousemove seguinte, com o cursor ainda em cima,
+  // reabriria na hora. Fechar é por Esc, clique fora ou sair com o mouse.
+  // Pelo teclado (Tab + Enter) não há hover, e este mesmo handler abre.
+  // Metade "teclado" do bindTooltip, pros botões de grupo. O tooltip de
+  // mouse deles saiu quando o hover passou a abrir o painel: os dois
+  // disparavam no mesmo gesto, então o rótulo piscava e o menu vinha logo
+  // atrás. O painel já mostra o rótulo no cabeçalho, com o mesmo ícone.
+  // Pelo Tab não há hover nem flyout — ali o tooltip segue sendo a única
+  // pista do que é o ícone com a barra recolhida.
+  function bindTooltipFoco(label) {
+    const { onFocus, onBlur } = bindTooltip(label)
+    return { onFocus, onBlur }
+  }
+
+  function openFlyout(key, anchorEl) {
     hideTooltip()
-    setFlyout((current) => (current?.key === key ? null : { key, anchorEl }))
+    setFlyout((current) => (current?.key === key ? current : { key, anchorEl }))
   }
 
   const flyoutGroup = flyout
@@ -125,6 +147,83 @@ export default function Sidebar() {
     document.addEventListener('mousemove', handleMouseMove)
     return () => document.removeEventListener('mousemove', handleMouseMove)
   }, [mode, setHovering])
+
+  // Abrir/fechar o flyout com o mouse, sem precisar clicar. Mesmo mousemove
+  // único no document da lógica de peek acima, e pelo mesmo motivo: o painel
+  // é portado pro body (ver SidebarGroupFlyout), então pares de
+  // mouseenter/mouseleave entre o botão e o painel se perdem no caminho —
+  // recalcular a cada movimento onde o cursor ESTÁ não depende de eventos se
+  // corresponderem.
+  //
+  // Os dois atrasos existem por motivos diferentes:
+  //  - abrir: sem ele, atravessar a barra na diagonal pra chegar no conteúdo
+  //    abriria e fecharia o painel de cada grupo do caminho;
+  //  - fechar: entre o botão e o painel há um vão de 8px (ver o `left` em
+  //    SidebarGroupFlyout) onde o cursor não está sobre nenhum dos dois, e
+  //    fechar ali cortaria o caminho até os itens.
+  // Trocar de um grupo aberto pro irmão é imediato: com um painel já aberto
+  // a intenção não está mais em dúvida.
+  //
+  // No mobile não roda: lá não há flyout (as abas abrem em segunda linha) e
+  // nem hover de verdade.
+  // Espelho do `flyout` em ref pra o listener não precisar dele nas deps —
+  // senão o mousemove seria desligado e religado a cada abertura. Sincronia
+  // em useLayoutEffect (não useEffect): roda antes do navegador pintar e,
+  // portanto, antes do mousemove seguinte, então o handler nunca lê um
+  // estado atrasado.
+  const flyoutAtualRef = useRef(null)
+  useLayoutEffect(() => {
+    flyoutAtualRef.current = flyout
+  }, [flyout])
+
+  useEffect(() => {
+    if (isMobile) return undefined
+    let timer = null
+
+    function limparTimer() {
+      if (timer) clearTimeout(timer)
+      timer = null
+    }
+
+    function agendar(acao, atraso) {
+      limparTimer()
+      timer = setTimeout(() => {
+        timer = null
+        acao()
+      }, atraso)
+    }
+
+    function abrir(key, anchorEl) {
+      hideTooltip()
+      setFlyout({ key, anchorEl })
+    }
+
+    function handleMouseMove(event) {
+      const botao = event.target.closest('[data-sidebar-group]')
+      if (botao) {
+        const { sidebarGroup: key } = botao.dataset
+        const atual = flyoutAtualRef.current
+        if (atual?.key === key) limparTimer()
+        else if (atual) {
+          limparTimer()
+          abrir(key, botao)
+        } else agendar(() => abrir(key, botao), HOVER_ABRIR_MS)
+        return
+      }
+      // Sobre o painel aberto: segura. Fora de tudo: fecha se havia algo
+      // aberto, senão só cancela uma abertura que estava pra acontecer (o
+      // cursor passou de raspão por um grupo e seguiu).
+      if (event.target.closest('[data-sidebar-flyout]')) limparTimer()
+      else if (flyoutAtualRef.current) agendar(() => setFlyout(null), HOVER_FECHAR_MS)
+      else limparTimer()
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      limparTimer()
+    }
+  }, [isMobile, hideTooltip])
 
   return (
     <nav
@@ -207,11 +306,17 @@ export default function Sidebar() {
                 <button
                   key={key}
                   type="button"
+                  // data-sidebar-group: é por ele que o mousemove acima
+                  // descobre sobre qual grupo o cursor está, sem um ref por
+                  // botão (o próprio elemento vira o `anchorEl` do painel).
+                  data-sidebar-group={key}
                   className={`${styles.navButton} ${active ? styles.active : ''} ${flyoutOpen ? styles.flyoutTrigger : ''}`}
                   aria-haspopup="menu"
                   aria-expanded={flyoutOpen}
-                  onClick={(event) => toggleFlyout(key, event.currentTarget)}
-                  {...(!flyoutOpen && (collapsed || entry.truncates) ? bindTooltip(label) : {})}
+                  onClick={(event) => openFlyout(key, event.currentTarget)}
+                  {...(!flyoutOpen && (collapsed || entry.truncates)
+                    ? bindTooltipFoco(label)
+                    : {})}
                 >
                   <span className={styles.navIcon}>
                     <Icon />
