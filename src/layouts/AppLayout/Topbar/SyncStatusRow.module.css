@@ -26,10 +26,19 @@
 
 /* Ponto de estado. A cor NÃO carrega o significado sozinha — o título ao lado
    diz em texto o que está acontecendo, então quem não distingue verde de
-   vermelho lê a mesma informação. */
+   vermelho lê a mesma informação.
+
+   As margens existem pro ALINHAMENTO, não pra respiro. Todo o menu da conta
+   usa uma coluna de 22px à esquerda (avatar do cabeçalho, ícones das ações e
+   este ponto), pros textos caírem todos na mesma vertical. Um ponto de 8px
+   cru começava o texto desta linha 14px à esquerda do resto.
+   8px + 7px de cada lado = os mesmos 22px, com o centro coincidindo. Mexeu na
+   largura da coluna lá (ver .userAction > svg em Topbar.module.css)? Refaça a
+   conta aqui. */
 .ponto {
   width: 8px;
   height: 8px;
+  margin: 0 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }

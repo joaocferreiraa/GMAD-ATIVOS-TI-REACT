@@ -1,0 +1,78 @@
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* Teto de altura com rolagem só na lista: o changelog cresce a cada entrega,
+   e sem isso o modal acabaria mais alto que a tela, empurrando o rodapé com
+   o botão pra fora do alcance. */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.entrada {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cabecalho h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cabecalho time {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* Marcador desenhado à mão (::before) no lugar do disc nativo: o bullet do
+   navegador não aceita cor própria sem truque, e aqui ele precisa ser mais
+   apagado que o texto pra não competir com a leitura. */
+.itens {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.itens li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.itens li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}

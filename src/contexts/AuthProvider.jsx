@@ -8,6 +8,7 @@ import {
   signInWithPassword,
   signOut as signOutRequest,
   updatePassword as updatePasswordRequest,
+  updateProfileMetadata,
 } from '../services/supabase/authService'
 import { AuthContext } from './AuthContext'
 
@@ -89,6 +90,7 @@ export function AuthProvider({ children }) {
       signIn: (rawUser, password) => signInWithPassword(rawUser, password),
       signOut: () => signOutRequest(),
       updatePassword: (novaSenha) => updatePasswordRequest(novaSenha),
+      updateProfile: (dados) => updateProfileMetadata(dados),
     }),
     [session, status],
   )

@@ -25,6 +25,17 @@ export async function updatePassword(newPassword) {
   return supabase.auth.updateUser({ password: newPassword })
 }
 
+// Campos de perfil do usuario (setor, cargo, nome). Vao pro user_metadata,
+// que e o lugar do Supabase pra dado do proprio usuario e ja e lido pelo app
+// (ver useItContext). Como o metadata viaja dentro do JWT, so entra aqui
+// texto curto -- a foto mora no kv_store, ver perfilService.
+//
+// updateUser faz merge raso do objeto `data`: chave nao enviada permanece
+// como estava, entao da pra gravar so o que mudou sem reenviar o resto.
+export async function updateProfileMetadata(data) {
+  return supabase.auth.updateUser({ data })
+}
+
 export async function getSession() {
   return supabase.auth.getSession()
 }

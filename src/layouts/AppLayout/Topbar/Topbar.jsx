@@ -14,10 +14,14 @@ import { assetStatusVariant } from '../../../utils/statusBadge'
 import Badge from '../../../components/ui/Badge/Badge'
 import ConfirmDialog from '../../../components/ui/ConfirmDialog/ConfirmDialog'
 import ChangePasswordModal from './ChangePasswordModal'
+import NewsModal from './NewsModal'
+import ProfileModal from './ProfileModal'
 import SyncStatusRow from './SyncStatusRow'
 import Loading from '../../../components/ui/Loading/Loading'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import { breadcrumbTrail } from './breadcrumbTrail'
+import { useNovidades } from '../../../hooks/useNovidades'
+import { usePerfil } from '../../../hooks/data/usePerfil'
 // Mesma troca de logo por tema do painel de TV (ver TvPage): no escuro o
 // verde da marca (#006934) fica com 2.84:1 sobre a barra — abaixo do mínimo
 // de 3:1 pra elementos gráficos —, então entra a versão que clareia só o
@@ -32,6 +36,7 @@ import {
   LogoutIcon,
   LocationIcon,
   KeyIcon,
+  SparkIcon,
   UserIcon,
 } from '../../../components/ui/Icon/icons'
 import styles from './Topbar.module.css'
@@ -115,6 +120,21 @@ function NotificationsButton() {
   )
 }
 
+// Foto de perfil quando existe, silhueta quando não. O <img> preenche o
+// círculo por object-fit: cover — a foto já chega quadrada (recortada em
+// utils/imagem.js), então isso só cobre o caso de uma foto antiga em outra
+// proporção, sem deformar rosto nenhum.
+function Avatar({ foto, nome, size, className = '' }) {
+  if (foto) {
+    return <img src={foto} alt={`Foto de ${nome}`} className={`${styles.avatarFoto} ${className}`} />
+  }
+  return (
+    <span className={className}>
+      <UserIcon width={size} height={size} />
+    </span>
+  )
+}
+
 // Avatar + menu da conta. Três coisas mudaram junto aqui, e cada uma
 // resolve um problema diferente:
 //
@@ -135,9 +155,13 @@ function NotificationsButton() {
 function UserMenu() {
   const { user, signOut } = useAuth()
   const displayName = nameFromEmail(user?.email)
+  const perfil = usePerfil()
   const [open, setOpen] = useState(false)
   const [confirmandoSaida, setConfirmandoSaida] = useState(false)
   const [trocandoSenha, setTrocandoSenha] = useState(false)
+  const [vendoNovidades, setVendoNovidades] = useState(false)
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
+  const { temNovidade, marcarComoLidas } = useNovidades()
   const [saindo, setSaindo] = useState(false)
   const rootRef = useRef(null)
   const bindTooltip = useHoverTooltip()
@@ -173,21 +197,28 @@ function UserMenu() {
         aria-expanded={open}
         {...bindTooltip(displayName)}
       >
-        <UserIcon width={15} height={15} />
+        <Avatar foto={perfil.foto} nome={displayName} size={15} />
       </button>
 
       {open && (
         <div className={styles.userPanel} role="menu">
           <div className={styles.userHeader}>
-            <span className={styles.avatar}>
-              <UserIcon width={15} height={15} />
-            </span>
+            <Avatar foto={perfil.foto} nome={displayName} className={styles.avatar} size={15} />
             <span className={styles.userIdent}>
               <b>{displayName}</b>
+              {/* Setor e cargo só ocupam linha quando existem: em branco,
+                  deixariam um vazio entre o nome e o e-mail. */}
+              {/* Setor antes do cargo: vai do mais amplo pro mais específico,
+                  como o resto do painel lê da esquerda pra direita. */}
+              {(perfil.setor || perfil.cargo) && (
+                <span className={styles.userCargo}>
+                  {[perfil.setor, perfil.cargo].filter(Boolean).join(' · ')}
+                </span>
+              )}
               {/* O e-mail é a única coisa aqui que identifica a conta de
                   verdade — o nome é derivado dele (ver nameFromEmail), então
                   dois logins parecidos dariam o mesmo nome. */}
-              <span>{user?.email}</span>
+              <span className={styles.userEmail}>{user?.email}</span>
             </span>
           </div>
           {/* Estado da sincronização antes das ações: é informação, não
@@ -201,11 +232,40 @@ function UserMenu() {
             className={styles.userAction}
             onClick={() => {
               close()
+              setEditandoPerfil(true)
+            }}
+          >
+            <UserIcon width={16} height={16} />
+            Meu perfil
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={styles.userAction}
+            onClick={() => {
+              close()
               setTrocandoSenha(true)
             }}
           >
             <KeyIcon width={16} height={16} />
             Trocar senha
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={styles.userAction}
+            onClick={() => {
+              close()
+              setVendoNovidades(true)
+              // Marca como lidas ao ABRIR, não ao fechar: quem abriu já viu o
+              // que havia, e exigir que feche pelo botão certo faria o aviso
+              // voltar em quem saiu com Esc ou clique fora.
+              marcarComoLidas()
+            }}
+          >
+            <SparkIcon width={16} height={16} />
+            Novidades
+            {temNovidade && <span className={styles.pontoNovidade} aria-label="não lidas" />}
           </button>
           {/* Linha antes de "Sair": ele é o único item destrutivo do menu, e
               separá-lo evita o clique por inércia logo abaixo do anterior. */}
@@ -226,6 +286,10 @@ function UserMenu() {
       )}
 
       <ChangePasswordModal open={trocandoSenha} onClose={() => setTrocandoSenha(false)} />
+
+      <NewsModal open={vendoNovidades} onClose={() => setVendoNovidades(false)} />
+
+      {editandoPerfil && <ProfileModal open onClose={() => setEditandoPerfil(false)} />}
 
       <ConfirmDialog
         open={confirmandoSaida}

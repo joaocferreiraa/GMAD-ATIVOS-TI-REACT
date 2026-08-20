@@ -1,0 +1,54 @@
+.acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.fotoBloco {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Círculo laranja igual ao avatar da barra, pra prévia mostrar exatamente o
+   recorte que vai aparecer lá — inclusive o corte circular, que é o que
+   costuma surpreender quem escolhe uma foto de corpo inteiro. */
+.previa {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--laranja);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.previa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fotoAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Ocupa a linha inteira abaixo dos botões: o texto explica os dois, não o
+   último deles. */
+.dica {
+  width: 100%;
+  font-size: 11px;
+  color: var(--text-faint);
+}

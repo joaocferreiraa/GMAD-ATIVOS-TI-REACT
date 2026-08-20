@@ -653,6 +653,18 @@ export function ContactCardIcon(props) {
   )
 }
 
+// Brilho/faísca — item "Novidades" no menu da conta. Convenção corrente pra
+// "o que mudou" (a mesma do "novo" em editores e painéis), e distinta do
+// sino, que aqui é notificação de ativo e não de produto.
+export function SparkIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z" />
+      <path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7Z" />
+    </IconBase>
+  )
+}
+
 // Chave — item "Trocar senha" no menu da conta. Não é o cadeado: cadeado diz
 // "trancado/protegido" (estado), e o item é uma AÇÃO sobre a credencial.
 export function KeyIcon(props) {

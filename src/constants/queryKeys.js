@@ -8,6 +8,9 @@ export const queryKeys = {
   infraestrutura: ['infraestrutura'],
   contatos: ['contatos'],
   atividade: ['atividade'],
+  // Mapa e-mail -> foto de perfil, guardado no kv_store (ver perfilService).
+  // Setor e cargo NÃO estão aqui: vêm do user_metadata, junto com a sessão.
+  perfilFotos: ['perfil', 'fotos'],
   monitores: ['monitores'],
   // Chaves-base: hooks parametrizados (por ponto/período) concatenam mais
   // itens ao array, ex: [...queryKeys.medicoes, monitorUid, periodo].

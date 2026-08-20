@@ -446,6 +446,18 @@
   flex-shrink: 0;
 }
 
+/* Foto de perfil no lugar da silhueta. Preenche o círculo inteiro por
+   object-fit: cover, sem deformar — a imagem já chega quadrada de
+   utils/imagem.js, então o cover só cobre foto antiga em outra proporção.
+   Usada tanto no gatilho quanto no cabeçalho do menu; o tamanho vem da classe
+   que acompanha (.avatarBtn ou .userHeader .avatar). */
+.avatarFoto {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
 /* O avatar virou o gatilho do menu — o nome ao lado e o botão de sair solto
    saíram daqui pra dentro dele. Herda a aparência do .avatar e acrescenta só
    o reset de <button> e o anel de foco/aberto. */
@@ -468,7 +480,10 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 250px;
+  /* 268px e nao 250: cargo + setor sao os textos mais longos do menu, e a
+     largura extra reduz a quebra em duas linhas sem esticar o painel a ponto
+     de brigar com a borda da tela no celular (ver a media query no fim). */
+  width: 268px;
   z-index: 80;
   background: var(--surface);
   border: 1px solid var(--border-strong);
@@ -485,6 +500,13 @@
   }
 }
 
+/* -- Coluna de 22px à esquerda do menu da conta --------------------------
+   Cabeçalho, linha de sincronização e itens de ação têm elementos de larguras
+   diferentes na ponta esquerda (avatar 22px, ponto 8px, ícone 16px). Sem uma
+   coluna comum, cada linha começava o texto numa vertical diferente — eram
+   três recuos distintos no mesmo menu de 250px, e isso se enxerga.
+   Os três agora ocupam 22px: o avatar por tamanho próprio, o ícone por
+   padding lateral e o ponto por margem (ver SyncStatusRow.module.css). */
 .userHeader {
   display: flex;
   align-items: center;
@@ -492,6 +514,13 @@
   padding: 8px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--border);
+}
+
+/* Menor que o avatar da barra (26px, ver .avatar): aqui ele divide espaço com
+   nome e e-mail e entra na coluna comum, em vez de ser o gatilho isolado. */
+.userHeader .avatar {
+  width: 22px;
+  height: 22px;
 }
 
 .userIdent {
@@ -507,9 +536,31 @@
   color: var(--text);
 }
 
-/* O e-mail quase sempre estoura os 250px do painel — corta com reticências
-   em vez de esticar o menu ou quebrar em duas linhas. */
-.userIdent span {
+/* Setor · cargo, entre o nome e o e-mail. Fica mais escuro que o e-mail de
+   propósito: identifica a PESSOA, como o nome, enquanto o e-mail identifica a
+   conta e é referência técnica.
+
+   QUEBRA EM VÁRIAS LINHAS, ao contrário do nome e do e-mail ao lado. O cargo
+   é texto livre e fica longo de verdade ("Técnico de Suporte de TI Júnior"),
+   e vem no fim da linha — cortar com reticências esconderia justo o nível
+   (Júnior/Pleno/Sênior), que é o que diferencia duas pessoas do mesmo setor.
+   Nome e e-mail seguem em uma linha só porque ali o começo já identifica. */
+.userCargo {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* O e-mail quase sempre estoura a largura do painel — corta com reticências
+   em vez de esticar o menu ou quebrar em duas linhas.
+
+   CLASSE PRÓPRIA, e não `.userIdent span`. Era assim antes, e virou armadilha
+   quando o cargo entrou como um segundo <span> ali dentro: o seletor de
+   elemento pegava os dois, e como ele é MAIS ESPECÍFICO que a classe
+   .userCargo (0,1,1 contra 0,1,0), o nowrap daqui vencia o do cargo — que
+   continuava cortando por mais que a regra dele dissesse o contrário. */
+.userEmail {
   font-size: 11px;
   color: var(--text-faint);
   overflow: hidden;
@@ -537,6 +588,13 @@
     color 0.15s ease;
 }
 
+/* O ícone tem 16px; o padding lateral leva a caixa aos 22px da coluna comum
+   sem esticar o desenho — padding em <svg> inline não escala o viewBox. */
+.userAction > svg {
+  flex-shrink: 0;
+  padding: 0 3px;
+}
+
 .userAction:hover {
   background: var(--surface-hover);
   color: var(--text);
@@ -555,6 +613,20 @@
   height: 1px;
   margin: 4px 6px;
   background: var(--border);
+}
+
+/* Ponto de "tem novidade não lida". `margin-left: auto` empurra pra ponta
+   direita do item, longe do ícone — ali ele lê como marcador de estado, e não
+   como parte do rótulo.
+   Laranja (--accent) e não o verde da marca: verde ao lado de um texto
+   sugere "concluído", que é o oposto de "ainda não lido". */
+.pontoNovidade {
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
 }
 
 /* Véu que cobre a tela entre confirmar a saída e cair no login.
@@ -643,7 +715,7 @@
      cabem numa tela de 320px, mas sem margem nenhuma — e telas mais estreitas
      que isso existem. */
   .userPanel {
-    width: min(250px, calc(100vw - 48px));
+    width: min(268px, calc(100vw - 48px));
   }
 }
 
