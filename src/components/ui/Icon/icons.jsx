@@ -141,16 +141,10 @@ export function HammerIcon(props) {
   )
 }
 
-export function InfraIcon(props) {
-  return (
-    <IconBase {...props}>
-      <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
-      <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
-      <line x1="6" y1="6" x2="6.01" y2="6" />
-      <line x1="6" y1="18" x2="6.01" y2="18" />
-    </IconBase>
-  )
-}
+// InfraIcon saiu daqui: era cópia byte a byte do ServerIcon (mesmo rack de
+// dois módulos), e o menu desenhava o mesmo glifo em "Rede" e na sub-aba
+// "Infraestrutura" dentro dela. Agora Infraestrutura usa o ServerIcon
+// direto, e o módulo Rede ganhou o RouterIcon.
 
 export function UnitsIcon(props) {
   return (
@@ -565,6 +559,108 @@ export function LocationIcon(props) {
     <IconBase {...props}>
       <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
       <circle cx="12" cy="10" r="3" />
+    </IconBase>
+  )
+}
+
+// -- Ícones do menu, 2ª geração ------------------------------------------
+// Regra que orienta o conjunto: o glifo mais CONCRETO fica na sub-aba, e o
+// mais abstrato no módulo que a contém. Por isso o rack de servidor desceu
+// pra Infraestrutura e as barras ficaram só em Relatórios — antes o mesmo
+// desenho aparecia em até três destinos diferentes.
+
+// Prancheta com itens — módulo Inventário. Inventário aqui é o LEVANTAMENTO
+// (o que existe e quanto), não a caixa: a caixa é o Estoque, sub-aba dele.
+// Não é a pilha de caixas cogitada primeiro porque, reduzida a 18px, ela
+// virava um bloco de retângulos igual ao DashboardIcon.
+export function ClipboardListIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="M12 11h4" />
+      <path d="M12 16h4" />
+      <path d="M8 11h.01" />
+      <path d="M8 16h.01" />
+    </IconBase>
+  )
+}
+
+// Roteador com ondas — módulo Rede. Não é a árvore de nós cogitada primeiro:
+// ela é feita de retângulos empilhados e apareceria colada ao ServerIcon da
+// sub-aba Infraestrutura, no mesmo painel. As ondas separam de vez.
+export function RouterIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="2" y="14" width="20" height="8" rx="2" />
+      <path d="M6.01 18H6" />
+      <path d="M10.01 18H10" />
+      <path d="M15 10v4" />
+      <path d="M17.84 7.17a4 4 0 0 0-5.66 0" />
+      <path d="M20.66 4.34a8 8 0 0 0-11.31 0" />
+    </IconBase>
+  )
+}
+
+// Rosca — sub-aba Indicadores. Distingue dos Relatórios (barras): lá são
+// séries e totais, aqui é composição de um todo. Os dois raios marcam as
+// fatias; sem eles o desenho lê como alvo, não como gráfico.
+export function DonutChartIcon(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M12 3.5v5" />
+      <path d="m19.4 16.2-4.3-2.4" />
+    </IconBase>
+  )
+}
+
+// Etiqueta de patrimônio — sub-aba Ativos cadastrados. Substitui a lista
+// genérica de antes, que servia pra qualquer listagem do site.
+export function TagIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42Z" />
+      <circle cx="7.5" cy="7.5" r="0.5" fill="currentColor" />
+    </IconBase>
+  )
+}
+
+// Velocímetro — sub-aba Painel de Infra. É painel AO VIVO (medida no
+// instante), não relatório histórico, e o mostrador diz isso.
+export function GaugeIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+      <path d="m12 14 4-4" />
+    </IconBase>
+  )
+}
+
+// Ficha de contato — sub-aba Contatos. O ContactsIcon (duas pessoas) subiu
+// pro módulo Pessoas, então esta precisa de desenho próprio: um cartão com
+// a pessoa dentro, que é a ficha individual em vez do grupo.
+export function ContactCardIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M8 2v2" />
+      <path d="M16 2v2" />
+      <circle cx="12" cy="11" r="3" />
+      <path d="M7 20v-1a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1" />
+    </IconBase>
+  )
+}
+
+// Relógio com seta de retorno — sub-aba Atividade recente. O ClockIcon puro
+// diz "hora"; este diz "o que já passou", que é o conteúdo da tela.
+export function HistoryIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
     </IconBase>
   )
 }
