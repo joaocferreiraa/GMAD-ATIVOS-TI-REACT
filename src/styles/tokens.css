@@ -160,8 +160,8 @@
      --font-display continua existindo (39 arquivos o usam) e segue sendo o
      ponto único de ajuste caso um dia se queira uma fonte de títulos de
      novo. */
-  --font-display: 'Inter', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: 'DM Sans', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
   /* -- layout do app shell (sidebar + topbar fixos) -- */

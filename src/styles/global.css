@@ -1,12 +1,15 @@
 /* Reset e base tipográfica globais. Estilos específicos de componente vivem em cada *.module.css. */
 
-/* Uma família só para texto (Inter), como no painel do Supabase: a
+/* Uma família só para texto (DM Sans), como no painel do Supabase: a
    hierarquia vem de peso e tamanho, não de trocar de fonte entre título e
-   corpo. O Poppins saiu daqui junto — sem uso, era uma requisição de
-   fonte a menos no carregamento. O peso 800 entrou porque três lugares
-   (TvPage, MetricStat) o usavam com o Poppins e cairiam em peso
-   sintetizado. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@500;600;700&display=swap');
+   corpo. Trocou a Inter SEM virar uma segunda família — o site continua com
+   uma fonte de texto só, e nenhuma requisição a mais.
+   DM Sans, e não a Circular do Supabase: aquela é da Lineto, comercial e
+   licenciada, então não dá pra embutir. A DM Sans é a geométrica livre mais
+   próxima em proporção e desenho.
+   O peso 800 continua na lista porque TvPage e MetricStat o usam; sem ele,
+   cairiam em peso sintetizado pelo navegador. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@500;600;700&display=swap');
 @import './tokens.css';
 
 * {

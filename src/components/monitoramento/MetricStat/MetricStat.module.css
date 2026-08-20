@@ -48,7 +48,7 @@
 }
 
 /* Este cartão é compartilhado entre as telas normais do site e o Modo TV.
-   O padrão é a fonte de título do site (--font-display, hoje Inter, como
+   O padrão é a fonte de título do site (--font-display, hoje DM Sans, como
    todo título de cartão — ver Card.module.css .title); o Modo TV sobrescreve o apelido
    abaixo pra manter o IBM Plex Sans que ele escolheu de propósito por
    legibilidade a distância (ver TvPage.module.css .title). Antes o Plex
