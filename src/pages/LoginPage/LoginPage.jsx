@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { useHoverTooltip } from '../../hooks/overlay/useHoverTooltip'
 import { ROUTES } from '../../constants/routes'
-import { EyeIcon, EyeOffIcon, LoginIcon, SpinnerIcon } from '../../components/ui/Icon/icons'
+import { EyeIcon, EyeOffIcon, LoginIcon } from '../../components/ui/Icon/icons'
 import Loading from '../../components/ui/Loading/Loading'
 import loginBackground from '../../assets/images/login-background.jpg'
 import styles from './LoginPage.module.css'
@@ -27,16 +27,16 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const bindTooltip = useHoverTooltip()
-  // Estado próprio (não formState.isSubmitting do react-hook-form): esse
-  // reverte assim que a função onSubmit termina, mesmo em caso de sucesso —
-  // e a navegação pro painel só acontece depois, via useEffect reagindo a
-  // isAuthenticated (que muda de forma assíncrona, fora do onSubmit). Sem
-  // um estado próprio, o botão piscaria de volta pra "Entrar" por um
-  // instante antes da tela trocar. Só reseta nos caminhos de erro.
+  // Trava o botão enquanto o envio corre (disabled + aria-busy). Estado
+  // próprio, e não o formState.isSubmitting do react-hook-form: aquele
+  // reverte assim que onSubmit termina, mesmo no sucesso — e a navegação pro
+  // painel só acontece depois, via useEffect reagindo a isAuthenticated. Sem
+  // um estado próprio, o botão voltaria a aceitar clique por um instante
+  // antes de a tela trocar. Só reseta nos caminhos de erro.
   const [isLoggingIn, setIsLoggingIn] = useState(false)
-  // Distinto do isLoggingIn acima: aquele cobre a CHECAGEM das credenciais
-  // (e o botão já responde por ela, com o spinner). Este só liga depois de
-  // aceitas, pra cobrir a troca desta tela pelo painel.
+  // Distinto do isLoggingIn acima: aquele cobre a CHECAGEM das credenciais.
+  // Este só liga depois de aceitas, e é ele que sobe o véu que cobre a troca
+  // desta tela pelo painel.
   const [entrando, setEntrando] = useState(false)
 
   const remembered = localStorage.getItem(REMEMBER_KEY)
@@ -94,9 +94,9 @@ export default function LoginPage() {
     } else {
       localStorage.removeItem(REMEMBER_KEY)
     }
-    // Sucesso: não reseta isLoggingIn aqui de propósito — o botão continua
-    // "Entrando..." até o useEffect (isAuthenticated) navegar pra fora
-    // desta tela, sem piscar de volta pra "Entrar" no meio do caminho.
+    // Sucesso: não reseta isLoggingIn de propósito — o botão fica travado até
+    // o useEffect (isAuthenticated) navegar pra fora desta tela, sem voltar a
+    // aceitar clique no meio do caminho.
     setEntrando(true)
   }
 
@@ -188,12 +188,14 @@ export default function LoginPage() {
             aria-busy={isLoggingIn}
             onClick={submit}
           >
-            {isLoggingIn ? (
-              <SpinnerIcon className={styles.btnSpinner} width={15} height={15} />
-            ) : (
-              <LoginIcon className={styles.btnIcon} width={15} height={15} />
-            )}
-            {isLoggingIn ? 'Entrando...' : 'Entrar'}
+            {/* O botão não muda de estado: nem rótulo, nem ícone. Quem avisa
+                que está entrando é o véu de tela cheia (ver .entrandoVeu), que
+                sobe assim que as credenciais passam. Duplicar isso no botão
+                fazia a largura pular no meio do clique.
+                O `disabled` e o aria-busy acima continuam — são eles que
+                impedem envio duplo e informam leitor de tela. */}
+            <LoginIcon className={styles.btnIcon} width={15} height={15} />
+            Entrar
           </button>
           <div className={styles.loginFoot}>
             Problemas para entrar? Fale com a{' '}

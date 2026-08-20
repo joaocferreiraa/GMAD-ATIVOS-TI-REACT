@@ -301,19 +301,8 @@
   transition: transform 0.18s ease;
 }
 
-.btnSpinner {
-  flex-shrink: 0;
-  animation: btnLoginSpin 0.8s linear infinite;
-}
-
-@keyframes btnLoginSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* .btnSpinner e a animacao btnLoginSpin sairam junto com o spinner do botao:
+   o veu de tela cheia passou a ser o unico indicador de "entrando". */
 
 @media (prefers-reduced-motion: reduce) {
   .btnLogin,
