@@ -10,7 +10,12 @@ import { initials, nameFromEmail } from '../../../utils/formatters'
 import { assetStatusVariant } from '../../../utils/statusBadge'
 import Badge from '../../../components/ui/Badge/Badge'
 import CommandPalette from '../CommandPalette/CommandPalette'
-import logo from '../../../assets/images/gmad-logo.png'
+// Mesma troca de logo por tema do painel de TV (ver TvPage): no escuro o
+// verde da marca (#006934) fica com 2.84:1 sobre a barra — abaixo do mínimo
+// de 3:1 pra elementos gráficos —, então entra a versão que clareia só o
+// verde e mantém o laranja. No claro a logo normal é que se lê melhor.
+import logoClara from '../../../assets/images/gmad-logo.png'
+import logoEscura from '../../../assets/images/gmad-logo-dark.png'
 import {
   MoonIcon,
   SunIcon,
@@ -103,6 +108,7 @@ function NotificationsButton() {
 export default function Topbar() {
   const { user, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
+  const logo = isDark ? logoEscura : logoClara
   const [paletteOpen, setPaletteOpen] = useState(false)
   const bindTooltip = useHoverTooltip()
 
