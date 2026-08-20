@@ -19,12 +19,18 @@
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  /* 17px = os 26px de padding-top do conteúdo (ver .content em
-     AppLayout.module.css, que começa na mesma altura da barra) menos os 9px
-     de padding do próprio .navButton: assim o topo do ícone do primeiro
-     botão encosta na mesma linha em que o conteúdo começa, em vez de no
-     topo do texto do "Bom dia". */
-  padding: 17px 14px 20px;
+  /* 8px. Já foram 17px, calculados pra alinhar o topo do primeiro ícone com
+     a linha em que o conteúdo começa (os 26px de padding-top do .content
+     menos os 9px de padding do próprio .navButton). Esse alinhamento foi
+     abandonado de propósito: com a barra estreita virando um rail de ícones,
+     ele lia como um vão sobrando embaixo do cabeçalho. Agora os ícones
+     sobem e a lista começa logo abaixo da barra do topo, como no rail do
+     Supabase — o alinhamento com o conteúdo cede lugar ao alinhamento com o
+     cabeçalho. */
+  /* Embaixo, os mesmos 8px do topo: o controle da barra desce e fica tão
+     encostado no rodapé quanto o primeiro ícone está no cabeçalho, em vez
+     de flutuar com quase o dobro do respiro de cima. */
+  padding: 8px 14px 8px;
   transition: width 0.28s ease;
 }
 
@@ -156,16 +162,16 @@
    cima do conteúdo em vez de empurrá-lo — ver o modo "hover" em
    SidebarProvider.jsx. */
 .sidebar.peek {
-  width: var(--sidebar-w-expanded, 244px);
+  width: var(--sidebar-w-expanded, 212px);
   box-shadow: 6px 0 28px -6px rgba(15, 56, 35, 0.22);
 }
 
-/* No modo recolhido a barra encolhe pra 64px: o padding lateral de 14px
-   viraria quase toda a largura, então cai pra 8px e os ícones ficam
-   centralizados. */
+/* No modo recolhido a barra encolhe pra 48px: o padding lateral de 14px
+   viraria quase toda a largura, então cai pra 5px e os ícones ficam
+   centralizados. Sobram 38px de botão pro ícone de 18px. */
 .sidebar.collapsed {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .sidebar.collapsed .navButton {

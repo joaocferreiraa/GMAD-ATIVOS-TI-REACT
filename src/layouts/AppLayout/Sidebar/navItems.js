@@ -33,7 +33,7 @@ import {
 //
 // truncates: true — o rótulo é cortado mesmo com o menu expandido, então o
 // tooltip continua útil ali mesmo fora do modo recolhido. Hoje nenhum item
-// precisa: a barra (244px) comporta o rótulo mais longo inteiro. A flag
+// precisa: a barra (212px) comporta o rótulo mais longo inteiro. A flag
 // segue disponível pra quando um item novo não couber.
 export const NAV_ITEMS = [
   { type: 'link', to: ROUTES.dashboard, label: 'Painel geral', icon: DashboardIcon, end: true },

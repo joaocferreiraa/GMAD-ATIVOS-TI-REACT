@@ -13,9 +13,17 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* 12px dos dois lados, e não os 24px do conteúdo da página: a barra vai de
+   ponta a ponta como a do Supabase, com marca e controles encostados nas
+   bordas. À esquerda isso também alinha a marca com o rail estreito que
+   começa logo abaixo (48px, ver AppLayout.module.css), em vez de deixá-la
+   recuada em relação a ele.
+   Só no desktop: abaixo de 861px o recuo volta a ser maior (ver media query
+   no fim), porque lá não há rail pra acompanhar e os elementos das pontas
+   precisam da área segura do notch. */
 .heroNavInner {
   height: 100%;
-  padding: 0 24px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
 }
@@ -36,12 +44,14 @@
   min-width: 0;
 }
 
-/* 44px dentro de uma barra de 60px (--header-h): sobram 8px de respiro em
-   cima e embaixo, então a logo cresce sem empurrar a altura do cabeçalho
-   nem encostar nas bordas. Abaixo de 861px a barra passa a ter altura
-   automática (ver media query no fim), então lá não há teto. */
+/* 32px dentro de uma barra de 46px (--header-h): sobram 7px de respiro em
+   cima e embaixo, então a logo ocupa o máximo sem empurrar a altura do
+   cabeçalho nem encostar nas bordas. Encolheu junto com a barra — este
+   valor é derivado do --header-h, não independente dele. Abaixo de 861px a
+   barra passa a ter altura automática (ver media query no fim), então lá
+   não há teto. */
 .brandLogo {
-  height: 44px;
+  height: 32px;
   width: auto;
   border-radius: 6px;
   display: block;
@@ -121,9 +131,12 @@
   flex-shrink: 0;
 }
 
+/* 30px, mesma altura da .search: numa barra de 46px os 34px de antes
+   deixavam só 6px de respiro, e ainda destoavam da busca ao lado. Agora
+   todos os controles da barra têm a mesma altura. */
 .iconBtn {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -302,10 +315,14 @@
 .search {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 34px;
-  min-width: 190px;
-  padding: 0 12px;
+  gap: 7px;
+  height: 30px;
+  /* Ainda com largura mínima, e bem maior que o conteúdo: o vão que sobra à
+     direita é o que faz o botão ler como CAMPO de busca, e não como mais um
+     botão de rótulo. Só encolheu — 190px deixavam um vazio grande demais
+     depois de o rótulo ir pra esquerda. */
+  min-width: 124px;
+  padding: 0 11px;
   border-radius: 30px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -325,9 +342,12 @@
   outline: none;
 }
 
+/* Sem `flex: 1`: era ele que esticava o rótulo por toda a sobra do botão e,
+   como `text-align: center` de <button> é herdado, "Buscar" acabava
+   centralizado no meio desse vão. Com a largura vindo do próprio texto, o
+   rótulo encosta no ícone e a sobra fica toda à direita. */
 .searchPlaceholder {
-  flex: 1;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-faint);
 }
 

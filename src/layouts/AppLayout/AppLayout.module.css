@@ -1,22 +1,29 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (#app / .app). */
 
-/* 244px: largura mínima pra "Monitoramento de Rede" (o rótulo mais longo do
-   menu) caber inteiro num subitem, que é o pior caso — além do padding da
-   barra, os subitens têm 28px de recuo e 18px+10px de ícone/gap. */
+/* 212px. Já foram 244px, dimensionados pelo pior caso de SUBITEM
+   ("Monitoramento de Rede", com 28px de recuo além do ícone e do gap). Esse
+   caso não existe mais no desktop: os subitens migraram pro painel lateral
+   (ver SidebarGroupFlyout) e a barra só mostra rótulo de módulo, sendo
+   "Ferramentas" o mais longo — bem mais curto e sem recuo. No mobile a
+   barra é `width: 100%` e nem usa este valor. */
 .shell {
-  --sidebar-w: 244px;
+  --sidebar-w: 212px;
   /* Largura "aberta" fixa, independente de --sidebar-w — usada por
      .sidebar.peek (modo "expandir ao passar o mouse") pra a barra crescer
      por cima do conteúdo sem que o layout reserve esse espaço. */
-  --sidebar-w-expanded: 244px;
+  --sidebar-w-expanded: 212px;
 }
 
-/* 64px: só ícones (18px) centralizados. Menor que os 72px anteriores porque
-   sem rótulo a barra não precisa da mesma folga — o ganho vai pro conteúdo,
-   e os ícones ficam visivelmente centralizados em vez de soltos. */
+/* 48px: só ícones (18px) centralizados, no espírito do rail estreito do
+   Supabase. Sem rótulo a barra não precisa de folga nenhuma além do alvo de
+   clique — o ganho vai pro conteúdo, e os ícones ficam visivelmente
+   centralizados em vez de soltos.
+   É o piso desta escada: com o padding de 5px sobram 38px de botão pro
+   ícone, ainda um alvo de clique aceitável. Abaixo disso o alvo começa a
+   ficar apertado demais pra quem usa mouse com pouca precisão. */
 @media (min-width: 861px) {
   .shell.sidebarCollapsed {
-    --sidebar-w: 64px;
+    --sidebar-w: 48px;
   }
 }
 

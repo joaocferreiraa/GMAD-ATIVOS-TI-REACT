@@ -165,8 +165,10 @@
   --font-mono: 'IBM Plex Mono', monospace;
 
   /* -- layout do app shell (sidebar + topbar fixos) -- */
-  --header-h: 60px;
-  --sidebar-w: 244px;
+  --header-h: 46px;
+  /* Valor base; .shell (ver AppLayout.module.css) redefine e é lá que mora a
+     justificativa da largura, junto do caso recolhido. */
+  --sidebar-w: 212px;
 
   /* -- safe-area (notch / Dynamic Island / home indicator no iOS) --
      resolve a 0px em navegadores sem suporte a env(), então é seguro usar
