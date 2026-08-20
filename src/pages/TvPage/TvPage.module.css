@@ -127,8 +127,11 @@
   gap: 16px;
 }
 
+/* 82px: acima do bloco do relógio (44px + data ≈ 60px), então é a logo que
+   passa a definir a altura do cabeçalho — de propósito, porque num painel
+   de parede a marca precisa se ler de longe. */
 .logo {
-  height: 62px;
+  height: 82px;
   width: auto;
   /* Sem filtro de cor: a logo é verde e laranja com fundo transparente,
      então já se lê sobre o painel escuro. Inverter descaracterizaria a
