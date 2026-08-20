@@ -43,6 +43,12 @@
   white-space: nowrap;
 }
 
+/* Fica ANTES do .time no layout pra o horário seguir sendo a borda direita
+   da linha, como era antes do botão existir. */
+.resolveBtn {
+  flex-shrink: 0;
+}
+
 .time {
   flex-shrink: 0;
   font-size: 11px;
@@ -63,7 +69,15 @@
     white-space: normal;
   }
 
+  /* Com a linha quebrando, o botão desce pra segunda fileira junto do
+     horário. `order` põe ele antes do tempo ali também, mantendo a mesma
+     leitura do desktop. */
+  .resolveBtn {
+    order: 1;
+  }
+
   .time {
+    order: 2;
     margin-left: auto;
   }
 }
