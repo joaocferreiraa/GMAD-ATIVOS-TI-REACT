@@ -6,7 +6,11 @@ const BUILD_DATE = import.meta.env.VITE_BUILD_DATE
   : null
 
 // Barra de rodapé mínima: copyright, data do último build (embutida em
-// build time — ver vite.config.js) e contato de suporte por e-mail.
+// build time — ver vite.config.js) e o e-mail de suporte.
+//
+// O e-mail vai sozinho, sem o rótulo "Suporte:" que o antecedia — um
+// endereço de TI no rodapé já se explica, e a palavra só somava ruído numa
+// linha que é toda de metadado discreto.
 export default function Footer() {
   return (
     <div className={styles.bottomBar}>
@@ -15,7 +19,7 @@ export default function Footer() {
           © {new Date().getFullYear()} GMAD Madville | Curitiba — Painel de TI
         </p>
         <p className={styles.bottomMeta}>
-          {BUILD_DATE ? `Última data de atualização: ${BUILD_DATE} · ` : ''}Suporte:{' '}
+          {BUILD_DATE ? `Última data de atualização: ${BUILD_DATE} · ` : ''}
           <a href={`mailto:${SUPPORT_EMAIL}`} className={styles.bottomLink}>
             {SUPPORT_EMAIL}
           </a>
