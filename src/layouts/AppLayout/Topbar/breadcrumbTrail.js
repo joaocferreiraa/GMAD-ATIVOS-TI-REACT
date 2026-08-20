@@ -17,6 +17,12 @@ const TRAILS_BY_SPECIFICITY = [...ROUTE_TRAILS].sort((a, b) => b.to.length - a.t
 // Rótulos do item de menu aberto, do grupo até a página. Devolve [] pra
 // qualquer rota fora do menu (nada a exibir, em vez de uma trilha vazia
 // ocupando espaço).
+//
+// Morava junto de um componente Breadcrumb próprio, que desenhava a trilha
+// no topo do CONTEÚDO, acima do título de cada página. A trilha subiu pra
+// barra (ver Topbar) e o componente saiu: nos dois lugares ela apareceria
+// duas vezes na mesma tela, a segunda logo acima de um <h1> que já repete o
+// último rótulo.
 export function breadcrumbTrail(pathname) {
   const match = TRAILS_BY_SPECIFICITY.find(
     ({ to }) => pathname === to || pathname.startsWith(`${to}/`),

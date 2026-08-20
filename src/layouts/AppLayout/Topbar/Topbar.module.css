@@ -106,6 +106,36 @@
   color: var(--brand);
 }
 
+/* Trilha da rota, continuando a linha da marca com os mesmos separadores
+   diagonais — a leitura da esquerda pra direita já vai do geral (marca) ao
+   específico (página aberta), então não pede estilo próprio.
+   Some junto com a unidade abaixo de 861px (ver media query no fim): lá a
+   barra lateral vira faixa horizontal COM rótulos, e a orientação que a
+   trilha dá já está na tela de outro jeito. */
+.brandTrail {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Exatamente o mesmo tipo do .brandLabel e do .brandUnit: 14px, peso 600,
+   --text. A trilha chegou a ter o grupo mais leve e apagado que a página
+   atual, pra marcar hierarquia — mas emendada na linha da marca, onde todo
+   o resto tem um peso só, o segmento mais fino lia como defeito e não como
+   intenção. A hierarquia aqui já vem da ORDEM (geral à esquerda, específico
+   à direita), que é o que a linha inteira faz desde a logo. */
+.crumb {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 .navRight {
   display: flex;
   align-items: center;
@@ -121,25 +151,29 @@
   position: relative;
 }
 
-/* Traço diagonal, igual ao .brandDivider (mesmo separador da referência do
-   Supabase). */
-.navDivider {
-  width: 1px;
-  height: 22px;
-  background: var(--border);
-  transform: rotate(20deg);
-  flex-shrink: 0;
-}
+/* O .navDivider saiu daqui junto com o traço diagonal que separava os
+   controles do avatar. Ele fazia sentido quando à direita dele havia um
+   bloco de identidade (nome + botão de sair); com só o avatar sobrando, o
+   traço separava um ícone de outros ícones. O .brandDivider continua, na
+   marca, onde ainda divide coisas de naturezas diferentes. */
 
 /* 30px, mesma altura da .search: numa barra de 46px os 34px de antes
    deixavam só 6px de respiro, e ainda destoavam da busca ao lado. Agora
    todos os controles da barra têm a mesma altura. */
+/* O círculo é desenhado o tempo todo, não só no hover: assim estes botões
+   ficam com a mesma silhueta redonda do avatar (.avatar) e param de ser
+   ícones soltos na barra.
+   Preenchimento e borda vêm da .search, não de valores próprios — ela é o
+   controle vizinho, e usar o mesmo par faz a fileira inteira (pílula da
+   busca + três círculos + avatar) ler como um conjunto.
+   Depende do box-sizing: border-box global (ver global.css): sem ele o 1px
+   de borda somaria por fora e o botão viraria 32px. */
 .iconBtn {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: transparent;
-  border: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -148,11 +182,13 @@
   flex-shrink: 0;
   transition:
     background 0.18s ease,
+    border-color 0.18s ease,
     color 0.18s ease;
 }
 
 .iconBtn:hover {
   background: var(--surface-hover);
+  border-color: var(--text-faint);
   color: var(--text);
 }
 
@@ -198,7 +234,11 @@
   font-weight: 700;
   line-height: 15px;
   text-align: center;
-  box-shadow: 0 0 0 2px var(--surface);
+  /* O anel que separa o crachá do que está atrás dele. --bg-elevated, e não
+     --surface: o crachá cai inteiro dentro do botão do sino, que agora tem
+     fundo próprio (ver .iconBtn) — com --surface aparecia um aro de cor
+     errada em volta do número. */
+  box-shadow: 0 0 0 2px var(--bg-elevated);
 }
 
 .notifPanel {
@@ -351,15 +391,19 @@
   color: var(--text-faint);
 }
 
-.userChip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--brand);
+/* Sem position, como o .notifRoot logo acima e pelo mesmo motivo: o painel
+   (position: absolute) precisa se ancorar no .navRight, a fileira inteira,
+   pra sua borda direita cair na borda direita da tela. */
+.userRoot {
+  display: contents;
 }
 
+/* O círculo laranja com a silhueta de pessoa dentro. Já teve as iniciais do
+   usuário no lugar do ícone — trocadas por ele pra seguir o avatar do
+   Supabase. O nome, que as iniciais abreviavam, continua a um hover (o
+   tooltip do botão) ou a um clique (o cabeçalho do menu) de distância.
+   Fica ANTES do .avatarBtn de propósito: `composes` só enxerga classe já
+   declarada acima dele no arquivo. */
 .avatar {
   width: 26px;
   height: 26px;
@@ -368,11 +412,141 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 10.5px;
   color: #fff;
   flex-shrink: 0;
+}
+
+/* O avatar virou o gatilho do menu — o nome ao lado e o botão de sair solto
+   saíram daqui pra dentro dele. Herda a aparência do .avatar e acrescenta só
+   o reset de <button> e o anel de foco/aberto. */
+.avatarBtn {
+  composes: avatar;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: box-shadow 0.18s ease;
+}
+
+.avatarBtn:hover,
+.avatarBtnOpen {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--laranja);
+}
+
+/* Mesma ancoragem e medidas do .notifPanel — são dois menus da mesma
+   fileira, e nada aqui justifica que abram de jeitos diferentes. */
+.userPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  z-index: 80;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 20px -8px rgba(15, 30, 20, 0.16);
+  overflow: hidden;
+  padding: 6px;
+  animation: notifIn 0.15s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .userPanel {
+    animation: none;
+  }
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.userIdent {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.userIdent b {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* O e-mail quase sempre estoura os 250px do painel — corta com reticências
+   em vez de esticar o menu ou quebrar em duas linhas. */
+.userIdent span {
+  font-size: 11px;
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userAction {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: left;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Vermelho só no hover: em repouso, "Sair" pintado de perigo deixaria o
+   menu inteiro em estado de alerta por causa do seu único item. */
+.userAction:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* Véu que cobre a tela entre confirmar a saída e cair no login.
+   z-index acima do .loginScreen (500) de propósito: quando o login monta, o
+   véu precisa continuar por cima até o fim, senão a troca aparece por baixo
+   dele — que é justamente o corte que ele existe pra esconder.
+   Fundo opaco em --page-bg, e não translúcido: o painel atrás continua com
+   os dados da sessão que está sendo encerrada. */
+.saindoVeu {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-bg);
+  color: var(--text-muted);
+  animation: saindoIn 0.42s ease both;
+}
+
+@keyframes saindoIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sem o fade, mas o véu FICA: ele não é enfeite — é o que esconde a troca de
+   tela. Aparece direto, opaco desde o primeiro quadro. */
+@media (prefers-reduced-motion: reduce) {
+  .saindoVeu {
+    animation: none;
+  }
 }
 
 @media (max-width: 860px) {
@@ -391,7 +565,8 @@
     display: none;
   }
 
-  .brandUnitGroup {
+  .brandUnitGroup,
+  .brandTrail {
     display: none;
   }
 
@@ -419,12 +594,15 @@
   .notifPanel {
     width: min(300px, calc(100vw - 48px));
   }
-}
 
-@media (max-width: 400px) {
-  /* Último recurso pra telas bem estreitas (ex.: iPhone SE): some só com o
-     nome por extenso, o avatar sozinho já identifica o usuário. */
-  .userChip span {
-    display: none;
+  /* Mesma trava do .notifPanel acima, pelo mesmo motivo: os dois se ancoram
+     na borda direita da fileira, que no mobile é a borda da tela. Os 250px
+     cabem numa tela de 320px, mas sem margem nenhuma — e telas mais estreitas
+     que isso existem. */
+  .userPanel {
+    width: min(250px, calc(100vw - 48px));
   }
 }
+
+/* A regra que sumia com o nome do usuário abaixo de 400px saiu junto: o nome
+   não fica mais na barra em largura nenhuma — mora no menu do avatar. */

@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import { SidebarProvider } from '../../contexts/SidebarProvider'
 import { useSidebarState } from '../../hooks/layout/useSidebarState'
 import Sidebar from './Sidebar/Sidebar'
-import Breadcrumb from './Breadcrumb/Breadcrumb'
 import Topbar from './Topbar/Topbar'
 import Footer from './Footer/Footer'
 import styles from './AppLayout.module.css'
@@ -15,7 +14,9 @@ function AppShell() {
       <Topbar />
       <Sidebar />
       <div className={styles.content}>
-        <Breadcrumb />
+        {/* A trilha de navegação ficava aqui, acima do conteúdo. Passou pra
+            barra do topo (ver Topbar): aqui ela caía logo acima do <h1> de
+            cada página, repetindo o mesmo rótulo duas vezes seguidas. */}
         <div className={styles.view}>
           <Outlet />
         </div>
