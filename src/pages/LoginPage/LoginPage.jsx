@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/auth/useAuth'
 import { useHoverTooltip } from '../../hooks/overlay/useHoverTooltip'
 import { ROUTES } from '../../constants/routes'
 import { EyeIcon, EyeOffIcon, LoginIcon, SpinnerIcon } from '../../components/ui/Icon/icons'
+import Loading from '../../components/ui/Loading/Loading'
 import loginBackground from '../../assets/images/login-background.jpg'
 import styles from './LoginPage.module.css'
 
@@ -33,6 +34,10 @@ export default function LoginPage() {
   // um estado próprio, o botão piscaria de volta pra "Entrar" por um
   // instante antes da tela trocar. Só reseta nos caminhos de erro.
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  // Distinto do isLoggingIn acima: aquele cobre a CHECAGEM das credenciais
+  // (e o botão já responde por ela, com o spinner). Este só liga depois de
+  // aceitas, pra cobrir a troca desta tela pelo painel.
+  const [entrando, setEntrando] = useState(false)
 
   const remembered = localStorage.getItem(REMEMBER_KEY)
 
@@ -46,8 +51,20 @@ export default function LoginPage() {
   })
 
   useEffect(() => {
-    if (isAuthenticated) navigate(ROUTES.dashboard, { replace: true })
-  }, [isAuthenticated, navigate])
+    if (!isAuthenticated) return undefined
+    // Chegou aqui já autenticado (sessão válida ao abrir /login direto): vai
+    // na hora, não há troca nenhuma pra cobrir e um véu só atrasaria.
+    if (!entrando) {
+      navigate(ROUTES.dashboard, { replace: true })
+      return undefined
+    }
+    // Veio pelo formulário: espera o véu cobrir a tela antes de trocar de
+    // rota — mesmo motivo da saída (ver UserMenu na Topbar). Sem a espera o
+    // véu montaria e desmontaria no mesmo quadro, e o efeito viraria um
+    // piscar.
+    const id = setTimeout(() => navigate(ROUTES.dashboard, { replace: true }), 420)
+    return () => clearTimeout(id)
+  }, [isAuthenticated, entrando, navigate])
 
   async function onSubmit(values) {
     setAuthError('')
@@ -80,6 +97,7 @@ export default function LoginPage() {
     // Sucesso: não reseta isLoggingIn aqui de propósito — o botão continua
     // "Entrando..." até o useEffect (isAuthenticated) navegar pra fora
     // desta tela, sem piscar de volta pra "Entrar" no meio do caminho.
+    setEntrando(true)
   }
 
   const submit = handleSubmit(onSubmit)
@@ -186,6 +204,17 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Véu de entrada, espelhando o da saída (ver UserMenu na Topbar): as
+          duas travessias entre login e painel ficam cobertas, em vez de só
+          uma. Dentro do .loginScreen mesmo, sem portal — ele já é fixed e
+          cobre a viewport, e o véu morre junto com esta tela de qualquer
+          forma. */}
+      {entrando && (
+        <div className={styles.entrandoVeu}>
+          <Loading size="lg" label="Entrando…" />
+        </div>
+      )}
     </div>
   )
 }

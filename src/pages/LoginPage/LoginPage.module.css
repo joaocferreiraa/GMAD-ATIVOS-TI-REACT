@@ -406,3 +406,37 @@
   --accent: var(--laranja);
   --accent-strong: var(--laranja-forte);
 }
+
+/* Véu que cobre a troca desta tela pelo painel, espelhando o da saída (ver
+   .saindoVeu em Topbar.module.css) — mesma duração, mesmo fundo opaco, mesma
+   regra sob prefers-reduced-motion.
+   Fica DENTRO do .loginScreen (z-index 500), então basta vencer os irmãos
+   dele; não precisa do 900 que o véu de saída usa pra passar por cima desta
+   tela quando ela monta. */
+.entrandoVeu {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-bg);
+  color: var(--text-muted);
+  animation: entrandoIn 0.42s ease both;
+}
+
+@keyframes entrandoIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sem o fade, mas o véu FICA: ele esconde a troca de tela, não é enfeite. */
+@media (prefers-reduced-motion: reduce) {
+  .entrandoVeu {
+    animation: none;
+  }
+}

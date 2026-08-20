@@ -6,7 +6,14 @@
    (ver SidebarGroupFlyout) e a barra só mostra rótulo de módulo, sendo
    "Ferramentas" o mais longo — bem mais curto e sem recuo. No mobile a
    barra é `width: 100%` e nem usa este valor. */
+/* Entrada do painel, o outro lado da travessia coberta pelo véu do login
+   (ver .entrandoVeu em LoginPage.module.css): o véu esconde a SAÍDA da tela
+   de login, e este fade cobre a CHEGADA aqui. Sem ele, o painel aparecia de
+   estalo no quadro em que a rota troca.
+   Roda uma vez por sessão, não a cada navegação: o AppShell monta uma vez e
+   é o <Outlet> que troca de página dentro dele. */
 .shell {
+  animation: shellIn 0.34s ease-out both;
   --sidebar-w: 212px;
   /* Largura "aberta" fixa, independente de --sidebar-w — usada por
      .sidebar.peek (modo "expandir ao passar o mouse") pra a barra crescer
@@ -51,5 +58,26 @@
     padding-left: calc(24px + var(--safe-left));
     padding-right: calc(24px + var(--safe-right));
     padding-bottom: var(--safe-bottom);
+  }
+}
+
+/* SÓ opacidade. Um translateY daria mais presença à entrada, mas o .shell
+   contém a barra do topo e a lateral, as duas `position: fixed` — e um
+   `transform` no ancestral vira o bloco de contenção delas, tirando as duas
+   da viewport enquanto a animação dura. Fade não cria contexto nenhum. */
+@keyframes shellIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sem o movimento de entrada. Aqui pode sair inteiro, ao contrário dos véus:
+   este fade é enfeite, não esconde troca de tela nenhuma. */
+@media (prefers-reduced-motion: reduce) {
+  .shell {
+    animation: none;
   }
 }
