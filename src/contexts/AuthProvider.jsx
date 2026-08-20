@@ -7,6 +7,7 @@ import {
   refreshUser,
   signInWithPassword,
   signOut as signOutRequest,
+  updatePassword as updatePasswordRequest,
 } from '../services/supabase/authService'
 import { AuthContext } from './AuthContext'
 
@@ -87,6 +88,7 @@ export function AuthProvider({ children }) {
       isSupabaseConfigured: Boolean(supabase),
       signIn: (rawUser, password) => signInWithPassword(rawUser, password),
       signOut: () => signOutRequest(),
+      updatePassword: (novaSenha) => updatePasswordRequest(novaSenha),
     }),
     [session, status],
   )
