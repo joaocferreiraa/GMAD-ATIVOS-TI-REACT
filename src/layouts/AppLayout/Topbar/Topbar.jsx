@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { ROUTES } from '../../../constants/routes'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useTheme } from '../../../hooks/theme/useTheme'
 import { useNotifications } from '../../../hooks/useNotifications'
@@ -12,6 +13,8 @@ import { nameFromEmail } from '../../../utils/formatters'
 import { assetStatusVariant } from '../../../utils/statusBadge'
 import Badge from '../../../components/ui/Badge/Badge'
 import ConfirmDialog from '../../../components/ui/ConfirmDialog/ConfirmDialog'
+import ChangePasswordModal from './ChangePasswordModal'
+import SyncStatusRow from './SyncStatusRow'
 import Loading from '../../../components/ui/Loading/Loading'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import { breadcrumbTrail } from './breadcrumbTrail'
@@ -28,6 +31,7 @@ import {
   BellIcon,
   LogoutIcon,
   LocationIcon,
+  KeyIcon,
   UserIcon,
 } from '../../../components/ui/Icon/icons'
 import styles from './Topbar.module.css'
@@ -133,6 +137,7 @@ function UserMenu() {
   const displayName = nameFromEmail(user?.email)
   const [open, setOpen] = useState(false)
   const [confirmandoSaida, setConfirmandoSaida] = useState(false)
+  const [trocandoSenha, setTrocandoSenha] = useState(false)
   const [saindo, setSaindo] = useState(false)
   const rootRef = useRef(null)
   const bindTooltip = useHoverTooltip()
@@ -185,10 +190,30 @@ function UserMenu() {
               <span>{user?.email}</span>
             </span>
           </div>
+          {/* Estado da sincronização antes das ações: é informação, não
+              comando, e quem abre o menu costuma querer saber se o painel
+              está com dado fresco antes de decidir qualquer coisa. */}
+          <SyncStatusRow />
+          <div className={styles.userSep} />
           <button
             type="button"
             role="menuitem"
             className={styles.userAction}
+            onClick={() => {
+              close()
+              setTrocandoSenha(true)
+            }}
+          >
+            <KeyIcon width={16} height={16} />
+            Trocar senha
+          </button>
+          {/* Linha antes de "Sair": ele é o único item destrutivo do menu, e
+              separá-lo evita o clique por inércia logo abaixo do anterior. */}
+          <div className={styles.userSep} />
+          <button
+            type="button"
+            role="menuitem"
+            className={`${styles.userAction} ${styles.userActionDanger}`}
             onClick={() => {
               close()
               setConfirmandoSaida(true)
@@ -199,6 +224,8 @@ function UserMenu() {
           </button>
         </div>
       )}
+
+      <ChangePasswordModal open={trocandoSenha} onClose={() => setTrocandoSenha(false)} />
 
       <ConfirmDialog
         open={confirmandoSaida}
@@ -238,11 +265,13 @@ export default function Topbar() {
   // sub-aba da outra — Central de Chamados e Indicadores mostram as duas
   // "Chamados". Quem diz qual das duas está aberta é o <h1> da página.
   //
-  // Também sem o corte de "menos de 2 níveis" do antigo componente
-  // Breadcrumb: lá a trilha caía acima do <h1> e um nível só era eco do
-  // título; aqui não há título por perto, e o Painel geral (que tem só um)
-  // precisa aparecer como qualquer outro.
-  const trilha = breadcrumbTrail(useLocation().pathname).slice(0, 1)
+  // Rota de um nível só não desenha trilha nenhuma. Hoje isso é o Painel
+  // geral, que é link solto do menu e não pertence a módulo algum: ali o
+  // único segmento possível seria o nome da própria página, o que não
+  // situa ninguém — trilha existe pra dizer ONDE DENTRO DE QUÊ se está, e
+  // sem um "quê" ela vira rótulo redundante ao lado da marca.
+  const trilhaCompleta = breadcrumbTrail(useLocation().pathname)
+  const trilha = trilhaCompleta.length >= 2 ? trilhaCompleta.slice(0, 1) : []
   const [paletteOpen, setPaletteOpen] = useState(false)
   const bindTooltip = useHoverTooltip()
 
@@ -262,7 +291,25 @@ export default function Topbar() {
       <div className={styles.heroNavInner}>
         <div className={styles.topbar}>
           <div className={styles.brand}>
-            <img src={logo} alt="GMAD" className={styles.brandLogo} />
+            {/* A marca leva pro Painel geral — o atalho que todo painel tem
+                no logo do canto.
+                <Link>, e NUNCA <a href>: no app instalado (display:
+                standalone) um href dispara navegação de documento, o que
+                recarrega a aplicação inteira e descarta o cache do
+                React Query. O Link navega no cliente, sem recarga, dentro
+                do mesmo histórico do app.
+                O rótulo acessível vive aqui e não no alt da imagem: quem usa
+                leitor de tela precisa saber PRA ONDE o link vai, não só que
+                existe uma logo. Ele NÃO vira tooltip: o aria-label é lido
+                por leitor de tela, e a marca no canto já é um atalho
+                conhecido o bastante pra dispensar legenda na tela. */}
+            <Link
+              to={ROUTES.dashboard}
+              className={styles.brandHome}
+              aria-label="GMAD — ir para o Painel geral"
+            >
+              <img src={logo} alt="GMAD" className={styles.brandLogo} />
+            </Link>
             <span className={styles.brandDivider} />
             <span className={styles.brandLabel}>Painel de TI</span>
             {/* Some primeiro no celular (ver media query) — "Painel de TI" +

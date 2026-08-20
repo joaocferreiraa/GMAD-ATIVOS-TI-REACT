@@ -653,6 +653,19 @@ export function ContactCardIcon(props) {
   )
 }
 
+// Chave — item "Trocar senha" no menu da conta. Não é o cadeado: cadeado diz
+// "trancado/protegido" (estado), e o item é uma AÇÃO sobre a credencial.
+export function KeyIcon(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="7.5" cy="15.5" r="4.5" />
+      <path d="m10.7 12.3 8.3-8.3" />
+      <path d="m17 6 2.5 2.5" />
+      <path d="m14.5 8.5 2.5 2.5" />
+    </IconBase>
+  )
+}
+
 // Relógio com seta de retorno — sub-aba Atividade recente. O ClockIcon puro
 // diz "hora"; este diz "o que já passou", que é o conteúdo da tela.
 export function HistoryIcon(props) {

@@ -44,6 +44,36 @@
   min-width: 0;
 }
 
+/* A logo virou link pro Painel geral. O padding negativo compensado pela
+   margem alarga o ALVO DE TOQUE sem mexer no espaçamento visível: a logo tem
+   32px de altura, abaixo dos 44px que um dedo pede, e no celular ela fica na
+   borda da tela onde o toque é menos preciso. Os 6px de cada lado levam o
+   alvo a 44px de altura, e a margem de -6px devolve o layout ao que era.
+   flex-shrink: 0 porque .brand encolhe os filhos em tela estreita — sem
+   isso a logo espremeria antes dos rótulos de texto ao lado. */
+.brandHome {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin: -6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  /* -webkit-tap-highlight-color: o retângulo cinza que o Android desenha no
+     toque ficaria maior que a logo por causa do padding acima, e destoaria
+     do resto da barra, que não usa esse realce. */
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s ease;
+}
+
+/* Só com ponteiro de verdade: em toque o :hover fica aplicado no elemento
+   tocado até um toque em outro lugar, e o realce da logo ficaria preso
+   depois de navegar. Mesma trava usada no realce dos gráficos. */
+@media (hover: hover) and (pointer: fine) {
+  .brandHome:hover {
+    background: var(--surface-hover);
+  }
+}
+
 /* 32px dentro de uma barra de 46px (--header-h): sobram 7px de respiro em
    cima e embaixo, então a logo ocupa o máximo sem empurrar a altura do
    cabeçalho nem encostar nas bordas. Encolheu junto com a barra — este
@@ -507,11 +537,24 @@
     color 0.15s ease;
 }
 
-/* Vermelho só no hover: em repouso, "Sair" pintado de perigo deixaria o
-   menu inteiro em estado de alerta por causa do seu único item. */
 .userAction:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Vermelho só no hover, e só no item destrutivo. Em repouso, "Sair" pintado
+   de perigo deixaria o menu em estado de alerta permanente; e agora que há
+   outro item acima dele, o vermelho no hover é o que separa "trocar senha"
+   de "encerrar a sessão" antes do clique. */
+.userActionDanger:hover {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+.userSep {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--border);
 }
 
 /* Véu que cobre a tela entre confirmar a saída e cair no login.
