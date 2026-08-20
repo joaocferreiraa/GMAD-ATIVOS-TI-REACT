@@ -1,0 +1,74 @@
+/* Resposta ao passar o mouse, para TODOS os gráficos do site.
+
+   Global, e não um bloco repetido em cada *.module.css de gráfico: são sete
+   componentes (barra, rosca, radar, linha, empilhado, GroupSplit) e a regra
+   é a mesma em todos — a marca sob o cursor responde. Espalhada por sete
+   arquivos, ela vira sete versões que divergem na primeira manutenção.
+   As classes .recharts-* são estáveis e já globais, então não há o que
+   escopar.
+
+   O padrão é APAGAR AS OUTRAS, não acender a hovered. Clarear a marca sob o
+   cursor esbarra na paleta: as cores dos gráficos foram escolhidas com
+   contraste medido (ver --chart-* em tokens.css), e clarear uma delas
+   desloca justamente o valor que foi calibrado. Baixar a opacidade das
+   vizinhas destaca a mesma marca sem tocar em cor nenhuma.
+
+   Só onde a marca é o alvo do ponteiro (barra, fatia, polígono). Linha e
+   área temporais seguem outro modelo — lá o crosshair acha o X e o tooltip
+   lista todas as séries de uma vez, então o ponteiro nunca precisa acertar
+   um traço de 2px; a resposta ali é o ponto de destaque (activeDot), que já
+   existe. */
+
+/* SÓ em ponteiro de verdade. Em toque o :hover não é momentâneo: o navegador
+   o mantém aplicado no elemento tocado até um toque em outro lugar. Sem esta
+   trava, tocar numa barra pra ver o tooltip deixaria o gráfico INTEIRO
+   apagado com aquela barra acesa, e assim ficaria — parece defeito, não
+   destaque. É a mesma consulta que o tooltip global e o SidebarModeMenu já
+   usam pra decidir se há mouse. */
+@media (hover: hover) and (pointer: fine) {
+  .recharts-bar-rectangle,
+  .recharts-pie-sector,
+  .recharts-radar-polygon {
+    transition: opacity 0.18s ease;
+  }
+
+  /* :has() no <svg> — o realce começa quando o cursor está sobre uma marca,
+     não em qualquer lugar do cartão. Sem isso, passar o mouse na área vazia
+     acima das barras apagaria o gráfico inteiro sem nada em destaque.
+     Navegador sem :has() (iOS abaixo do 15.4) simplesmente não escurece
+     nada: degrada pro comportamento anterior, não quebra. */
+  .recharts-surface:has(.recharts-bar-rectangle:hover) .recharts-bar-rectangle,
+  .recharts-surface:has(.recharts-pie-sector:hover) .recharts-pie-sector,
+  .recharts-surface:has(.recharts-radar-polygon:hover) .recharts-radar-polygon {
+    opacity: 0.35;
+  }
+
+  .recharts-surface .recharts-bar-rectangle:hover,
+  .recharts-surface .recharts-pie-sector:hover,
+  .recharts-surface .recharts-radar-polygon:hover {
+    opacity: 1;
+  }
+}
+
+/* O ponto de destaque das linhas cresce em vez de aparecer de estalo. `r` é
+   animável por CSS em SVG desde que o atributo vire propriedade — os
+   navegadores atuais tratam assim. Onde não tratar, o ponto só aparece
+   direto, que é o comportamento de hoje: degrada, não quebra. */
+.recharts-active-dot circle {
+  transition:
+    r 0.15s ease-out,
+    opacity 0.15s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recharts-bar-rectangle,
+  .recharts-pie-sector,
+  .recharts-radar-polygon,
+  .recharts-active-dot circle {
+    transition: none;
+  }
+}
+
+/* O tooltip do gráfico segue valendo no celular — ele responde a toque, não
+   a hover, e é por ele que se lê um valor ali. O que a trava acima desliga é
+   só o realce da marca. */

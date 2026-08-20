@@ -8,6 +8,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
+import { useAnimacaoDeEntrada } from '../useAnimacaoDeEntrada'
 import styles from './LineChart.module.css'
 
 function timeLabel(iso) {
@@ -50,6 +51,9 @@ export default function LineChart({
   height = 220,
   emptyMessage = 'Nenhuma medição registrada neste período ainda.',
 }) {
+  // Antes do early return: hook não pode ficar depois de um `return`.
+  const animacao = useAnimacaoDeEntrada()
+
   if (!data.length) return <EmptyHint>{emptyMessage}</EmptyHint>
 
   return (
@@ -87,7 +91,7 @@ export default function LineChart({
             dot={false}
             activeDot={{ r: 6, fill: color, stroke: 'var(--surface)', strokeWidth: 2.5 }}
             connectNulls={false}
-            isAnimationActive={false}
+            {...animacao}
           />
         </AreaChart>
       </ResponsiveContainer>

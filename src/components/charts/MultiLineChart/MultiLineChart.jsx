@@ -12,6 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import EmptyHint from '../../dashboard/EmptyHint/EmptyHint'
+import { useAnimacaoDeEntrada } from '../useAnimacaoDeEntrada'
 import styles from './MultiLineChart.module.css'
 
 function timeLabel(iso, longFormat) {
@@ -198,6 +199,10 @@ export default function MultiLineChart({
   const [zoom, setZoom] = useState(null)
   const [dragStart, setDragStart] = useState(null)
   const [dragEnd, setDragEnd] = useState(null)
+  // Antes do early return: hook não pode ficar depois de um `return`.
+  // Este gráfico é o caso que mais precisa do "só na entrada" — ele vive no
+  // Monitoramento e no Modo TV, recebendo medição nova o tempo todo.
+  const animacao = useAnimacaoDeEntrada()
 
   if (!data.length) return <EmptyHint>{emptyMessage}</EmptyHint>
 
@@ -325,7 +330,7 @@ export default function MultiLineChart({
                 stroke="none"
                 fill={series[0]?.color}
                 fillOpacity={0.2}
-                isAnimationActive={false}
+                {...animacao}
                 activeDot={false}
                 connectNulls={false}
               />
@@ -351,7 +356,7 @@ export default function MultiLineChart({
                   fillOpacity={0.13}
                   connectNulls={false}
                   activeDot={false}
-                  isAnimationActive={false}
+                  {...animacao}
                 />
               ))}
 
@@ -403,7 +408,7 @@ export default function MultiLineChart({
                       : false
                   }
                   connectNulls={false}
-                  isAnimationActive={false}
+                  {...animacao}
                 />
               )
             })}
