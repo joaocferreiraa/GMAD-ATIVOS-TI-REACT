@@ -2,7 +2,14 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <!--
+      Só o G da marca, com fundo transparente. O favicon.svg que vinha antes
+      daqui saiu: apesar da extensão, ele era um PNG de 976KB em base64 dentro
+      de um <svg>, com o fundo pintado nos pixels e uma máscara de canto
+      arredondado por cima — não era vetor, e o fundo não tinha como sair
+      editando o arquivo. Como ele era declarado primeiro, vencia o PNG abaixo
+      em todo navegador moderno.
+    -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
@@ -21,7 +28,13 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Painel de TI GMAD" />
     <meta property="og:description" content="Controle de Ativos - GMAD Madville | Curitiba" />
-    <meta property="og:image" content="https://painel-ti-gmad.vercel.app/favicon.png" />
+    <!--
+      Aponta pro apple-touch-icon, e não mais pro favicon.png: o favicon agora
+      é transparente, e prévia de link no WhatsApp/Teams é composta sobre o
+      fundo de cada app — o G verde sumiria no escuro. O apple-touch é a mesma
+      marca COM fundo, que é o que uma prévia precisa.
+    -->
+    <meta property="og:image" content="https://painel-ti-gmad.vercel.app/apple-touch-icon.png" />
     <meta property="og:url" content="https://painel-ti-gmad.vercel.app" />
     <meta name="twitter:card" content="summary" />
     <title>TI GMAD</title>
