@@ -72,6 +72,12 @@
     justify-content 0.28s ease;
 }
 
+/* Verde da marca em TODOS os ícones, não só no do item ativo. O rótulo ao
+   lado segue neutro: a cor vira identidade da barra e o texto continua sendo
+   o que se lê, sem os dois disputarem atenção.
+   SÓ NO TEMA CLARO — ver o bloco data-theme='dark' no fim do arquivo, que
+   devolve o cinza. No escuro o verde em todos os ícones ficava pesado; lá a
+   cor volta a marcar só o item ativo. */
 .navIcon {
   width: 18px;
   height: 18px;
@@ -79,6 +85,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: var(--brand);
 }
 
 .navIcon svg {
@@ -97,8 +104,13 @@
   font-weight: 600;
 }
 
+/* Com todos os ícones verdes, o ativo perdeu a cor como sinal — passa a usar
+   o tom mais forte da marca. Nos dois temas ele se afasta do --brand na
+   direção de MAIS destaque: escurece no claro, clareia no escuro.
+   O item ativo continua marcado por outros dois sinais que não dependem de
+   cor: o fundo em pastilha e o rótulo em peso 600. */
 .navButton.active .navIcon {
-  color: var(--brand);
+  color: var(--brand-strong);
 }
 
 /* Ícone de grupo com o flyout aberto (ver SidebarGroupFlyout) — mesmo realce
@@ -341,4 +353,20 @@
 
 :global(:root[data-theme='dark']) .sidebar {
   background: var(--bg-elevated);
+}
+
+/* No escuro os ícones voltam ao cinza, como eram antes de ficarem verdes no
+   tema claro. Não é inconsistência: sobre fundo escuro o verde da marca é
+   bem mais luminoso que o texto ao lado, e repetido em oito ícones a barra
+   inteira passava a puxar o olho pra si em vez de servir de moldura.
+   `inherit` e não --text-muted: assim o ícone volta a acompanhar o estado do
+   próprio botão (hover e ativo já mudam a cor do .navButton), que é como
+   funcionava antes. */
+:global(:root[data-theme='dark']) .navIcon {
+  color: inherit;
+}
+
+/* E o ativo volta a ser o único verde — o papel que a cor tinha aqui. */
+:global(:root[data-theme='dark']) .navButton.active .navIcon {
+  color: var(--brand);
 }

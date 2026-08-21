@@ -9,7 +9,10 @@
   border-radius: var(--radius);
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-muted);
+  /* Verde da marca, igual aos ícones dos módulos acima (ver .navIcon em
+     Sidebar.module.css): é o mesmo tipo de elemento na mesma barra, e cinza
+     aqui deixava o rodapé parecendo desligado. */
+  color: var(--brand);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,9 +29,10 @@
   height: 17px;
 }
 
+/* Só o fundo responde ao hover. O `color: var(--text)` daqui saiu junto com o
+   cinza do repouso: ele apagava o verde justamente quando o cursor chega. */
 .trigger:hover {
   background: var(--surface-hover);
-  color: var(--text);
 }
 
 .triggerOpen,
@@ -140,4 +144,16 @@
 
 .option.active .radio::after {
   transform: scale(1);
+}
+
+/* Mesma regra dos ícones dos módulos (ver .navIcon em Sidebar.module.css): o
+   verde vale só no tema claro. No escuro volta o cinza, inclusive o realce de
+   hover que acompanhava. O estado ABERTO (.triggerOpen) segue verde nos dois
+   temas — ali a cor indica estado, não identidade. */
+:global(:root[data-theme='dark']) .trigger {
+  color: var(--text-muted);
+}
+
+:global(:root[data-theme='dark']) .trigger:hover {
+  color: var(--text);
 }
