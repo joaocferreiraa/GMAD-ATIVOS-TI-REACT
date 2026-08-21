@@ -11,23 +11,42 @@ import SidebarGroupFlyout from './SidebarGroupFlyout'
 import { ChevronDownIcon } from '../../../components/ui/Icon/icons'
 import styles from './Sidebar.module.css'
 
-// Hover-intent do flyout (ver o efeito lá embaixo).
+// Atraso do flyout (ver o efeito lá embaixo). Só o FECHAR tem um.
 //
-// A espera pra abrir é uma pausa deliberada, não o mínimo que dá pra usar: o
-// painel só aparece pra quem PAROU no módulo. Com isso, atravessar a barra
-// pra chegar no conteúdo não dispara nada no caminho, e o painel deixa de
-// pular na cara de quem só passou o mouse.
+// Abrir é imediato em todo caso: o painel aparece assim que o cursor chega no
+// módulo, na primeira vez igual às seguintes. Havia aqui um hover-intent de
+// 180ms, mas ele só pegava a PRIMEIRA abertura — trocar de um grupo aberto
+// pro vizinho sempre foi imediato —, e a diferença entre os dois casos era
+// visível em uso: a barra parecia travar ao abrir o primeiro menu e responder
+// na hora em todos os outros. Uniformizar por cima (esperar sempre) tornaria
+// lenta justamente a navegação entre módulos, então uniformiza por baixo.
 //
-// O preço de uma espera desse tamanho é a barra parecer lenta pra quem já
-// está navegando entre módulos — por isso trocar de um grupo ABERTO pro
-// vizinho é imediato (ver handleMouseMove): a espera vale pra decidir se o
-// menu deve aparecer, não pra decidir qual menu.
+// O que se paga por isso: atravessar a barra na diagonal pra chegar no
+// conteúdo abre o painel de cada módulo do caminho. O atraso de fechar segura
+// o estrago — o painel não some a cada pixel, então o que se vê é um painel
+// acompanhando o cursor, não uma sequência de piscadas.
 //
-// Fechar espera menos: entre o botão e o painel há um vão de 8px onde o
+// Fechar continua esperando: entre o botão e o painel há um vão de 8px onde o
 // cursor não está sobre nenhum dos dois, e fechar ali cortaria o caminho
 // até os itens.
-const HOVER_ABRIR_MS = 180
 const HOVER_FECHAR_MS = 220
+
+// Espelha o `transition: width 0.28s` de .sidebar (Sidebar.module.css) —
+// mantenha os dois em sincronia.
+//
+// No modo "expandir ao passar o mouse" a barra alarga de 48px pra 212px ao
+// receber o cursor, e o painel do módulo se ancora na BORDA DIREITA dela. Sem
+// esperar, o painel nasce colado na barra estreita e é arrastado pra direita
+// enquanto ela cresce — a expansão da barra, que é o movimento principal,
+// vira pano de fundo de um painel que aparece antes dela terminar.
+//
+// A espera vale só ENQUANTO a barra está alargando, e é o resto do tempo que
+// falta pra ela chegar ao fim (ver `restanteDaExpansao`) — não um atraso
+// fixo. Nos outros dois modos a barra não muda de largura e não há o que
+// esperar; e com a barra já aberta, passar de um módulo pro vizinho continua
+// abrindo na hora. É o que separa este caso do hover-intent que saiu daqui:
+// aquele atrasava a PRIMEIRA abertura sempre, mesmo sem nada se movendo.
+const PEEK_EXPANSAO_MS = 280
 
 function isGroupActive(group, pathname) {
   return group.items.some(({ to }) => pathname === to || pathname.startsWith(`${to}/`))
@@ -167,14 +186,13 @@ export default function Sidebar() {
   // recalcular a cada movimento onde o cursor ESTÁ não depende de eventos se
   // corresponderem.
   //
-  // Os dois atrasos existem por motivos diferentes:
-  //  - abrir: sem ele, atravessar a barra na diagonal pra chegar no conteúdo
-  //    abriria e fecharia o painel de cada grupo do caminho;
-  //  - fechar: entre o botão e o painel há um vão de 8px (ver o `left` em
-  //    SidebarGroupFlyout) onde o cursor não está sobre nenhum dos dois, e
-  //    fechar ali cortaria o caminho até os itens.
-  // Trocar de um grupo aberto pro irmão é imediato: com um painel já aberto
-  // a intenção não está mais em dúvida.
+  // Fechar espera HOVER_FECHAR_MS: entre o botão e o painel há um vão de 8px
+  // (ver o `left` em SidebarGroupFlyout) onde o cursor não está sobre nenhum
+  // dos dois, e fechar ali cortaria o caminho até os itens.
+  //
+  // Abrir só espera enquanto a barra estiver alargando, e só no modo hover —
+  // ver PEEK_EXPANSAO_MS lá em cima. Com a barra parada (qualquer modo), abre
+  // na hora.
   //
   // No mobile não roda: lá não há flyout (as abas abrem em segunda linha) e
   // nem hover de verdade.
@@ -191,6 +209,13 @@ export default function Sidebar() {
   useEffect(() => {
     if (isMobile) return undefined
     let timer = null
+    // Instante em que o cursor entrou na barra; 0 enquanto está fora dela.
+    // Medido aqui dentro, e não num efeito sobre `peek`, porque o mousemove
+    // que dispara a expansão é o MESMO que já pode cair sobre um módulo (quem
+    // entra na barra entra por cima de algum): um efeito só rodaria no render
+    // seguinte, e justamente a primeira leitura — a que importa — sairia
+    // zerada, abrindo o painel na hora.
+    let entrouEm = 0
 
     function limparTimer() {
       if (timer) clearTimeout(timer)
@@ -210,21 +235,44 @@ export default function Sidebar() {
       setFlyout({ key, anchorEl })
     }
 
+    // Quanto ainda falta da expansão da barra. Zero fora do modo hover (lá a
+    // largura é fixa) e zero assim que a transição termina — a partir daí
+    // trocar de módulo volta a abrir na hora.
+    function restanteDaExpansao() {
+      if (mode !== 'hover' || !entrouEm) return 0
+      return Math.max(0, PEEK_EXPANSAO_MS - (performance.now() - entrouEm))
+    }
+
     function handleMouseMove(event) {
+      // Sair da barra rearma a espera: voltar depois é uma expansão nova, já
+      // que a largura volta ao estreito assim que o cursor sai.
+      const naBarra = Boolean(event.target.closest('[data-sidebar-hover-zone]'))
+      if (!naBarra) entrouEm = 0
+      else if (!entrouEm) entrouEm = performance.now()
+
       const botao = event.target.closest('[data-sidebar-group]')
       if (botao) {
         const { sidebarGroup: key } = botao.dataset
-        const atual = flyoutAtualRef.current
-        if (atual?.key === key) limparTimer()
-        else if (atual) {
-          limparTimer()
-          abrir(key, botao)
-        } else agendar(() => abrir(key, botao), HOVER_ABRIR_MS)
+        // Cancelar o timer vale pros dois casos: se o painel deste módulo já
+        // está aberto, o cursor voltou e não deve mais fechar; se vai abrir
+        // outro, o fechamento pendente perdeu o sentido.
+        limparTimer()
+        // Sem distinguir "primeira abertura" de "troca de módulo" — era essa
+        // assimetria que fazia uma parecer mais lenta que a outra. O que
+        // atrasa aqui é só a barra ainda estar alargando, e cada mousemove
+        // reagenda com o que sobrou: mexer o mouse sobre o botão não empurra
+        // a abertura pra frente, ela cai sempre no fim da expansão.
+        if (flyoutAtualRef.current?.key !== key) {
+          const espera = restanteDaExpansao()
+          if (espera) agendar(() => abrir(key, botao), espera)
+          else abrir(key, botao)
+        }
         return
       }
-      // Sobre o painel aberto: segura. Fora de tudo: fecha se havia algo
-      // aberto, senão só cancela uma abertura que estava pra acontecer (o
-      // cursor passou de raspão por um grupo e seguiu).
+      // Sobre o painel aberto: segura. Fora de tudo: agenda o fechamento se
+      // havia algo aberto. O último ramo é só faxina — sem nada aberto não há
+      // fechamento pendente pra cancelar, exceto se a rota tiver trocado com
+      // um timer no ar (o flyout já é zerado no render nesse caso).
       if (event.target.closest('[data-sidebar-flyout]')) limparTimer()
       else if (flyoutAtualRef.current) agendar(() => setFlyout(null), HOVER_FECHAR_MS)
       else limparTimer()
@@ -235,7 +283,10 @@ export default function Sidebar() {
       document.removeEventListener('mousemove', handleMouseMove)
       limparTimer()
     }
-  }, [isMobile, hideTooltip])
+    // `mode` entra nas deps por causa de restanteDaExpansao: só o modo hover
+    // alarga a barra. Trocar de modo é raro (é um clique no rodapé da barra),
+    // então religar o listener aqui não custa nada.
+  }, [isMobile, hideTooltip, mode])
 
   return (
     <nav
@@ -326,9 +377,7 @@ export default function Sidebar() {
                   aria-haspopup="menu"
                   aria-expanded={flyoutOpen}
                   onClick={(event) => openFlyout(key, event.currentTarget)}
-                  {...(!flyoutOpen && (collapsed || entry.truncates)
-                    ? bindTooltipFoco(label)
-                    : {})}
+                  {...(!flyoutOpen && (collapsed || entry.truncates) ? bindTooltipFoco(label) : {})}
                 >
                   <span className={styles.navIcon}>
                     <Icon />
@@ -369,8 +418,8 @@ export default function Sidebar() {
       {/* key no grupo: passar o mouse de um módulo pro vizinho troca só as
           props, e uma animação CSS não reexecuta sem remontar — o painel
           teleportava e trocava o conteúdo de uma vez. Com a key ele refaz a
-          entrada a cada módulo, que é justamente o gesto que a troca
-          imediata (sem o HOVER_ABRIR_MS) torna comum aqui. */}
+          entrada a cada módulo, que é justamente o gesto que a abertura
+          imediata (sem espera nenhuma) torna comum aqui. */}
       {flyoutGroup && (
         <SidebarGroupFlyout
           key={flyoutGroup.key}

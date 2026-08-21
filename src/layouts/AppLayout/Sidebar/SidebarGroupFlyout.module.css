@@ -14,11 +14,10 @@
 
      Um deslize já existiu aqui e foi removido por ler como o painel
      "pulando" ou abrindo duas vezes em cliques rápidos. Este volta em
-     condições diferentes: agora o painel abre no hover, depois da espera do
-     HOVER_ABRIR_MS (ver Sidebar.jsx), e o clique não alterna mais — não há como
-     retriggerar em sequência. E o movimento vem DO botão (-6px) junto com a
-     escala e a mesma origem, que lê como uma coisa só crescendo, não como
-     um salto lateral.
+     condições diferentes: agora o painel abre no hover (ver Sidebar.jsx) e o
+     clique não alterna mais — não há como retriggerar em sequência. E o
+     movimento vem DO botão (-6px) junto com a escala e a mesma origem, que
+     lê como uma coisa só crescendo, não como um salto lateral.
 
      Curva de desaceleração suave, e não uma de saída forte (que jogaria
      quase toda a distância nos primeiros quadros): esta lê como o painel
