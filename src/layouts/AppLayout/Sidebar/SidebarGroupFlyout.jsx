@@ -77,7 +77,7 @@ export default function SidebarGroupFlyout({ group, anchorEl, onClose }) {
             className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}
             // Cascata da entrada (a animação em si está no CSS): só o atraso
             // depende do índice, então precisa vir daqui.
-            style={{ animationDelay: `${index * 45}ms` }}
+            style={{ animationDelay: `${index * 30}ms` }}
             onClick={onClose}
           >
             <span className={styles.itemIcon}>

@@ -21,10 +21,13 @@
      um salto lateral.
 
      Curva de desaceleração suave, e não uma de saída forte (que jogaria
-     quase toda a distância nos primeiros quadros): nessa duração ela lê
-     como o painel chegando de estalo e só então assentando. */
+     quase toda a distância nos primeiros quadros): esta lê como o painel
+     assentando, não chegando de estalo.
+     A duração já foi 0.24s. Encurtou junto com a espera do hover, quando o
+     conjunto ficou lento demais — o gargalo tinha passado da espera pra
+     animação. Se voltar a parecer apressado, é este número que sobe. */
   transform-origin: left top;
-  animation: flyoutIn 0.24s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: flyoutIn 0.16s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 @keyframes flyoutIn {
@@ -94,7 +97,7 @@
      vez de o bloco inteiro surgir de uma vez. Com 1 a 3 itens por grupo, o
      escalonamento é curto o bastante pra não atrasar quem já sabe onde vai
      clicar. */
-  animation: itemIn 0.26s ease both;
+  animation: itemIn 0.19s ease both;
 }
 
 @keyframes itemIn {

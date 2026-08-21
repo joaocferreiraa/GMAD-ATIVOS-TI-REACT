@@ -26,7 +26,7 @@ import styles from './Sidebar.module.css'
 // Fechar espera menos: entre o botão e o painel há um vão de 8px onde o
 // cursor não está sobre nenhum dos dois, e fechar ali cortaria o caminho
 // até os itens.
-const HOVER_ABRIR_MS = 260
+const HOVER_ABRIR_MS = 180
 const HOVER_FECHAR_MS = 220
 
 function isGroupActive(group, pathname) {
