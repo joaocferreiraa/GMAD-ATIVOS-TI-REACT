@@ -20,6 +20,16 @@
 // importa.
 export const NOVIDADES = [
   {
+    id: '2026-08-21-historico-permanente',
+    data: '2026-08-21',
+    titulo: 'Histórico que não se perde',
+    itens: [
+      'A Atividade recente deixou de guardar só as 40 últimas ações: agora o histórico é permanente e nada mais se perde com o tempo.',
+      'O conteúdo do que foi excluído fica guardado junto com o registro da exclusão — dá para recadastrar à mão o que sumiu por engano, sem depender de backup.',
+      'Ninguém apaga o histórico pelo painel, nem sem querer. Senhas de Wi-Fi e afins não entram nesse registro.',
+    ],
+  },
+  {
     id: '2026-08-21-configuracoes-e-ajuda',
     data: '2026-08-21',
     titulo: 'Configurações e Ajuda',

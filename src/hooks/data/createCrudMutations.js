@@ -22,6 +22,11 @@ export function createCrudMutations({
   saveFn,
   uidParam,
   withAudit,
+  // Rótulo legível do registro, gravado no histórico junto da ação (ver
+  // pushLog). Opcional: sem ele o histórico ainda registra quem fez o quê e
+  // guarda o registro inteiro em `dados`, só não tem um nome curto pronto
+  // para exibir. Ex.: (ativo) => ativo.id, (contato) => contato.nome.
+  getRotulo,
   createLogMessage,
   updateLogMessage,
   deleteLogMessage,
@@ -49,6 +54,22 @@ export function createCrudMutations({
 
     function applyLocally(next) {
       queryClient.setQueryData(queryKey, next)
+    }
+
+    // Contexto estruturado do histórico (ver pushLog). `entidade` sai da
+    // queryKey — é o mesmo vocabulário que o app já usa para nomear o módulo,
+    // então não há uma segunda lista de nomes para manter em sincronia.
+    // `dados` leva o registro inteiro: em 'excluir' é o que permite
+    // recadastrar à mão o que sumiu por engano.
+    const entidade = Array.isArray(queryKey) ? String(queryKey[0]) : String(queryKey)
+    function contextoDoHistorico(acao, registro) {
+      return {
+        acao,
+        entidade,
+        entidadeUid: registro?.uid,
+        rotulo: getRotulo ? getRotulo(registro) : undefined,
+        dados: registro,
+      }
     }
 
     async function persist(next, expectedUpdatedAt) {
@@ -109,7 +130,7 @@ export function createCrudMutations({
         }
         const next = [...list, newRecord]
         applyLocally(next)
-        await pushLog(createLogMessage(record), autor)
+        await pushLog(createLogMessage(record), autor, contextoDoHistorico('criar', newRecord))
         showToast(createSuccessMessage)
         await persist(next, updatedAt)
         return newRecord
@@ -137,11 +158,12 @@ export function createCrudMutations({
           ? { ...record, atualizadoEm: new Date().toISOString(), atualizadoPor: autor }
           : { ...record }
         const next = list.map((item) => (item.uid === targetUid ? { ...item, ...patch } : item))
+        const atualizado = next.find((item) => item.uid === targetUid)
         applyLocally(next)
-        await pushLog(updateLogMessage(record), autor)
+        await pushLog(updateLogMessage(record), autor, contextoDoHistorico('editar', atualizado))
         showToast(updateSuccessMessage)
         await persist(next, updatedAt)
-        return next.find((item) => item.uid === targetUid)
+        return atualizado
       },
     })
 
@@ -150,7 +172,9 @@ export function createCrudMutations({
         const { value: list, updatedAt } = await getFreshOrToast()
         const next = list.filter((i) => i.uid !== item.uid)
         applyLocally(next)
-        await pushLog(deleteLogMessage(item), autor)
+        // `item` vai inteiro para `dados`: sem separação de permissão, este
+        // registro é o que permite refazer à mão uma exclusão equivocada.
+        await pushLog(deleteLogMessage(item), autor, contextoDoHistorico('excluir', item))
         showToast(deleteSuccessMessage, 'danger')
         await persist(next, updatedAt)
       },

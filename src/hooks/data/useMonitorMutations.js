@@ -8,6 +8,7 @@ const useCrud = createCrudMutations({
   saveFn: saveMonitores,
   uidParam: 'monitorUid',
   withAudit: true,
+  getRotulo: (ponto) => ponto?.nome,
   createLogMessage: (record) => `Cadastrou o ponto monitorado ${record.nome} (${record.tipo})`,
   updateLogMessage: (record) => `Editou o ponto monitorado ${record.nome} (${record.tipo})`,
   deleteLogMessage: (item) => `Excluiu o ponto monitorado ${item.nome} (${item.tipo})`,

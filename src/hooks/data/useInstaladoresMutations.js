@@ -11,6 +11,7 @@ const useCrud = createCrudMutations({
   saveFn: saveInstaladores,
   uidParam: 'instaladorUid',
   withAudit: true,
+  getRotulo: (instalador) => instalador?.nome,
   createLogMessage: (record) => `Cadastrou o instalador ${record.nome} (${record.categoria})`,
   updateLogMessage: (record) => `Editou o instalador ${record.nome} (${record.categoria})`,
   deleteLogMessage: (item) => `Excluiu o instalador ${item.nome}`,

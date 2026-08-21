@@ -271,7 +271,7 @@ export const SECOES_AJUDA = [
           {
             termo: 'Atividade recente',
             texto:
-              'O histórico do que a equipe fez no painel: cadastros, edições e exclusões, com autor e horário. Serve para saber quem mexeu em quê.',
+              'O histórico do que a equipe fez no painel: cadastros, edições e exclusões, com autor e horário. Serve para saber quem mexeu em quê. O registro é permanente e ninguém consegue apagá-lo pelo painel — antes só ficavam as 40 ações mais recentes. Como o conteúdo do que foi excluído fica guardado junto, dá para recadastrar à mão o que sumiu por engano. Senhas não entram nesse registro.',
           },
         ],
       },

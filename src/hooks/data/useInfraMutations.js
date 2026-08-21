@@ -65,7 +65,16 @@ export function useInfraMutations() {
         construshow: current.construshow.map((c, i) => (i === idx ? { ...c, ...record } : c)),
       }
       applyLocally(next)
-      await pushLog(`Atualizou o Construshow de ${unidade}.`, autor)
+      // Sem `dados`: os registros de infraestrutura carregam credencial
+      // (senha de Wi-Fi, acesso do Construshow), e o histórico é
+      // só-acréscimo — o app não tem como apagar linha de lá. Guardar a
+      // senha aqui a deixaria legível para sempre, muito depois de trocada.
+      // Registra-se QUE mudou e QUEM mudou, não o valor.
+      await pushLog(`Atualizou o Construshow de ${unidade}.`, autor, {
+        acao: 'editar',
+        entidade: 'infraestrutura',
+        rotulo: unidade,
+      })
       showToast('Construshow atualizado.')
       await persist(next, updatedAt)
     },
@@ -80,7 +89,13 @@ export function useInfraMutations() {
         wifi: current.wifi.map((w, i) => (i === idx ? { ...w, ...record } : w)),
       }
       applyLocally(next)
-      await pushLog(`Atualizou o Wi-Fi de ${unidade}.`, autor)
+      // Sem `dados`, pelo mesmo motivo do Construshow acima: `senha` viraria
+      // registro permanente e irremovível pelo app.
+      await pushLog(`Atualizou o Wi-Fi de ${unidade}.`, autor, {
+        acao: 'editar',
+        entidade: 'infraestrutura',
+        rotulo: unidade,
+      })
       showToast('Wi-Fi atualizado.')
       await persist(next, updatedAt)
     },
@@ -106,7 +121,11 @@ export function useInfraMutations() {
       const next = { ...current, wifi: [...current.wifi, newRecord] }
       const newIdx = next.wifi.length - 1
       applyLocally(next)
-      await pushLog(`Adicionou uma nova rede Wi-Fi para ${unidade}.`, autor)
+      await pushLog(`Adicionou uma nova rede Wi-Fi para ${unidade}.`, autor, {
+        acao: 'criar',
+        entidade: 'infraestrutura',
+        rotulo: unidade,
+      })
       await persist(next, updatedAt)
       return newIdx
     },

@@ -14,6 +14,7 @@ const useCrud = createCrudMutations({
   // qual é qual em todos esses lugares.
   uniqueField: 'id',
   duplicateMessage: (id) => `Já existe um ativo com o ID "${id}". Escolha outro identificador.`,
+  getRotulo: (ativo) => ativo?.id,
   createLogMessage: (record) => `Cadastrou o ativo ${record.id} (${record.categoria})`,
   updateLogMessage: (record) => `Editou o ativo ${record.id} (${record.categoria})`,
   deleteLogMessage: (asset) => `Excluiu o ativo ${asset.id} (${asset.categoria})`,

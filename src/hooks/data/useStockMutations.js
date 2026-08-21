@@ -8,6 +8,7 @@ const useCrud = createCrudMutations({
   saveFn: saveStock,
   uidParam: 'stockUid',
   withAudit: true,
+  getRotulo: (linha) => linha?.item,
   createLogMessage: (record) => `Cadastrou o item de estoque ${record.item} (${record.tipo})`,
   updateLogMessage: (record) => `Editou o item de estoque ${record.item} (${record.tipo})`,
   deleteLogMessage: (item) => `Excluiu o item de estoque ${item.item} (${item.tipo})`,

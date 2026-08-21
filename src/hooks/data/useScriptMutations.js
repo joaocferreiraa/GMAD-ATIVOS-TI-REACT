@@ -10,6 +10,7 @@ const useCrud = createCrudMutations({
   uidParam: 'scriptUid',
   withAudit: true,
   extraCreateFields: { favorito: false, downloads: 0 },
+  getRotulo: (script) => script?.nome,
   createLogMessage: (record) => `Cadastrou o script ${record.nome} (${record.categoria})`,
   updateLogMessage: (record) => `Editou o script ${record.nome} (${record.categoria})`,
   deleteLogMessage: (item) => `Excluiu o script ${item.nome}`,

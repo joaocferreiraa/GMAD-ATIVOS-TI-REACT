@@ -8,6 +8,7 @@ const useCrud = createCrudMutations({
   saveFn: saveContatos,
   uidParam: 'contatoUid',
   withAudit: false,
+  getRotulo: (contato) => contato?.nome,
   createLogMessage: (record) => `Cadastrou o colaborador ${record.nome} (${record.departamento})`,
   updateLogMessage: (record) => `Editou o colaborador ${record.nome} (${record.departamento})`,
   deleteLogMessage: (contato) => `Excluiu o colaborador ${contato.nome}`,
