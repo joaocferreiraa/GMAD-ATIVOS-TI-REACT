@@ -1,9 +1,40 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.dept-by-unit, .dept-unit-*, .dept-bar-*). */
 
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* `align-items: start` pra um bloco com poucas barras não ser esticado até a
+   altura do vizinho mais cheio — cada bloco fica do tamanho do próprio
+   conteúdo, e o gráfico não ganha um vão embaixo. */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  align-items: start;
   gap: 16px;
+}
+
+/* Unidades sem nenhum registro, resumidas numa linha em vez de uma caixa
+   vazia cada. Sem fundo nem borda de propósito: é nota de rodapé do bloco
+   acima, e uma segunda moldura competiria com os blocos que têm dado. */
+.vazias {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 2px 2px 0;
+  font-size: 12px;
+}
+
+.vaziasLabel {
+  color: var(--text-faint);
+}
+
+.vaziasUnidades {
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .block {

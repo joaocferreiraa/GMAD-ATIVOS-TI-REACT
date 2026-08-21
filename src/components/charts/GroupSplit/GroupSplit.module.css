@@ -1,12 +1,19 @@
 /* Portado 1:1 de site-ativos-ti-gmad-madville.html (.group-split*). */
 
+/* EMPILHADO, e não mais duas colunas lado a lado.
+
+   Os grupos são muito desiguais em conteúdo: a Madville carrega um gráfico de
+   13 departamentos, e Curitiba, hoje, só um zero. Lado a lado, o gráfico
+   ficava espremido em meia página — com os nomes girados se atropelando — e a
+   outra metade era espaço morto.
+
+   Empilhado, quem tem dado usa a largura inteira e quem não tem ocupa uma
+   faixa fina. O grupo de baixo vem depois do de cima na leitura, que é a
+   ordem natural de "sede primeiro, filial depois". */
 .split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* Coluna com folga: cada uma carrega um radar embaixo do número, e os
-     rótulos de categoria ficam na borda externa da teia — colados, os dois
-     gráficos se tocariam. */
-  gap: 10px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 16px;
 }
 
@@ -44,14 +51,5 @@
   border-left: 3px solid var(--laranja);
 }
 
-/* 900px, e não os 500px de antes: aquele valor era certo quando cada coluna
-   tinha só um número e um rótulo. Hoje cada uma carrega um radar de vários
-   eixos, com os nomes dos departamentos na borda externa da teia — em duas
-   colunas num tablet, sobram ~330px por gráfico e os rótulos se atropelam.
-   Mesmo ponto de quebra do .grid da Visão geral, então a página inteira
-   passa a uma coluna de uma vez só. */
-@media (max-width: 900px) {
-  .split {
-    grid-template-columns: 1fr;
-  }
-}
+/* A media query de 900px que trocava duas colunas por uma saiu junto: agora é
+   sempre uma coluna, em qualquer largura, então não há o que quebrar. */

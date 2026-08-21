@@ -16,26 +16,20 @@ import CompletionMeter from '../../components/dashboard/CompletionMeter/Completi
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
 import DonutChart from '../../components/charts/DonutChart/DonutChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
-import RadarChart from '../../components/charts/RadarChart/RadarChart'
 import styles from './DashboardPage.module.css'
 
-// Cores dos POLÍGONOS de cada radar — um por unidade dentro do grupo, não
-// por departamento (no radar o departamento é eixo da teia, não cor). Por
-// isso são listas curtas: Madville tem 3 unidades próprias e Curitiba, uma.
+// PALETA DESTA TELA (é a este comentário que DeptByUnit se refere):
 //
-// A PRIMEIRA cor de cada lista casa com a barra colorida do bloco de número
-// logo acima (verde no Madville, laranja no Curitiba) — é o que amarra cada
-// teia ao seu cabeçalho quando os dois gráficos ficam lado a lado. As
-// seguintes fogem do matiz da primeira de propósito: três verdes seguidos
-// dentro do mesmo radar seriam três polígonos indistinguíveis.
+// A Visão geral fica de fora da paleta --chart-* (constants/chartColors.js),
+// que vale nos gráficos de Chamados e de monitoramento. É a primeira tela
+// depois do login, a vitrine da marca, e aqui os verdes e laranjas GMAD pesam
+// mais que o contraste entre séries. Decisão do dono do produto — não é falta
+// de padronização a ser "consertada" depois.
 //
-// Esta tela fica de fora da paleta --chart-* (constants/chartColors.js), que
-// vale nos gráficos de Chamados e de monitoramento: a Visão geral é a
-// primeira tela depois do login, a vitrine da marca, e aqui os verdes e
-// laranjas GMAD pesam mais que o contraste entre séries. Decisão do dono do
-// produto — não é falta de padronização a ser "consertada" depois.
-const MADVILLE_COLORS = ['var(--verde-700)', 'var(--info)', 'var(--madeira)', 'var(--indigo)']
-const CURITIBA_COLORS = ['var(--laranja)', 'var(--yellow)', 'var(--madeira)']
+// Havia aqui duas listas de cor (MADVILLE_COLORS/CURITIBA_COLORS) para os
+// polígonos dos radares de colaboradores. Os radares saíram — ver a
+// justificativa em useDashboardData, junto de colaboradoresPorGrupo — e as
+// barras que entraram no lugar usam o DEPT_COLORS do próprio DeptByUnit.
 
 export default function DashboardPage() {
   const { data: assets, isLoading, isError } = useAssets()
@@ -98,7 +92,11 @@ export default function DashboardPage() {
           />
 
           <div className={styles.grid}>
-            <Card title="Status geral" subtitle="Situação atual do parque de equipamentos">
+            <Card
+              className={styles.statusCard}
+              title="Status geral"
+              subtitle="Situação atual do parque de equipamentos"
+            >
               <DonutChart key={dashUnidade} {...dashboard.statusChart} />
             </Card>
             <Card
@@ -130,9 +128,10 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          {/* Largura inteira, fora do .grid: são dois radares lado a lado, e
-              os rótulos de categoria ficam na borda externa de cada teia. Em
-              meia página eles se atropelariam. */}
+          {/* Largura inteira, fora do .grid: são dois blocos lado a lado, cada
+              um com uma barra por departamento. Em meia página o rótulo do
+              departamento e a barra dividiriam menos de 150px, e os nomes
+              longos ("Crédito e Cobrança", "Técnico Iluminação") cortariam. */}
           <Card
             className={styles.unitCard}
             title="Distribuição por unidade"
@@ -142,21 +141,19 @@ export default function DashboardPage() {
               madville={dashboard.groupSplit.madville}
               outras={dashboard.groupSplit.outras}
               madvilleBelow={
-                <RadarChart
-                  units={dashboard.colaboradoresRadar.madville}
-                  categories={dashboard.colaboradoresRadar.eixos}
-                  domainMax={dashboard.colaboradoresRadar.max}
-                  colors={MADVILLE_COLORS}
-                  emptyMessage="Nenhum colaborador cadastrado nas unidades Madville."
+                <DeptByUnit
+                  colunas
+                  units={dashboard.colaboradoresPorGrupo.madville}
+                  emptyMessage="Nenhuma unidade Madville cadastrada ainda."
+                  itemEmptyMessage="Sem colaboradores:"
                 />
               }
               outrasBelow={
-                <RadarChart
-                  units={dashboard.colaboradoresRadar.outras}
-                  categories={dashboard.colaboradoresRadar.eixos}
-                  domainMax={dashboard.colaboradoresRadar.max}
-                  colors={CURITIBA_COLORS}
-                  emptyMessage="Ainda sem colaboradores cadastrados — a teia se preenche conforme forem entrando."
+                <DeptByUnit
+                  colunas
+                  units={dashboard.colaboradoresPorGrupo.outras}
+                  emptyMessage="Nenhuma loja de fora cadastrada ainda."
+                  itemEmptyMessage="Sem colaboradores:"
                 />
               }
             />

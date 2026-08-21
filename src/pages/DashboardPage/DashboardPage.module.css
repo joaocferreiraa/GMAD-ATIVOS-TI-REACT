@@ -62,6 +62,18 @@
   }
 }
 
+/* Flex-column só NESTE cartão, e não no .card genérico (que é bloco simples e
+   é usado no app inteiro): é o que dá ao gráfico de rosca um `flex: 1` com
+   altura real — só o que sobra depois do título e do subtítulo. Sem isso o
+   rodapé do gráfico não tem como se ancorar no fim do cartão.
+
+   O cartão fica alto porque divide a linha do grid com "Requer atenção", que
+   é bem mais comprido, e o grid estica os dois (align-items: stretch). */
+.statusCard {
+  display: flex;
+  flex-direction: column;
+}
+
 .completudeCard {
   margin-bottom: 20px;
 }

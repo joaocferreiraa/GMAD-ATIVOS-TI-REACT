@@ -1,8 +1,11 @@
+/* Respiro maior desde que a barra engrossou para 20px: com os 9px de antes,
+   três barras grossas empilhadas viravam um bloco só. Os 3px que a sombra
+   desce saem daqui também. */
 .wrap {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 9px;
+  margin-bottom: 14px;
 }
 
 .head {
@@ -24,21 +27,35 @@
   white-space: nowrap;
 }
 
-/* 14px (era 7): a barra é o dado desta seção, e num traço de 7px um
+/* 20px (foi 7, depois 14): a barra é o dado desta seção, e num traço fino um
    servidor com 18% de uso e outro com 35% eram dois riscos igualmente
-   irrelevantes na tela. Dobrar a altura é o que faz a proporção ser lida
-   antes do número à direita. */
+   irrelevantes na tela. Os 20px são os MESMOS do barSize dos gráficos (ver
+   BarChart.jsx) — barra de uso e barra de gráfico têm o mesmo peso visual em
+   todo o sistema, em vez de cada tela ter a sua espessura.
+
+   Canto levemente arredondado (3px, era metade da altura, o que fazia uma
+   pílula) e SEM `overflow: hidden`. O overflow existia pra cortar o que
+   passasse do trilho arredondado, e agora decepava justamente a sombra do
+   preenchimento — que precisa passar do trilho pra existir. Com 3px não há
+   praticamente nada a cortar. */
 .track {
-  height: 14px;
-  border-radius: 7px;
+  height: 20px;
+  border-radius: 3px;
   background: var(--dash-track);
-  overflow: hidden;
 }
 
+/* Mesma estética das barras do painel (ver BarChart.module.css): bloco de
+   canto levemente arredondado com sombra dura deslocada à direita e um pouco
+   pra baixo. O mesmo raio (3px) e o mesmo token de sombra dos gráficos, e não
+   valores próprios — se um dos dois for calibrado um dia, as duas telas andam
+   juntas em vez de divergirem em silêncio.
+   A sombra é drop-shadow e não box-shadow: ela recorta pelo alfa, então
+   acompanha o canto arredondado em vez de sair um retângulo por trás. */
 .fill {
   height: 100%;
-  border-radius: 7px;
+  border-radius: 3px;
   background: var(--dash-ok);
+  filter: drop-shadow(var(--chart-shadow-3d));
   transition: width 0.4s ease;
 }
 

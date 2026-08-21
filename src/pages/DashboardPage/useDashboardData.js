@@ -199,6 +199,44 @@ export function useDashboardData(assets, contatos, dashUnidade) {
 
     // ---- Gráfico por status (respeita o filtro de unidade) ----
     const statuses = ['Ativo', 'Manutenção', 'Inativo']
+    // Rodapé do gráfico de status: o que a rosca NÃO mostra.
+    //
+    // Cuidado deliberado pra não repetir cartão vizinho: a contagem de "em
+    // manutenção" já está nos mini-stats de "Requer atenção", e os inativos
+    // por categoria já aparecem no popover do KPI da categoria. O que não
+    // existe em lugar nenhum é ONDE estão os equipamentos parados — e é a
+    // pergunta seguinte de quem olha a fatia vermelha.
+    const parados = scoped.filter((a) => (a.status || 'Ativo') !== 'Ativo')
+    const paradosPorUnidade = Object.entries(
+      parados.reduce((mapa, a) => {
+        const u = unitDisplayName(a.unidade) || 'Sem unidade'
+        mapa[u] = (mapa[u] || 0) + 1
+        return mapa
+      }, {}),
+    ).sort((x, y) => y[1] - x[1])
+
+    const emOperacao = total - parados.length
+    const statusRodape = [
+      {
+        label: 'Em operação',
+        // Percentual E contagem: "95%" diz a saúde, "62 de 65" diz o tamanho
+        // do problema. Num parque pequeno os dois discordam na leitura — 95%
+        // soa ótimo, 3 máquinas paradas soa concreto.
+        value: total
+          ? `${Math.round((emOperacao / total) * 100)}% · ${emOperacao} de ${total}`
+          : '—',
+      },
+      ...(paradosPorUnidade.length
+        ? paradosPorUnidade.map(([unidade, qtd]) => ({
+            label: `Parados · ${unidade}`,
+            value: String(qtd),
+          }))
+        : // Confirmação explícita em vez de rodapé sumindo: "nenhum parado" é
+          // informação, e um bloco que desaparece deixa a dúvida se a conta
+          // rodou.
+          [{ label: 'Equipamentos parados', value: 'nenhum' }]),
+    ]
+
     const statusChart = {
       data: statuses.map((s) => ({
         label: s,
@@ -206,6 +244,8 @@ export function useDashboardData(assets, contatos, dashUnidade) {
       })),
       colors: DONUT_COLORS_STATUS,
       unitLabel: 'ativos',
+      mostrarPercentual: true,
+      rodape: statusRodape,
     }
 
     // ---- Distribuição por setor (sempre todas as unidades) ----
@@ -242,29 +282,22 @@ export function useDashboardData(assets, contatos, dashUnidade) {
       return { unit: u, label: unitDisplayName(u), total: unitContatos.length, bars: counts }
     })
 
-    // ---- Radares de colaboradores, um por GRUPO (ver GroupSplit) ----
-    // Dois gráficos em vez de um: sobrepor Madville e Curitiba na mesma teia
-    // misturava um grupo de 3 unidades próprias com uma unidade só, que é
-    // justamente a divisão que o bloco de números acima existe pra marcar.
+    // ---- Colaboradores por GRUPO (ver GroupSplit) ----
+    // Separado em dois, e não numa lista só: são 3 unidades próprias da
+    // Madville contra uma loja de fora, que é justamente a divisão que o
+    // bloco de números acima existe pra marcar.
     //
-    // `eixos` e `max` saem daqui, do conjunto TODO, e vão iguais pros dois
-    // radares. É o que os torna comparáveis: mesmos departamentos na mesma
-    // posição angular e o mesmo raio valendo o mesmo número nos dois. Cada
-    // radar calculando a própria escala daria dois desenhos parecidos
-    // representando grandezas diferentes — o erro clássico de radar lado a
-    // lado.
-    const totaisPorDept = new Map()
-    colaboradoresByDept.forEach((u) =>
-      u.bars.forEach((b) =>
-        totaisPorDept.set(b.label, (totaisPorDept.get(b.label) || 0) + b.value),
-      ),
-    )
-    const colaboradoresRadar = {
-      eixos: Array.from(totaisPorDept.entries())
-        .filter(([, total]) => total > 0)
-        .sort((a, b) => b[1] - a[1])
-        .map(([label]) => label),
-      max: Math.max(0, ...colaboradoresByDept.flatMap((u) => u.bars.map((b) => b.value))),
+    // Aqui já foram dois radares. Saíram porque radar é o gráfico errado
+    // para este dado, por três motivos que se somam: 13 departamentos (radar
+    // fica ilegível acima de ~8 eixos); distribuição desigual demais, com
+    // Vendas dominando e todo o resto colapsando no centro, indistinguível;
+    // e a área fechada não significa nada, já que departamento é categoria
+    // nominal em ordem arbitrária — mudar a ordem dos eixos mudava o desenho
+    // sem mudar o dado.
+    //
+    // Barras ordenadas (ver DeptByUnit) resolvem os três: ordem é o próprio
+    // ranking, e 1 contra 3 continua visível mesmo ao lado de um 30.
+    const colaboradoresPorGrupo = {
       madville: colaboradoresByDept.filter((u) => isMadvilleUnit(u.unit)),
       outras: colaboradoresByDept.filter((u) => !isMadvilleUnit(u.unit)),
     }
@@ -311,8 +344,7 @@ export function useDashboardData(assets, contatos, dashUnidade) {
       groupSplit,
       statusChart,
       deptByUnit,
-      colaboradoresByDept,
-      colaboradoresRadar,
+      colaboradoresPorGrupo,
       unitDropdownItems,
       unitDropdownLabel,
     }

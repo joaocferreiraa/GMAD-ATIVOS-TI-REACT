@@ -122,6 +122,18 @@
      ponta arredondada. */
   --chart-shadow: 0 1px 2px rgba(24, 24, 27, 0.22);
 
+  /* Sombra 3D das barras (ver BarChart.module.css). Três decisões:
+
+     - DESFOQUE ZERO (o terceiro valor). É o que separa "bloco projetado
+       atrás" de "halo em volta": com raio 0, o drop-shadow copia a silhueta
+       com aresta viva, na altura exata da barra.
+     - DESLOCAMENTO MAIOR NA HORIZONTAL que na vertical (4px contra 3px), pra
+       a sombra aparecer ao LADO direito da barra e não só embaixo dela.
+     - OPACIDADE ALTA (38%, contra os 22% da --chart-shadow difusa). Sombra
+       sem desfoque não tem gradiente pra sugerir volume: se for clara demais,
+       lê como uma segunda barra desbotada em vez de sombra. */
+  --chart-shadow-3d: 4px 3px 0 rgba(24, 24, 27, 0.38);
+
   /* Estado BOM dos painéis de medição — o número grande e a sparkline de um
      ponto dentro do limite, a barra de uso com folga. Junto com --warn e
      --danger forma um semáforo: verde tranquilo, âmbar mais ou menos,
@@ -242,6 +254,11 @@
   /* Mais escura e mais espalhada que no tema claro: sobre um fundo quase
      preto, a sombra do tema claro (22% de preto) simplesmente não existe. */
   --chart-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+
+  /* Preto puro e mais opaco que no claro: sobre fundo quase preto, sombra a
+     38% some. Mesmo deslocamento — o que muda entre os temas é só o quanto a
+     sombra precisa pesar pra ser vista. */
+  --chart-shadow-3d: 4px 3px 0 rgba(0, 0, 0, 0.6);
 
   /* NÃO há bloco --chart-* aqui: a paleta dos gráficos é uma só nos dois
      temas, definida em :root. Ver o comentário lá — os valores foram

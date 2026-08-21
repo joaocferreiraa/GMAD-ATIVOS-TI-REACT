@@ -1,11 +1,17 @@
-/* Sombra nas barras. Aplicada na CAMADA da série (.recharts-bar), e não em
-   cada retângulo: o drop-shadow trabalha sobre o alfa do que foi
-   rasterizado, então cada barra ganha a sua sombra recortada na própria
-   silhueta — inclusive as pontas arredondadas — com um filtro só.
-   O rótulo numérico fica FORA dessa camada no DOM do Recharts, então não
-   herda a sombra: número com sombra vira texto borrado. */
+/* Sombra 3D das barras: deslocada para a direita e um pouco para baixo, com
+   desfoque ZERO. É o desfoque zero que faz a diferença — `drop-shadow` com
+   raio 0 produz uma cópia sólida da silhueta, com aresta viva, e não um halo
+   difuso em volta. O resultado é um bloco projetado atrás da barra, na altura
+   exata dela, em vez de um brilho ao redor.
+   Ver --chart-shadow-3d em tokens.css para o deslocamento e a cor.
+
+   Aplicada na CAMADA da série (.recharts-bar), e não em cada retângulo: o
+   drop-shadow trabalha sobre o alfa do que foi rasterizado, então cada barra
+   ganha a sua sombra recortada na própria silhueta com um filtro só. O rótulo
+   numérico fica FORA dessa camada no DOM do Recharts, então não herda a
+   sombra: número com sombra vira texto borrado. */
 .chart :global(.recharts-bar) {
-  filter: drop-shadow(var(--chart-shadow));
+  filter: drop-shadow(var(--chart-shadow-3d));
 }
 
 .total {
