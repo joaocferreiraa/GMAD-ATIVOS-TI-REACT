@@ -653,6 +653,27 @@ export function ContactCardIcon(props) {
   )
 }
 
+// Silhueta PREENCHIDA pra avatar sem foto. Distinta do UserIcon (contorno),
+// que continua servindo como ícone de menu.
+//
+// O UserIcon é um busto de traço: cabeça pequena, vão no meio e ombros
+// cortados retos embaixo. Centrado num círculo ele fica matematicamente no
+// meio e mesmo assim LÊ como torto — a silhueta não acompanha a borda
+// redonda, e o corte reto do busto briga com ela.
+//
+// Esta desenha ombros que descem além do viewBox (até y=25 num box de 24):
+// a intenção é que o círculo do avatar os RECORTE, como recortaria uma foto.
+// Por isso quem usa precisa de overflow: hidden (ver .avatar) e deve
+// renderizar em 100% do círculo, não num tamanho menor centrado.
+export function AvatarSilhuetaIcon(props) {
+  return (
+    <IconBase fill="currentColor" stroke="none" {...props}>
+      <circle cx="12" cy="9" r="4.1" />
+      <path d="M12 14.6c-4.5 0-8.1 3.3-8.1 7.4V25h16.2v-3c0-4.1-3.6-7.4-8.1-7.4Z" />
+    </IconBase>
+  )
+}
+
 // Brilho/faísca — item "Novidades" no menu da conta. Convenção corrente pra
 // "o que mudou" (a mesma do "novo" em editores e painéis), e distinta do
 // sino, que aqui é notificação de ativo e não de produto.
@@ -661,6 +682,29 @@ export function SparkIcon(props) {
     <IconBase {...props}>
       <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z" />
       <path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7Z" />
+    </IconBase>
+  )
+}
+
+// Engrenagem — módulo Configurações. Convenção universal, e a única do
+// conjunto que não descreve um conteúdo: descreve o próprio sistema.
+export function SettingsIcon(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </IconBase>
+  )
+}
+
+// Interrogação em círculo — sub-aba Ajuda. Não é o "i" de informação: aqui a
+// pessoa chega com uma PERGUNTA, não pra ler um aviso.
+export function HelpIcon(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+      <path d="M12 17h.01" />
     </IconBase>
   )
 }

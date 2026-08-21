@@ -36,6 +36,7 @@ import {
   LogoutIcon,
   LocationIcon,
   KeyIcon,
+  AvatarSilhuetaIcon,
   SparkIcon,
   UserIcon,
 } from '../../../components/ui/Icon/icons'
@@ -120,17 +121,25 @@ function NotificationsButton() {
   )
 }
 
-// Foto de perfil quando existe, silhueta quando não. O <img> preenche o
-// círculo por object-fit: cover — a foto já chega quadrada (recortada em
-// utils/imagem.js), então isso só cobre o caso de uma foto antiga em outra
-// proporção, sem deformar rosto nenhum.
-function Avatar({ foto, nome, size, className = '' }) {
+// Foto de perfil quando existe, silhueta quando não.
+//
+// Os dois PREENCHEM o círculo, em vez de um desenho pequeno centrado dentro
+// dele. A silhueta anterior era o UserIcon de contorno em 15px num círculo de
+// 26px: ficava matematicamente centrada e mesmo assim lia como torta, porque
+// o busto de traço tem cabeça pequena, vão no meio e corte reto embaixo — nada
+// disso acompanha uma borda redonda. Agora o círculo recorta a silhueta como
+// recortaria uma foto (ver AvatarSilhuetaIcon e o overflow em .avatarIcone).
+//
+// A <img> usa object-fit: cover — a foto já chega quadrada de utils/imagem.js,
+// então o cover só cobre o caso de uma foto antiga em outra proporção, sem
+// deformar rosto nenhum.
+function Avatar({ foto, nome, className = '' }) {
   if (foto) {
     return <img src={foto} alt={`Foto de ${nome}`} className={`${styles.avatarFoto} ${className}`} />
   }
   return (
-    <span className={className}>
-      <UserIcon width={size} height={size} />
+    <span className={`${styles.avatarIcone} ${className}`}>
+      <AvatarSilhuetaIcon className={styles.avatarSilhueta} />
     </span>
   )
 }
@@ -197,13 +206,13 @@ function UserMenu() {
         aria-expanded={open}
         {...bindTooltip(displayName)}
       >
-        <Avatar foto={perfil.foto} nome={displayName} size={15} />
+        <Avatar foto={perfil.foto} nome={displayName} />
       </button>
 
       {open && (
         <div className={styles.userPanel} role="menu">
           <div className={styles.userHeader}>
-            <Avatar foto={perfil.foto} nome={displayName} className={styles.avatar} size={15} />
+            <Avatar foto={perfil.foto} nome={displayName} className={styles.avatar} />
             <span className={styles.userIdent}>
               <b>{displayName}</b>
               {/* Setor e cargo só ocupam linha quando existem: em branco,
@@ -329,13 +338,17 @@ export default function Topbar() {
   // sub-aba da outra — Central de Chamados e Indicadores mostram as duas
   // "Chamados". Quem diz qual das duas está aberta é o <h1> da página.
   //
-  // Rota de um nível só não desenha trilha nenhuma. Hoje isso é o Painel
-  // geral, que é link solto do menu e não pertence a módulo algum: ali o
-  // único segmento possível seria o nome da própria página, o que não
-  // situa ninguém — trilha existe pra dizer ONDE DENTRO DE QUÊ se está, e
-  // sem um "quê" ela vira rótulo redundante ao lado da marca.
-  const trilhaCompleta = breadcrumbTrail(useLocation().pathname)
-  const trilha = trilhaCompleta.length >= 2 ? trilhaCompleta.slice(0, 1) : []
+  // O Painel geral é o único link solto do menu — não pertence a módulo
+  // nenhum, então não tem primeiro nível pra mostrar. Aparece como "Início",
+  // e não como "Painel geral": o nome longo do menu, emendado logo depois da
+  // marca, lia como um segundo título; "Início" diz a mesma coisa e assume
+  // que ali é o ponto de partida, que é o papel da rota raiz.
+  //
+  // Rota fora do menu (a lista de máquinas detectadas) segue sem trilha —
+  // breadcrumbTrail devolve [] e o slice mantém vazio.
+  const { pathname } = useLocation()
+  const trilha =
+    pathname === ROUTES.dashboard ? ['Início'] : breadcrumbTrail(pathname).slice(0, 1)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const bindTooltip = useHoverTooltip()
 

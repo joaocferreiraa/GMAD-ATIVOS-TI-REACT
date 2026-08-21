@@ -4,7 +4,7 @@ import Button from '../../../components/ui/Button/Button'
 import Input from '../../../components/ui/Input/Input'
 import Select from '../../../components/ui/Select/Select'
 import FormField, { FormGrid } from '../../../components/ui/FormField/FormField'
-import { UserIcon, TrashIcon } from '../../../components/ui/Icon/icons'
+import { AvatarSilhuetaIcon, TrashIcon } from '../../../components/ui/Icon/icons'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { useToast } from '../../../hooks/useToast'
 import { usePerfil, useSalvarFotoPerfil } from '../../../hooks/data/usePerfil'
@@ -112,7 +112,7 @@ export default function ProfileModal({ open, onClose }) {
           {fotoExibida ? (
             <img src={fotoExibida} alt={`Foto de ${nome}`} />
           ) : (
-            <UserIcon width={28} height={28} />
+            <AvatarSilhuetaIcon className={styles.previaSilhueta} />
           )}
         </div>
         <div className={styles.fotoAcoes}>

@@ -52,3 +52,12 @@
   font-size: 11px;
   color: var(--text-faint);
 }
+
+/* Mesma silhueta preenchida do avatar da barra, ocupando o círculo inteiro —
+   a prévia tem que mostrar exatamente o que vai aparecer lá, inclusive quando
+   não há foto. O recorte vem do overflow: hidden do .previa acima. */
+.previaSilhueta {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

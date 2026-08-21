@@ -446,12 +446,43 @@
   flex-shrink: 0;
 }
 
+/* Envolve a silhueta quando não há foto, e PREENCHE o círculo em vez de
+   centrar um desenho menor dentro dele.
+   O overflow: hidden com o raio é a peça central: a silhueta desenha ombros
+   que passam da borda de baixo (ver AvatarSilhuetaIcon), e é este recorte que
+   os corta seguindo a curva — o mesmo que aconteceria com uma foto.
+   O display: flex fica porque <svg> inline se apoia na linha de texto e o box
+   do <span> ganharia o espaço de descida embaixo. Precisa valer sozinho: o
+   gatilho da barra chama o Avatar SEM className. */
+.avatarIcone {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* A silhueta ocupa o círculo inteiro. Sem isto ela cairia no tamanho padrão
+   do <svg> (300x150 do CSS) ou num valor arbitrário. */
+.avatarSilhueta {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* Foto de perfil no lugar da silhueta. Preenche o círculo inteiro por
    object-fit: cover, sem deformar — a imagem já chega quadrada de
    utils/imagem.js, então o cover só cobre foto antiga em outra proporção.
-   Usada tanto no gatilho quanto no cabeçalho do menu; o tamanho vem da classe
-   que acompanha (.avatarBtn ou .userHeader .avatar). */
+
+   width/height 100% porque no gatilho da barra a <img> é filha do botão e
+   NÃO recebe className: sem tamanho declarado ela renderizaria nos 128px
+   nativos dentro de um círculo de 26px. No cabeçalho do menu o
+   `.userHeader .avatar` (0,2,0) vence estes 100% (0,1,0) e fixa os 22px. */
 .avatarFoto {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
