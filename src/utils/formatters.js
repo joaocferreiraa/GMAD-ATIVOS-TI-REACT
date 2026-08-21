@@ -1,4 +1,7 @@
-import { findNameOverride } from './nameOverrides'
+// Extensão explícita: este módulo também é importado por scripts/ rodando em
+// Node puro (ver corrigir-ids-ativos.js), e o resolvedor ESM do Node exige o
+// ".js" — o do Vite completa sozinho, então sem isto quebra só fora do app.
+import { findNameOverride } from './nameOverrides.js'
 
 // Deriva um nome de exibição a partir do e-mail de login (ex.: "joao.ferreira@madville.com.br" → "Joao Ferreira").
 // Sem acento — o e-mail sozinho não carrega essa informação. Nomes com

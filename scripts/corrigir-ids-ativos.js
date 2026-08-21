@@ -36,6 +36,12 @@
 //
 // Rodar de novo depois de aplicar é seguro: o plano sai vazio.
 //
+// Com --aplicar, cada renomeação também vira linha no histórico de alterações
+// (tabela historico_alteracoes, ver 0013). Este script grava direto no
+// kv_store, sem passar pelas mutações do app, então sem esse registro a maior
+// mudança de ID do parque seria a única invisível na tela de Atividade —
+// justamente a que alguém vai querer rastrear depois.
+//
 // Opções:
 //   --aplicar          grava as mudanças (sem isso, só mostra o plano)
 //   --manter=<texto>   na etapa 2, força a unidade Madville que fica com os
@@ -48,8 +54,10 @@ import { createClient } from '@supabase/supabase-js'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { planejar, planejarChamados } from './lib/planoIdsAtivos.js'
 import { buildLoginEmail } from '../src/utils/loginEmail.js'
+import { nameFromEmail } from '../src/utils/formatters.js'
 
 const DATA_KEY = 'gmad_ativos_data'
+const HISTORICO = 'historico_alteracoes'
 
 const MOTIVOS = {
   'sigla-da-loja': 'sigla da loja',
@@ -249,5 +257,35 @@ for (const { chamado, para } of planoChamados.atualizar) {
   else chamadosOk++
 }
 if (planoChamados.atualizar.length) console.log(`  ${chamadosOk} chamado(s) revinculado(s).`)
+
+// Registra a correção no histórico de alterações (ver
+// 0013_historico_alteracoes.sql). Este script grava direto no kv_store, sem
+// passar pelas mutações do app — sem isto, a maior mudança de ID em meses
+// seria a única invisível na trilha, justamente a que alguém vai querer
+// rastrear depois ("por que este ativo mudou de ID?").
+//
+// Vale a mesma regra do pushLog do app: registrar não pode derrubar o que já
+// foi feito. A renomeação acima já está gravada e não se desfaz — se o
+// histórico falhar aqui, avisa e segue.
+const autor = nameFromEmail(buildLoginEmail(process.env.GMAD_USUARIO))
+const linhasHistorico = plano.renomeacoes.map((r) => ({
+  autor,
+  acao: 'editar',
+  entidade: 'ativos',
+  entidade_uid: r.ativo.uid,
+  rotulo: r.para,
+  texto:
+    `Corrigiu o ID do ativo ${r.de} para ${r.para} ` +
+    `(${MOTIVOS[r.motivo] || r.motivo}, via script corrigir-ids-ativos)`,
+  // O ativo com o ID NOVO: é o estado em que ele ficou depois desta correção.
+  dados: { ...r.ativo, id: r.para },
+}))
+const { error: erroHistorico } = await sb.from(HISTORICO).insert(linhasHistorico)
+if (erroHistorico)
+  console.error(
+    `\n  AVISO: os ativos foram renomeados, mas o histórico não registrou: ${erroHistorico.message}` +
+      '\n  A correção está feita — só não ficou rastreável na tela de Atividade.',
+  )
+else console.log(`  ${linhasHistorico.length} registro(s) no histórico de alterações.`)
 
 console.log('\n  Pronto. Falta o trabalho físico listado acima (etiquetas e hostnames).\n')
