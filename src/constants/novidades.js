@@ -6,6 +6,11 @@
 // alterar o id de uma entrada antiga faria o painel voltar a marcá-la como
 // não lida pra todo mundo.
 //
+// A DATA É O DIA EM QUE AQUILO CHEGOU AO AR, não o dia em que o texto foi
+// escrito — e uma entrada não mistura dois dias. Já aconteceu de itens de
+// ontem e de hoje caírem juntos sob a data errada; na dúvida, confira o
+// `git log --date=short` do que está descrevendo.
+//
 // Escreva do ponto de vista de quem usa, não do commit. "A logo leva ao
 // Painel geral" e não "adiciona <Link> ao brandLogo" — quem lê aqui é a
 // equipe de TI e a diretoria, não quem mexe no código.
@@ -15,13 +20,11 @@
 // importa.
 export const NOVIDADES = [
   {
-    id: '2026-08-20-ajuda-e-perfil',
-    data: '2026-08-20',
-    titulo: 'Ajuda, perfil e esta lista',
+    id: '2026-08-21-configuracoes-e-ajuda',
+    data: '2026-08-21',
+    titulo: 'Configurações e Ajuda',
     itens: [
       'Novo módulo Configurações, com a aba Ajuda: um manual do painel explicando módulo por módulo, o que cada tela faz e as dúvidas mais comuns. Tem busca — digite uma palavra e só as seções que falam dela ficam na tela.',
-      'Meu perfil, no menu da conta: escolha uma foto e informe seu setor e cargo. A foto é recortada e reduzida sozinha, então pode mandar qualquer imagem.',
-      'Esta própria lista. Um ponto laranja aparece no menu da conta sempre que houver novidade que você ainda não leu.',
       'Os ícones da barra lateral ficaram verdes no tema claro.',
       'O painel de sub-abas abre mais rápido ao passar o mouse.',
     ],
@@ -33,6 +36,8 @@ export const NOVIDADES = [
     itens: [
       'A logo do GMAD agora leva ao Painel geral.',
       'O nome e o botão de sair viraram um menu no avatar, com o e-mail da conta à vista.',
+      'Meu perfil, no menu da conta: escolha uma foto e informe seu setor e cargo. A foto é recortada e reduzida sozinha, então pode mandar qualquer imagem.',
+      'Esta própria lista. Um ponto laranja aparece no menu da conta sempre que houver novidade que você ainda não leu.',
       'Dá pra trocar a própria senha pelo menu, sem depender do TI.',
       'O menu mostra se o painel está sincronizado com o banco, com o horário da última atualização — e dá pra forçar a sincronização.',
       'A barra do topo mostra em que módulo você está.',
