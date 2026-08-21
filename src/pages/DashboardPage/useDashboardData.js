@@ -3,6 +3,7 @@ import { CATEGORIES, CAT_ICON, CAT_LABEL_PLURAL } from '../../constants/categori
 import { getUnidades, isMadvilleUnit, matchesUnitValue, MADVILLE_GROUP } from '../../utils/units'
 import { fmtMoney, unitDisplayName, warrantyInfo, assetWarrantyInfo } from '../../utils/formatters'
 import { buildAttentionList } from '../../utils/attention'
+import { resumoFinanceiro } from '../../utils/cobertura'
 import { BuildingIcon, DollarIcon, StockIcon } from '../../components/ui/Icon/icons'
 import { ROUTES } from '../../constants/routes'
 
@@ -42,8 +43,13 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     const unidades = getUnidades(assets)
 
     // ---- KPIs ----
-    const total = scoped.length
-    const invest = scoped.reduce((sum, a) => sum + (parseFloat(a.preco) || 0), 0)
+    // Valor investido vem junto da cobertura (ver cobertura.js): preço é
+    // campo opcional, então a soma fala pelos ativos que TÊM preço, não pelo
+    // parque. Quem exibe precisa dos dois para não apresentar um pelo outro.
+    const { total, invest, comPreco, medio, parcial } = resumoFinanceiro(scoped)
+    // Mesma ideia para garantia: é ela que decide quem entra no alerta de
+    // vencimento, e sem data o ativo simplesmente não é vigiado.
+    const comGarantia = scoped.filter((a) => a.garantiaAte).length
     const unidadesCount =
       dashUnidade === 'Todas'
         ? unidades.length
@@ -56,7 +62,9 @@ export function useDashboardData(assets, contatos, dashUnidade) {
     // categoria, maior/menor unidade, top categorias por valor) ----
     const totalDetail = [
       { label: 'Valor investido', value: fmtMoney(invest, { maximumFractionDigits: 0 }) },
-      { label: 'Valor médio por ativo', value: fmtMoney(total ? invest / total : 0) },
+      // `medio` já vem dividido por quem tem preço, e null quando ninguém
+      // tem — ver a justificativa em cobertura.js.
+      { label: 'Valor médio por ativo', value: medio === null ? '—' : fmtMoney(medio) },
     ]
 
     function categoryDetail(categoria) {
@@ -146,6 +154,12 @@ export function useDashboardData(assets, contatos, dashUnidade) {
         tone: 'orange',
         value: fmtMoney(invest, { maximumFractionDigits: 0 }),
         label: 'Valor investido',
+        // A ressalva fica À VISTA, não no popover de detalhe: o risco aqui é
+        // justamente a leitura de relance — sem ela, a soma dos ativos que
+        // têm preço passa por valor do parque inteiro, e é um número que
+        // chega à diretoria. Some sozinha quando todo mundo estiver
+        // preenchido, então não é aviso permanente, é estado atual.
+        note: parcial ? `Soma ${comPreco} de ${total} com preço` : undefined,
         detail: investDetail,
       },
     ]
@@ -270,11 +284,30 @@ export function useDashboardData(assets, contatos, dashUnidade) {
           ? 'Todos os dispositivos GMAD Madville'
           : unitDisplayName(dashUnidade)
 
+    // Cobertura dos dois campos opcionais que sustentam número no painel.
+    // Um por medidor, na ordem em que doem: preço vira KPI que chega à
+    // diretoria; garantia decide quem entra na lista de atenção.
+    const completude = [
+      {
+        label: 'dos ativos têm preço cadastrado',
+        filled: comPreco,
+        total,
+        missingLabel: 'sem preço — ficam de fora do valor investido',
+      },
+      {
+        label: 'dos ativos têm garantia cadastrada',
+        filled: comGarantia,
+        total,
+        missingLabel: 'sem data — não entram no alerta de vencimento',
+      },
+    ]
+
     return {
       inventoryTiles,
       financeTiles,
       miniStats,
       attentionList,
+      completude,
       groupSplit,
       statusChart,
       deptByUnit,

@@ -96,8 +96,14 @@ export const SECOES_AJUDA = [
           'Contadores por tipo de equipamento (desktops, notebooks, monitores, celulares, impressoras, televisões) e o valor total investido.',
           'Status geral: quantos equipamentos estão ativos, em manutenção ou fora de uso.',
           'Requer atenção: garantias perto do vencimento e equipamentos parados em manutenção.',
+          'Completude do cadastro: o quanto os números acima cobrem do parque de verdade.',
           'Distribuição por unidade: quantos colaboradores há em cada departamento, unidade por unidade.',
         ],
+      },
+      {
+        tipo: 'texto',
+        texto:
+          'Preço e garantia são opcionais no cadastro, e o painel só consegue contar com o que foi preenchido. Por isso o valor investido traz embaixo quantos ativos ele está somando, e o cartão de completude mostra o tamanho da lacuna: um ativo sem preço fica de fora do total investido, e um sem data de garantia nunca aparece no aviso de vencimento. Conforme a equipe preenche, as barras sobem e a ressalva do valor investido desaparece sozinha.',
       },
       {
         tipo: 'texto',

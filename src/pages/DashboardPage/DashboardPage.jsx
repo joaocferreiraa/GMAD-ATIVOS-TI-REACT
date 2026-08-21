@@ -12,6 +12,7 @@ import Alert from '../../components/ui/Alert/Alert'
 import KpiStrip from '../../components/dashboard/KpiStrip/KpiStrip'
 import MiniStats from '../../components/dashboard/MiniStats/MiniStats'
 import AttentionList from '../../components/dashboard/AttentionList/AttentionList'
+import CompletionMeter from '../../components/dashboard/CompletionMeter/CompletionMeter'
 import DeptByUnit from '../../components/dashboard/DeptByUnit/DeptByUnit'
 import DonutChart from '../../components/charts/DonutChart/DonutChart'
 import GroupSplit from '../../components/charts/GroupSplit/GroupSplit'
@@ -109,6 +110,25 @@ export default function DashboardPage() {
               <AttentionList items={dashboard.attentionList} />
             </Card>
           </div>
+
+          {/* Preço e garantia são opcionais no cadastro, mas sustentam número
+              que este painel apresenta como se fosse do parque inteiro — o
+              valor investido e o alerta de garantia vencendo. Enquanto a
+              lacuna fica invisível, os dois enganam em silêncio; medida de
+              frente, ela vira tarefa. O card se resolve sozinho conforme a
+              equipe preenche: a 100% os medidores só confirmam que está em
+              dia, e a ressalva do KPI some. */}
+          <Card
+            className={styles.completudeCard}
+            title="Completude do cadastro"
+            subtitle="O quanto os números acima cobrem do parque"
+          >
+            <div className={styles.completude}>
+              {dashboard.completude.map((medidor) => (
+                <CompletionMeter key={medidor.label} {...medidor} />
+              ))}
+            </div>
+          </Card>
 
           {/* Largura inteira, fora do .grid: são dois radares lado a lado, e
               os rótulos de categoria ficam na borda externa de cada teia. Em

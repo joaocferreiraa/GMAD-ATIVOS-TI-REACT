@@ -20,7 +20,11 @@ const TONE_CLASS = {
 // Tiles com `to` (total + cada categoria — ver useDashboardData.js) levam
 // pra Ativos cadastrados já filtrado: clicar navega em vez de fixar o
 // popover, mas o hover continua mostrando o detalhe antes de clicar.
-function Tile({ icon: Icon, tone, value, label, detail = [], to, onNavigate }) {
+// `note`: ressalva curta logo abaixo do rótulo, para quando o número não
+// cobre a frota inteira (ex.: o valor investido só soma os ativos que têm
+// preço cadastrado). Fica À VISTA de propósito, e não no popover de detalhe
+// — o risco que ela existe pra cobrir é a leitura de relance.
+function Tile({ icon: Icon, tone, value, label, note, detail = [], to, onNavigate }) {
   const [pinned, setPinned] = useState(false)
   const [hovered, setHovered] = useState(false)
   const rootRef = useRef(null)
@@ -67,6 +71,7 @@ function Tile({ icon: Icon, tone, value, label, detail = [], to, onNavigate }) {
       </div>
       <div className={styles.value}>{value}</div>
       <div className={styles.label}>{label}</div>
+      {note && <div className={styles.note}>{note}</div>}
       {show && (
         <div className={styles.detail} role="tooltip">
           {detail.map((row) => (

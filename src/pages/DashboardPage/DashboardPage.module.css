@@ -62,6 +62,20 @@
   }
 }
 
+.completudeCard {
+  margin-bottom: 20px;
+}
+
+/* Os dois medidores lado a lado. auto-fit com minmax pra virarem um por
+   linha quando não couberem — cada um tem barra, percentual e duas legendas,
+   e espremidos em meia coluna estreita as legendas quebram em três linhas. */
+.completude {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  column-gap: 28px;
+  row-gap: 18px;
+}
+
 .unitCard {
   margin-bottom: 20px;
 }

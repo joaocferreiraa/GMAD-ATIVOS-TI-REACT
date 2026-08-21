@@ -138,3 +138,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Ressalva de cobertura (ver `note` em KpiStrip.jsx). Menor e mais apagada
+   que o rótulo — é nota de rodapé do número, não uma segunda legenda
+   disputando a leitura. Sem `nowrap`: numa unidade filtrada o texto pode
+   ficar mais longo que o tile, e cortar justamente a ressalva com reticências
+   derrotaria o propósito dela. */
+.note {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--text-faint);
+}

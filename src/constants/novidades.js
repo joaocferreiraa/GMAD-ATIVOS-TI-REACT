@@ -20,6 +20,16 @@
 // importa.
 export const NOVIDADES = [
   {
+    id: '2026-08-21-completude-do-cadastro',
+    data: '2026-08-21',
+    titulo: 'O painel agora diz o que ainda não sabe',
+    itens: [
+      'O valor investido passou a mostrar quantos ativos ele está somando. Preço é campo opcional, e hoje só uma parte da frota tem — sem essa ressalva, o número parecia o valor do parque inteiro.',
+      'Cartão novo no Painel geral: Completude do cadastro, com o quanto do parque tem preço e garantia preenchidos. Ativo sem preço fica de fora do valor investido; sem data de garantia, nunca aparece no aviso de vencimento.',
+      'O "Valor médio por ativo" foi corrigido: dividia pelo parque inteiro em vez de pelos ativos que têm preço, e por isso saía sete vezes menor que o real.',
+    ],
+  },
+  {
     id: '2026-08-21-historico-permanente',
     data: '2026-08-21',
     titulo: 'Histórico que não se perde',
