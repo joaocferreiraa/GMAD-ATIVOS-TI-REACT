@@ -17,11 +17,21 @@ function ChartTooltip({ active, payload }) {
 // Gráfico de rosca (donut) com o total em destaque no centro e legenda ao
 // lado. `data`: [{label, value}]; `colors`: paleta cíclica por índice;
 // `unitLabel`: texto abaixo do total central (ex.: "ativos").
+//
+// `mostrarPercentual`: acrescenta a fatia de cada item ao lado da contagem.
+// "62" responde quantos; "95%" responde se isso é muito ou pouco — e num
+// gráfico de proporção, essa é a pergunta que a pessoa está fazendo.
+//
+// `rodape`: [{label, value}] abaixo da legenda, para o que a rosca em si não
+// mostra. Fica no rodapé e não na legenda de propósito: legenda é o que está
+// desenhado, rodapé é leitura sobre o desenho.
 export default function DonutChart({
   data,
   colors,
   unitLabel = 'total',
   emptyMessage = 'Sem dados suficientes.',
+  mostrarPercentual = false,
+  rodape,
 }) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
   if (!total) return <EmptyHint>{emptyMessage}</EmptyHint>
@@ -69,9 +79,25 @@ export default function DonutChart({
           <div key={d.label} className={styles.legendRow}>
             <span className={styles.dot} style={{ background: d.color }} />
             <span className={styles.legendLabel}>{d.label}</span>
+            {mostrarPercentual && (
+              // Arredondado pra inteiro: a precisão decimal aqui não muda
+              // decisão nenhuma e só competiria com a contagem ao lado.
+              <span className={styles.legendPercent}>{Math.round((d.value / total) * 100)}%</span>
+            )}
             <span className={styles.legendValue}>{d.value}</span>
           </div>
         ))}
+
+        {rodape?.length ? (
+          <div className={styles.rodape}>
+            {rodape.map((linha) => (
+              <div key={linha.label} className={styles.rodapeRow}>
+                <span className={styles.rodapeLabel}>{linha.label}</span>
+                <span className={styles.rodapeValue}>{linha.value}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )

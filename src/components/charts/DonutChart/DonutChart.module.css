@@ -1,6 +1,21 @@
+/* `align-items: stretch` (em vez do `center` de antes) pra a legenda ocupar a
+   altura disponível — é o que faz o `margin-top: auto` do .rodape empurrar o
+   bloco pro fim do cartão em vez de deixar um vão embaixo.
+
+   `flex: 1` e NÃO `height: 100%`: o .card é um bloco simples cuja altura
+   inclui título e subtítulo, então 100% ali resolvia contra a área toda e o
+   conteúdo vazava por baixo da borda. Como flex-item, o wrap recebe só o que
+   sobra depois do cabeçalho — mas isso exige que o pai seja flex-column (ver
+   .statusCard em DashboardPage.module.css). Num pai que não seja flex, a
+   declaração é ignorada e o gráfico volta a ter altura de conteúdo, sem
+   quebrar nada. */
 .wrap {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  /* Sem `min-height: 0` de propósito: o padrão `auto` impede o item de
+     encolher abaixo do próprio conteúdo, então o rodapé nunca é cortado. Se o
+     conteúdo passar da altura do vizinho, é a linha do grid que cresce. */
+  flex: 1;
   gap: 24px;
   flex-wrap: wrap;
 }
@@ -10,6 +25,9 @@
   flex-shrink: 0;
   width: 148px;
   height: 148px;
+  /* A rosca continua centrada verticalmente, como era com o align-items
+     center do .wrap — quem passou a esticar foi só a legenda. */
+  align-self: center;
 }
 
 /* Mesma sombra das barras e do radar — os três dividem a tela da Visão
@@ -49,11 +67,17 @@
   color: var(--text-muted);
 }
 
+/* `justify-content: center` porque este cartão costuma receber mais altura do
+   que precisa — ele divide a linha do grid com "Requer atenção", que é bem
+   mais comprido. A sobra então se divide acima e abaixo do bloco, em vez de
+   virar um vão único. Espaço simétrico lê como respiro; um buraco no meio lê
+   como defeito. */
 .legend {
   flex: 1;
   min-width: 140px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -84,6 +108,55 @@
   font-size: 12.5px;
   font-weight: 700;
   color: var(--text);
+  /* Largura fixa pra coluna dos números alinhar à direita mesmo com 1, 2 ou 3
+     dígitos — sem isso "62" e "1" começam em pontos diferentes e a legenda
+     lê como lista torta. Cabe até 999. */
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Antes da contagem e mais apagado: a fatia é contexto do número, não um
+   segundo número disputando a leitura. Mono e largura fixa pelo mesmo motivo
+   do .legendValue — "5%" e "95%" precisam terminar na mesma coluna. */
+.legendPercent {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  min-width: 34px;
+  text-align: right;
+}
+
+/* Leitura sobre o gráfico, separada por um filete do que está desenhado.
+   Segue logo abaixo da legenda, sem `margin-top: auto`: ancorar no fim do
+   cartão abria um vão único no meio, que lia como falha de layout. Quem
+   distribui a sobra agora é o `justify-content: center` da .legend. */
+.rodape {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rodapeRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rodapeLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.rodapeValue {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
 }
 
 .tooltip {
