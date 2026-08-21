@@ -20,4 +20,5 @@ export const ROUTES = {
   relatorios: '/relatorios',
   chamados: '/chamados',
   chamadosDashboard: '/chamados/painel',
+  ajuda: '/ajuda',
 }

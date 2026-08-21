@@ -1,0 +1,188 @@
+.heading {
+  margin-bottom: 16px;
+}
+
+.heading h2 {
+  margin: 0 0 2px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.heading p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.buscaWrap {
+  position: relative;
+  max-width: 420px;
+  margin-bottom: 20px;
+  color: var(--text-faint);
+}
+
+.buscaWrap svg {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.buscaWrap input {
+  padding-left: 34px;
+}
+
+/* Índice à esquerda no desktop, some no mobile (ver media query): numa tela
+   estreita ele empurraria o conteúdo pra baixo da dobra, que é o oposto do
+   que um atalho de navegação deve fazer. */
+.layout {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.indice {
+  position: sticky;
+  /* Abaixo da barra do topo fixa, mais um respiro. */
+  top: calc(var(--header-h) + 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.indice a {
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .indice a:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+}
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* A barra do topo é fixa e cobriria o título ao pular pela âncora do índice.
+   O scroll-margin manda o navegador parar antes. */
+.secao {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+.secao h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Largura de leitura: linha muito longa faz o olho perder onde recomeça.
+   Vale só pro texto corrido — listas e definições têm marcador ou termo
+   pra reancorar a cada item. */
+.paragrafo {
+  margin: 0 0 10px;
+  max-width: 68ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.paragrafo:last-child {
+  margin-bottom: 0;
+}
+
+.lista {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lista li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.lista li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.definicoes {
+  margin: 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.definicao dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.definicao dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* Faixa de destaque com barra na cor da marca. Reservada pra informação que
+   muda o que a pessoa faria — não pra repetir o parágrafo acima em negrito. */
+.aviso {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--brand);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: var(--bg-elevated);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.vazio {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .indice {
+    display: none;
+  }
+}

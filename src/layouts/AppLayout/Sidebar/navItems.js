@@ -19,6 +19,8 @@ import {
   ServerIcon,
   TicketIcon,
   ConversationIcon,
+  SettingsIcon,
+  HelpIcon,
 } from '../../../components/ui/Icon/icons'
 
 // Estrutura hierárquica da navegação: itens soltos (type 'link') ficam no
@@ -96,5 +98,15 @@ export const NAV_ITEMS = [
       { to: ROUTES.relatorios, label: 'Relatórios', icon: ReportsIcon },
       { to: ROUTES.atividade, label: 'Atividade recente', icon: HistoryIcon },
     ],
+  },
+  // Último da lista de propósito: é o único módulo que não trata do parque
+  // nem do trabalho do dia, e sim do próprio painel. Fica onde a mão procura
+  // configuração em qualquer sistema — no fim.
+  {
+    type: 'group',
+    key: 'configuracoes',
+    label: 'Configurações',
+    icon: SettingsIcon,
+    items: [{ to: ROUTES.ajuda, label: 'Ajuda', icon: HelpIcon }],
   },
 ]

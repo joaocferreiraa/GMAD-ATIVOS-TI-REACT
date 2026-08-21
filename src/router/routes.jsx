@@ -28,6 +28,7 @@ const MonitoramentoPainelPage = lazy(() => import('../pages/MonitoramentoPainelP
 const TvPage = lazy(() => import('../pages/TvPage'))
 const AtividadePage = lazy(() => import('../pages/AtividadePage'))
 const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
+const AjudaPage = lazy(() => import('../pages/AjudaPage'))
 const ChamadosPage = lazy(() => import('../pages/it/ITTickets'))
 const ChamadosDashboardPage = lazy(() => import('../pages/it/ITDashboard'))
 
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
               { path: ROUTES.monitoramentoPainel, element: lazyPage(MonitoramentoPainelPage) },
               { path: ROUTES.atividade, element: lazyPage(AtividadePage) },
               { path: ROUTES.relatorios, element: lazyPage(RelatoriosPage) },
+              { path: ROUTES.ajuda, element: lazyPage(AjudaPage) },
               { path: ROUTES.chamados, element: lazyPage(ChamadosPage) },
               { path: ROUTES.chamadosDashboard, element: lazyPage(ChamadosDashboardPage) },
             ],

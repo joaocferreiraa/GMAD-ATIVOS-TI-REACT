@@ -4,7 +4,8 @@
    ("Monitoramento de Rede", com 28px de recuo além do ícone e do gap). Esse
    caso não existe mais no desktop: os subitens migraram pro painel lateral
    (ver SidebarGroupFlyout) e a barra só mostra rótulo de módulo, sendo
-   "Ferramentas" o mais longo — bem mais curto e sem recuo. No mobile a
+   "Configurações" o mais longo (~94px dos 132px disponíveis) — bem mais
+   curto que um subitem e sem recuo. No mobile a
    barra é `width: 100%` e nem usa este valor. */
 /* Entrada do painel, o outro lado da travessia coberta pelo véu do login
    (ver .entrandoVeu em LoginPage.module.css): o véu esconde a SAÍDA da tela
