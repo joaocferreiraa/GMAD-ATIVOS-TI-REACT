@@ -41,14 +41,14 @@ const CSV_COLUMNS = [
 
 // Lê a lista de ativos do kv_store.
 export async function getAssets() {
-  return kvGet(DATA_KEY)
+  return kvGet(DATA_KEY, { padrao: [] })
 }
 
 // Igual a getAssets, mas inclui o `updated_at` da linha — usado pelas
 // mutações pra ler o valor mais recente do banco (não o do cache local) e
 // gravar de forma condicional (ver saveAssets).
 export async function getAssetsWithMeta() {
-  return kvGetWithMeta(DATA_KEY)
+  return kvGetWithMeta(DATA_KEY, { padrao: [] })
 }
 
 // Grava a lista completa de ativos — o kv_store guarda o array inteiro sob

@@ -23,8 +23,13 @@ function horaDe(data) {
 //
 // ALCANCE, pra ninguém ler mais do que o indicador sabe: ele reflete o que
 // passa pelo kvStore — ativos, contatos, estoque, infraestrutura,
-// instaladores, scripts, monitores e o log de atividade. As medições de rede
-// e as métricas de host falam direto com o Supabase e não movem este estado.
+// instaladores, scripts, monitores e as fotos de perfil. As medições de rede,
+// as métricas de host e o histórico de alterações falam direto com o Supabase
+// e não movem este estado. (O log de atividade movia, enquanto morava no
+// kv_store; desde a migration 0013 ele é tabela própria e saiu daqui.)
+//
+// Chave que ainda não existe (PGRST116) NÃO é falha: o banco respondeu, só não
+// há registro gravado. Isso é decidido no kvStore — ver linhaInexistente lá.
 export default function SyncStatusRow() {
   const { status, lastSync, lastError } = useSyncStatus()
   const online = useOnlineStatus()

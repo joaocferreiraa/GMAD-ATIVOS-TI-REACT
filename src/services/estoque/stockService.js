@@ -5,12 +5,12 @@ const DATA_KEY = 'gmad_estoque_data'
 // Lê a lista de itens de estoque do kv_store — mesmo padrão de assetsService.js
 // (o valor gravado é o array completo, sem embrulho).
 export async function getStock() {
-  return kvGet(DATA_KEY)
+  return kvGet(DATA_KEY, { padrao: [] })
 }
 
 // Igual a getStock, mas inclui o `updated_at` da linha — ver getAssetsWithMeta.
 export async function getStockWithMeta() {
-  return kvGetWithMeta(DATA_KEY)
+  return kvGetWithMeta(DATA_KEY, { padrao: [] })
 }
 
 // Grava a lista completa de itens de estoque — cada escrita reescreve a

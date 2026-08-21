@@ -4,13 +4,13 @@ const DATA_KEY = 'gmad_scripts_data'
 
 // Lê a lista de scripts do kv_store.
 export async function getScripts() {
-  return kvGet(DATA_KEY)
+  return kvGet(DATA_KEY, { padrao: [] })
 }
 
 // Igual a getScripts, mas inclui o `updated_at` da linha — ver
 // getAssetsWithMeta.
 export async function getScriptsWithMeta() {
-  return kvGetWithMeta(DATA_KEY)
+  return kvGetWithMeta(DATA_KEY, { padrao: [] })
 }
 
 // Grava a lista completa de scripts — o kv_store guarda o array inteiro

@@ -25,16 +25,14 @@ export async function salvarFotoPerfil(email, dataUrl) {
 
   let ultimoErro
   for (let tentativa = 0; tentativa < MAX_RETRIES; tentativa++) {
-    let atual
-    try {
-      atual = await kvGetWithMeta(FOTOS_KEY)
-    } catch (e) {
-      // PGRST116 = chave ainda não existe (nenhuma foto no projeto). Qualquer
-      // outro erro pode significar que existe com fotos de outras pessoas que
-      // não conseguimos ler agora — gravar por cima apagaria todas.
-      if (e?.code !== 'PGRST116') throw e
-      atual = { value: {}, updatedAt: undefined }
-    }
+    // `padrao` cobre a chave ainda não existir (nenhuma foto no projeto) e
+    // devolve updatedAt undefined, que faz o kvSet abaixo CRIAR a linha.
+    //
+    // Qualquer outro erro continua sendo lançado, e isso é essencial: ele pode
+    // significar que a chave EXISTE, com fotos de outras pessoas, e só não
+    // conseguimos ler agora — gravar por cima apagaria todas. É a mesma
+    // distinção de antes, agora feita uma camada abaixo (ver kvStore).
+    const atual = await kvGetWithMeta(FOTOS_KEY, { padrao: {} })
 
     // Mapa e não lista: cada pessoa tem no máximo uma foto, e a chave é o
     // e-mail. Remover é gravar null, não apagar a entrada — assim quem já
@@ -57,10 +55,15 @@ export async function salvarFotoPerfil(email, dataUrl) {
 
 // Mapa e-mail -> data URL. Chave inexistente vira mapa vazio: "ninguém pôs
 // foto ainda" é estado normal, não falha.
+//
+// Aqui havia um `catch { return {} }` aberto, que engolia TAMBÉM queda de rede
+// e sessão expirada — o app mostrava todo mundo sem foto e nada indicava que
+// só não tinha dado pra ler. Agora só a ausência da chave vira mapa vazio (via
+// `padrao`); falha de verdade propaga, marca o indicador de sincronização e o
+// React Query tenta de novo.
+//
+// Propagar é seguro pra quem consome: usePerfil lê `fotos?.[email] ?? null`,
+// então erro vira foto nula e o avatar cai na silhueta, como já fazia.
 export async function getFotosPerfil() {
-  try {
-    return (await kvGet(FOTOS_KEY)) || {}
-  } catch {
-    return {}
-  }
+  return (await kvGet(FOTOS_KEY, { padrao: {} })) || {}
 }

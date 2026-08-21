@@ -55,6 +55,47 @@ describe('kvGet', () => {
     expect(lastError).toBe('sem rede')
   })
 
+  it('chave inexistente NÃO acende "falha ao sincronizar"', async () => {
+    // PGRST116 = o .single() não achou a linha. O banco respondeu — a ida e
+    // volta funcionou. Marcar offline aqui fazia o painel dizer que a conexão
+    // caiu enquanto a tela carregava normalmente (foi o caso real do
+    // gmad_perfil_fotos, com ninguém tendo posto foto ainda).
+    tabela = () =>
+      query({ data: null, error: Object.assign(new Error('Cannot coerce'), { code: 'PGRST116' }) })
+
+    await expect(kvGet('gmad_perfil_fotos')).rejects.toThrow('Cannot coerce')
+    expect(getSyncStatusSnapshot().status).toBe('connected')
+  })
+
+  it('mas o erro continua chegando a quem chamou', async () => {
+    // O indicador não acusa, e o serviço é quem decide o que ausência
+    // significa: lista vazia (perfil, atividade) ou falha de carregamento.
+    tabela = () =>
+      query({ data: null, error: Object.assign(new Error('Cannot coerce'), { code: 'PGRST116' }) })
+
+    await expect(kvGet('gmad_perfil_fotos')).rejects.toMatchObject({ code: 'PGRST116' })
+  })
+
+  it('com `padrao`, chave inexistente devolve o vazio em vez de lançar', async () => {
+    // Módulo sem nenhum registro é estado normal de base nova. Sem isto, um
+    // Supabase recém-criado deixa toda tela em "não foi possível carregar".
+    tabela = () =>
+      query({ data: null, error: Object.assign(new Error('Cannot coerce'), { code: 'PGRST116' }) })
+
+    await expect(kvGet('gmad_estoque_data', { padrao: [] })).resolves.toEqual([])
+    expect(getSyncStatusSnapshot().status).toBe('connected')
+  })
+
+  it('`padrao` não engole erro de verdade', async () => {
+    // A rede caindo continua sendo falha, mesmo com padrão definido — senão o
+    // padrão transformaria indisponibilidade em "a lista está vazia" e a tela
+    // mostraria zero registros como se fosse a verdade.
+    tabela = () => query({ data: null, error: new Error('sem rede') })
+
+    await expect(kvGet('gmad_estoque_data', { padrao: [] })).rejects.toThrow('sem rede')
+    expect(getSyncStatusSnapshot().status).toBe('offline')
+  })
+
   it('falha com instrução acionável quando o Supabase não está configurado', async () => {
     tabela = null // supabase === null, como num checkout sem .env.local
 
@@ -63,6 +104,40 @@ describe('kvGet', () => {
 })
 
 describe('kvGetWithMeta', () => {
+  it('chave inexistente também não acende falha aqui', async () => {
+    // Este é o caminho que as mutações usam antes de gravar: a PRIMEIRA
+    // gravação de um módulo ainda vazio passa por aqui e recebe PGRST116.
+    // Acender "falha ao sincronizar" nesse instante acusaria queda de conexão
+    // justamente quando a pessoa está criando o primeiro registro.
+    tabela = () =>
+      query({ data: null, error: Object.assign(new Error('Cannot coerce'), { code: 'PGRST116' }) })
+
+    await expect(kvGetWithMeta('gmad_perfil_fotos')).rejects.toMatchObject({ code: 'PGRST116' })
+    expect(getSyncStatusSnapshot().status).toBe('connected')
+  })
+
+  it('erro que NÃO é chave ausente continua marcando offline', async () => {
+    // A distinção tem que ser cirúrgica: queda de rede e permissão negada
+    // precisam continuar acendendo o indicador.
+    tabela = () => query({ data: null, error: new Error('sem rede') })
+
+    await expect(kvGetWithMeta('gmad_ativos_data')).rejects.toThrow('sem rede')
+    expect(getSyncStatusSnapshot().status).toBe('offline')
+  })
+
+  it('com `padrao`, devolve updatedAt undefined — é o que CRIA a linha', async () => {
+    // Esta é a peça que faz a primeira gravação de um módulo vazio funcionar:
+    // updatedAt undefined leva o kvSet ao upsert incondicional, em vez de um
+    // compare-and-swap contra uma versão que nunca existiu.
+    tabela = () =>
+      query({ data: null, error: Object.assign(new Error('Cannot coerce'), { code: 'PGRST116' }) })
+
+    await expect(kvGetWithMeta('gmad_estoque_data', { padrao: [] })).resolves.toEqual({
+      value: [],
+      updatedAt: undefined,
+    })
+  })
+
   it('devolve valor e updated_at — é o updated_at que serve de base pro CAS', async () => {
     const updatedAt = '2026-08-21T12:00:00.000Z'
     tabela = () => query({ data: { value: [1, 2], updated_at: updatedAt }, error: null })

@@ -7,12 +7,12 @@ const DATA_KEY = 'gmad_network_monitors'
 // no padrão kv_store, ao contrário das medições — ver measurementsService.js
 // e supabase/migrations/0001_network_monitoring.sql pra entender a diferença).
 export async function getMonitores() {
-  return kvGet(DATA_KEY)
+  return kvGet(DATA_KEY, { padrao: [] })
 }
 
 // Igual a getMonitores, mas inclui o `updated_at` da linha — ver getAssetsWithMeta.
 export async function getMonitoresWithMeta() {
-  return kvGetWithMeta(DATA_KEY)
+  return kvGetWithMeta(DATA_KEY, { padrao: [] })
 }
 
 // Grava a lista completa de pontos monitorados — cada escrita reescreve a
