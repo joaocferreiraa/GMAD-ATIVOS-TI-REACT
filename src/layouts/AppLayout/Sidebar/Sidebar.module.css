@@ -229,18 +229,28 @@
     flex: initial;
     min-height: auto;
     flex-direction: row;
-    gap: 4px;
+    gap: 3px;
+    /* Rede de segurança pra uma tela mais estreita que as previstas na conta
+       abaixo — não é o caminho normal: um módulo escondido fora da tela não
+       seria encontrado, então a conta tem que fechar sem arrastar. */
     overflow-x: auto;
   }
 
-  /* Ícone menor só na fileira horizontal: com 18px os sete módulos não
-     cabiam numa tela de 390px e era preciso arrastar pra alcançar o
-     último. Vale o contrário do desktop, onde a coluna tem largura de
-     sobra e o ícone maior ajuda a leitura.
+  /* Ícone menor só na fileira horizontal: com 18px os módulos não cabiam
+     numa tela de 390px e era preciso arrastar pra alcançar o último. Vale o
+     contrário do desktop, onde a coluna tem largura de sobra e o ícone maior
+     ajuda a leitura.
 
-     A conta que fecha em 360px (a tela mais estreita em uso): sete botões
-     de 41px (6 + 16 + 3 + 10 + 6) mais seis vãos de 4px = 311px, contra
-     312px de largura útil depois do recuo de 24px de cada lado. */
+     A conta que fecha em 360px (a tela mais estreita em uso): oito botões de
+     36px (4 + 16 + 2 + 10 + 4) mais sete vãos de 3px = 309px, contra 312px
+     de largura útil depois do recuo de 24px de cada lado. O botão é medido
+     pelo caso largo (grupo, com chevron); "Painel geral" é link solto, não
+     tem chevron e ocupa 24px, então sobra mais folga do que a conta diz.
+
+     Recalcule isto ao acrescentar um módulo: a régua anterior era de sete
+     botões de 41px e estourou justamente quando "Configurações" virou o
+     oitavo — a 360px passava 31px da largura útil, e a 390px (iPhone 12/13/14)
+     o último ficava cortado na borda. */
   .nav .navIcon,
   .nav .navIcon svg {
     width: 16px;
@@ -249,13 +259,13 @@
 
   /* O modo recolhido zera padding e gap do botão (ver .sidebar.collapsed
      .navButton): faz sentido na coluna estreita do desktop, mas aqui, numa
-     fileira horizontal, cola o ícone no chevron e transforma os sete
+     fileira horizontal, cola o ícone no chevron e transforma os oito
      módulos num bloco só. Aqui eles precisam de ar. */
   .navButton,
   .sidebar.collapsed .navButton {
-    padding: 9px 6px;
-    gap: 3px;
-    /* Alvo de toque: a largura é apertada pra caberem os sete módulos, então
+    padding: 9px 4px;
+    gap: 2px;
+    /* Alvo de toque: a largura é apertada pra caberem os oito módulos, então
        a área confortável tem que vir da altura. */
     min-height: 44px;
   }
