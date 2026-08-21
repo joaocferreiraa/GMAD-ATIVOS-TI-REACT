@@ -15,6 +15,18 @@
 // importa.
 export const NOVIDADES = [
   {
+    id: '2026-08-20-ajuda-e-perfil',
+    data: '2026-08-20',
+    titulo: 'Ajuda, perfil e esta lista',
+    itens: [
+      'Novo módulo Configurações, com a aba Ajuda: um manual do painel explicando módulo por módulo, o que cada tela faz e as dúvidas mais comuns. Tem busca — digite uma palavra e só as seções que falam dela ficam na tela.',
+      'Meu perfil, no menu da conta: escolha uma foto e informe seu setor e cargo. A foto é recortada e reduzida sozinha, então pode mandar qualquer imagem.',
+      'Esta própria lista. Um ponto laranja aparece no menu da conta sempre que houver novidade que você ainda não leu.',
+      'Os ícones da barra lateral ficaram verdes no tema claro.',
+      'O painel de sub-abas abre mais rápido ao passar o mouse.',
+    ],
+  },
+  {
     id: '2026-08-20-barra-e-graficos',
     data: '2026-08-20',
     titulo: 'Barra do topo, menu da conta e gráficos',
