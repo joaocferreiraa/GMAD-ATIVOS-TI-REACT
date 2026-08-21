@@ -56,4 +56,22 @@ export default defineConfig({
     // dependências em si, não por falta de code-splitting.
     chunkSizeWarningLimit: 700,
   },
+  // Vitest mora aqui, e não num vitest.config.js à parte, pra herdar de
+  // graça o `define` acima — sem ele, qualquer módulo que leia
+  // import.meta.env.VITE_BUILD_* quebraria só nos testes.
+  //
+  // `environment: 'node'` de propósito: o que está coberto hoje é lógica
+  // pura e serviços com o Supabase dublado, nada que toque no DOM. Um jsdom
+  // aqui custaria segundos por rodada sem cobrir uma linha a mais. No dia em
+  // que entrar teste de componente, o caminho é `environment: 'jsdom'` (mais
+  // jsdom e @testing-library/react nas devDependencies), não um segundo
+  // arquivo de config.
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.js'],
+    // O relógio falso do warrantyInfo (ver formatters.test.js) e os dublês de
+    // módulo não devem vazar de um arquivo pro outro.
+    restoreMocks: true,
+    unstubEnvs: true,
+  },
 })
